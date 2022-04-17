@@ -19,6 +19,9 @@ public class SteamVR_MyController : MonoBehaviour
 
     public bool isSegmentMode = false;
 
+    public GameObject pointSpherePrefab;
+    public GameObject pointSphere;
+
      
 
     // Start is called before the first frame update
@@ -27,6 +30,8 @@ public class SteamVR_MyController : MonoBehaviour
         if (GlobleInfo.ClientMode.Equals(CameraMode.AR)) { return; }
         laserPointer_right = GameObject.Find("[CameraRig]/Controller (right)").GetComponent<SteamVR_LaserPointer>();
         mirrorMyController = GetComponent<Mirror_MyController>();
+        pointSphere = Instantiate(pointSpherePrefab);
+        pointSphere.SetActive(false);
     }
 
     // Update is called once per frame
@@ -46,6 +51,16 @@ public class SteamVR_MyController : MonoBehaviour
                 {
                     Vector3 newPoint = laserPointer_right.endPoint + 0.02f*laserPointer_right.hitNormal;
                     selectedPoints.Add(newPoint);
+                    if(selectedPoints.Count == 0)
+                    {
+                        pointSphere.SetActive(true);
+                        pointSphere.transform.position = newPoint;
+                    }
+                    if (selectedPoints.Count == 1)
+                    {
+                        pointSphere.SetActive(false);
+                    }
+
                     Debug.Log("端点添加成功");
                 }
                 else if (selectedPoints.Count == 2)

@@ -97,6 +97,8 @@ MonoBehaviour:
     needsReinit: 0
   selectedPoints: []
   isSegmentMode: 0
+  pointSpherePrefab: {fileID: 9085032347184655347, guid: 46a1f4b88fd026a429c5e51b5c7ee466, type: 3}
+  pointSphere: {fileID: 0}
 --- !u!114 &240909502763908384
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -162,4 +164,3 @@ MonoBehaviour:
   PressSymbol: {fileID: 293570593768631736, guid: 84e7ebf45d5a41144bbf442e2ff5e2b5, type: 3}
   RotationSize: 0
   PressSize: 0
-  test: {fileID: 5623359707189648430, guid: 4ff300cf6bb3c6342a9552c4f18788c8, type: 3}

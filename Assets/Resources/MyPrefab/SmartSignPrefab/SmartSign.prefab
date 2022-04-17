@@ -115,7 +115,9 @@ MonoBehaviour:
   StarightLineCompleteConvered: 0
   straightLineMaterial: {fileID: 0}
   straightLineThickness: 0.01
-  GetDepthScript: {fileID: 0}
+  visibleVisibility: 
+  changeButton: {fileID: 0}
+  threshold: 0.0003
 --- !u!114 &5638383379504768072
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -160,3 +162,4 @@ MonoBehaviour:
   PressSymbol: {fileID: 293570593768631736, guid: 84e7ebf45d5a41144bbf442e2ff5e2b5, type: 3}
   RotationSize: 0
   PressSize: 0
+  test: {fileID: 5623359707189648430, guid: 4ff300cf6bb3c6342a9552c4f18788c8, type: 3}

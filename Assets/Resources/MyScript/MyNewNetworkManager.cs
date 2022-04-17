@@ -218,7 +218,7 @@ public class MyNewNetworkManager : NetworkManager
         {
             CreateEnvironmentMessage syncObjMessage = new CreateEnvironmentMessage {
                 startNumber = 3,
-                endNumber = 5
+                endNumber = 4
             };
             NetworkClient.Send(syncObjMessage);
         }

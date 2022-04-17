@@ -27,16 +27,21 @@ public class Depth : MonoBehaviour
 
     void OnPostRender()
     {
+        Debug.Log("onpostrender");
         RenderTexture source = m_Camera.activeTexture;
-        Graphics.Blit(source, depthTexture, Mat);  
-    }
+        Graphics.Blit(source, depthTexture, Mat);
 
-    void Update()
-    {
         RenderTexture currentActiveRT = RenderTexture.active;
         // Set the supplied RenderTexture as the active one
         RenderTexture.active = depthTexture;
         depthTextureRead.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
         RenderTexture.active = currentActiveRT;
+    }
+
+    void Update()
+    {
+        // Debug.Log("depth");
+        this.transform.position = Camera.main.transform.position;
+        this.transform.rotation = Camera.main.transform.rotation;
     }
 }

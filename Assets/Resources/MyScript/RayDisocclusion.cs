@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using System;
-
+using UnityEngine.UI;
 
 public class RayDisocclusion : MonoBehaviour
 {
@@ -12,7 +12,7 @@ public class RayDisocclusion : MonoBehaviour
     private int segmentIndex;
     private Vector3 p1, p2;     // current segment begin point/ end point
 
-    public int VisibilitySampleCount = 15, BezierSampleCount = 50, CatmullRomSampleCount = 50;
+    public int VisibilitySampleCount = 30, BezierSampleCount = 50, CatmullRomSampleCount = 50;
     public bool StarightLineCompleteConvered;
     private const int MaxBezierCurveCount = 5, MaxstraightLinesCount = 5;
     private const float DirectChangeDepthVal = 0.0002f;
@@ -29,10 +29,17 @@ public class RayDisocclusion : MonoBehaviour
     private List<GameObject[]> straightLinesArrow;
     private List<LineRenderer[]> straightLinesArrowRender;
 
-    public Depth GetDepthScript;
+    private Camera depthCamera;
+    private Depth GetDepthScript;
 
     // qinwen code
     private Mirror_MyController mirrorMyController;
+
+    // vis 
+    public bool[] visibleVisibility;
+    public Button changeButton;
+    public float threshold = 0.0003f;
+    private int interval = 0;
 
     // Start is called before the first frame update
     void Start()
@@ -47,20 +54,37 @@ public class RayDisocclusion : MonoBehaviour
         straightLinesArrowRender = new List<LineRenderer[]>(0);
 
         InitCnk(VisibilitySampleCount);
-        GetDepthScript = Camera.main.GetComponent<Depth>();
+
+        
+        if (GameObject.Find("DepthCamera"))
+        {
+            depthCamera = GameObject.Find("DepthCamera").GetComponent<Camera>();
+            GetDepthScript = GameObject.Find("DepthCamera").GetComponent<Depth>();
+        }
+        else
+        {
+            depthCamera = Camera.main;
+            GetDepthScript = Camera.main.GetComponent<Depth>();
+        }
 
         // qinwen code
         mirrorMyController = GetComponent<Mirror_MyController>();
 
-        // SegmentInfo test = new SegmentInfo();
-        // test.startPoint = new Vector3(-1.0f, 0.0f, 0.0f);
-        // test.endPoint = new Vector3(1.0f, 0.0f, 0.0f);
-        // segments.Add(test);
+        // visibleVisibility = new bool[0];
+        // changeButton = GameObject.Find("TestObj/Canvas/Change").GetComponent<Button>();
+        // changeButton.onClick.AddListener(changeDepthMap);
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (interval < 10)
+        {
+            ++interval;
+            return;
+        }
+        interval = 0;
+
         if (GlobleInfo.ClientMode.Equals(CameraMode.VR)) { return; }
         segments = mirrorMyController.clientSegmentList;
 
@@ -82,6 +106,8 @@ public class RayDisocclusion : MonoBehaviour
 
         foreach (var segment in segments)
         {
+            visibleVisibility = linesVisibility[segmentIndex];
+
             p1 = segment.startPoint;
             p2 = segment.endPoint;
 
@@ -191,12 +217,16 @@ public class RayDisocclusion : MonoBehaviour
 
     private void DrawArrow()
     {
+        if (!GetPointVisibility(p2))
+        {
+            return;
+        }
         Vector3 screenP1 = MWorldToScreenPointDepth(p1),
             screenP2 = MWorldToScreenPointDepth(p2);
         Vector2 dir = (screenP1 - screenP2).normalized;
         Vector2 verticalDir = new Vector2(-dir.y, dir.x);
 
-        int length = 5;
+        int length = 10;
         Vector3 screenArrowP1 = screenP2 + length * new Vector3(verticalDir.x, verticalDir.y) + length * new Vector3(dir.x, dir.y),
             screenArrowP2 = screenP2 - length * new Vector3(verticalDir.x, verticalDir.y) + length * new Vector3(dir.x, dir.y);
 
@@ -224,7 +254,7 @@ public class RayDisocclusion : MonoBehaviour
         return lineObj;
     }
 
-    private void InitCnk(int maxn = 20)
+    private void InitCnk(int maxn = 30)
     {
         Cnk = new int[maxn, maxn];
         for (int i = 0; i < maxn; ++i)
@@ -248,7 +278,7 @@ public class RayDisocclusion : MonoBehaviour
         Vector4 wp = p;
         wp.w = 1.0f;
 
-        Vector4 t = Camera.main.projectionMatrix * Camera.main.worldToCameraMatrix * wp;
+        Vector4 t = depthCamera.projectionMatrix * depthCamera.worldToCameraMatrix * wp;
 
         t /= t.w;
         t += new Vector4(1.0f, 1.0f, 1.0f, 0.0f);
@@ -262,15 +292,15 @@ public class RayDisocclusion : MonoBehaviour
 
     private Vector3 MWorldToScreenPointDepth(Vector3 p)
     {
-        Vector3 screenP = Camera.main.WorldToScreenPoint(p);
-        screenP.z = screenP.z / Camera.main.farClipPlane;
+        Vector3 screenP = depthCamera.WorldToScreenPoint(p);
+        screenP.z = screenP.z / depthCamera.farClipPlane;
         return screenP;
     }
 
     private Vector3 MScreenToWorldPointDepth(Vector3 p)
     {
-        p.z *= Camera.main.farClipPlane;
-        return Camera.main.ScreenToWorldPoint(p);
+        p.z *= depthCamera.farClipPlane;
+        return depthCamera.ScreenToWorldPoint(p);
     }
 
     private bool inScreenRange(Vector3 v) =>
@@ -293,7 +323,11 @@ public class RayDisocclusion : MonoBehaviour
 
     private bool GetPointVisibility(Vector3 p)
     {
-        return false;
+        Vector3 screenP = MWorldToScreenPointDepth(p);
+        if (screenP.x < 0 || screenP.x > Screen.width || screenP.y < 0 || screenP.y > Screen.height)
+            return true;
+        float minDepth = GetDepthScript.depthTextureRead.GetPixel((int)screenP.x, (int)screenP.y).r;
+        return minDepth > screenP.z;
     }
 
     private bool GetSamplePointsVisibility()
@@ -303,7 +337,7 @@ public class RayDisocclusion : MonoBehaviour
         {
             Vector3 p = scaleToVec(i);
             Vector3 screenP = MWorldToScreenPointDepth(p);
-
+            
             if (!inScreenRange(screenP))
             {
                 linesVisibility[segmentIndex][i] = true;      // ������Ļ��Χֱ��true
@@ -312,19 +346,19 @@ public class RayDisocclusion : MonoBehaviour
 
             completeOutofView = false;
             float minDepth = GetDepthScript.depthTextureRead.GetPixel((int)screenP.x, (int)screenP.y).r;
-            linesVisibility[segmentIndex][i] = minDepth >= screenP.z;        // true�ܿ���
-            if (completeConvered)   // �Ƿ���ȫ���ڵ�
+            float testVisibleThreshold = 0.00001f; ;
+            linesVisibility[segmentIndex][i] = (minDepth >= screenP.z);        // true�ܿ���
+            if (completeConvered)  
             {
                 completeConvered = !linesVisibility[segmentIndex][i];
             }
-            // Debug.Log("unity" + " " + screenP.x + " " + screenP.y + " " + screenP.z + ";;;;" + minDepth);    
+            // Debug.Log(interval + " " + screenP.x + " " + screenP.y + " " + screenP.z + ";;;;" + minDepth);    
         }
         if (completeOutofView)
         {
             completeConvered = false;
         }
 
-        // һ����ɼ��Ա߶����ɼ�������Ҳ�������ɼ�
         // for (int i = 1; i < VisibilitySampleCount - 1; ++i)
         // {
         //     if (!linesVisibility[i - 1] && linesVisibility[i] && !linesVisibility[i + 1])
@@ -381,7 +415,7 @@ public class RayDisocclusion : MonoBehaviour
     void disturbanceControlPoints(ref List<Vector3> controlPoints)
     {
         int countP = controlPoints.Count;
-        Vector3 lookAt = Camera.main.transform.forward;
+        Vector3 lookAt = depthCamera.transform.forward;
         Vector3 line = controlPoints[countP - 1] - controlPoints[0];
         Vector3 offset = Vector3.Distance(controlPoints[0], controlPoints[countP - 1]) * Vector3.Cross(line, lookAt).normalized;    // unity������ϵ
         // std::cout << offset.x << " " << offset.y << " " << offset.z << ";" << std::endl;
@@ -444,28 +478,48 @@ public class RayDisocclusion : MonoBehaviour
     private Vector3 disturbanceEndpoint(Vector3 p, Vector2 direction)
     {
         Vector3 faceP = MWorldToScreenPointDepth(p);    // ģ���ϰ������ĵ�
-
         float lastMinDepth = GetDepthScript.depthTextureRead.GetPixel((int)faceP.x, (int)faceP.y).r;
-        float threshold = 0.003f;
-        while (inScreenRange(faceP))
+        // faceP.z = lastMinDepth;
+
+        int stepp = 0;
+        while (inScreenRange(faceP + new Vector3(direction.x, direction.y)))
         {
+            faceP += new Vector3(direction.x, direction.y);     // sets z = 0
             float minDepth = GetDepthScript.depthTextureRead.GetPixel((int)faceP.x, (int)faceP.y).r;
-            // δ����ͻ��
             if (Math.Abs(minDepth - lastMinDepth) > threshold)
             {
                 break;
             }
-            // �ƶ�
-            faceP += new Vector3(direction.x, direction.y);     // sets z = 0
-            faceP.z = Math.Min(minDepth, faceP.z);
+            faceP.z = Math.Min(faceP.z, minDepth);
             lastMinDepth = minDepth;
+
+            ++stepp;
+            if (stepp > 50)
+            {
+                break;
+            }
         }
+        // Debug.Log(stepp);
+        
 
         float dis = Vector3.Distance(MScreenToWorldPointDepth(faceP), p);
 
-        faceP -= new Vector3(0.0f, 0.0f, 0.001f);
-        faceP += dis * 50.0f * new Vector3(direction.x, direction.y);
-        faceP -= dis * 150.0f * new Vector3(0.0f, 1.0f, 0.0f);
+        faceP -= new Vector3(0.0f, 0.0f, 0.0002f);
+        faceP += dis * 30.0f * new Vector3(direction.x, direction.y);
+        for (int i = 0; i < 10; i++)
+        {
+            faceP -= dis * 10.0f * new Vector3(0.0f, 1.0f, 0.0f);
+            if (!inScreenRange(faceP))
+            {
+                break;
+            }
+            float minDepth = GetDepthScript.depthTextureRead.GetPixel((int)faceP.x, (int)faceP.y).r;
+            if (minDepth < faceP.z)
+            {
+                break;
+            }
+        }
+        faceP += dis * 10.0f * new Vector3(0.0f, 1.0f, 0.0f);
 
         faceP.x = Math.Max(faceP.x, 0.0f);
         faceP.x = Math.Min(faceP.x, (float)Screen.width);
@@ -489,7 +543,8 @@ public class RayDisocclusion : MonoBehaviour
             while (i < VisibilitySampleCount - 1 && !linesVisibility[segmentIndex][++i]) { }
             Vector3 visibleP = scaleToVec(i);
 
-            Vector3 edgeP1 = disturbanceEndpoint(p1, screenP12 * -1.0f);
+            // Vector3 edgeP1 = disturbanceEndpoint(p1, screenP12 * -1.0f);
+            Vector3 edgeP1 = disturbanceEndpoint(p1, new Vector2(-1.0f, 0.0f));
             Vector3 extraP = p1 + (visibleP - edgeP1);
             var catmullRomP = new List<Vector3> { extraP, p1, edgeP1, visibleP, extraP };
             DrawCatmullRomCurve(catmullRomP, ref straightLinesCurveRender[segmentIndex][MaxBezierCurveCount]);
@@ -501,7 +556,8 @@ public class RayDisocclusion : MonoBehaviour
             while (i > 0 && !linesVisibility[segmentIndex][--i]) { }
             Vector3 visibleP = scaleToVec(i);
 
-            Vector3 edgeP2 = disturbanceEndpoint(p2, screenP12);
+            // Vector3 edgeP2 = disturbanceEndpoint(p2, screenP12);
+            Vector3 edgeP2 = disturbanceEndpoint(p2, new Vector2(1.0f, 0.0f));
             Vector3 extraP = p2 + (visibleP - edgeP2);
             var catmullRomP = new List<Vector3> { extraP, p2, edgeP2, visibleP, extraP };
 
@@ -522,7 +578,7 @@ public class RayDisocclusion : MonoBehaviour
                 p2 = controlPoints[i + 2], p3 = controlPoints[i + 3];
 
             float t = 0, step = 1.0f / CatmullRomSampleCount;
-            while (t <= 1)
+            while (t <= 1 + 0.0001f)
             {
                 Vector3 c0 = p1;
                 Vector3 c1 = (p2 - p0) * factor;
@@ -550,8 +606,8 @@ public class RayDisocclusion : MonoBehaviour
 
         while (GetSamplePointsVisibility())
         {
-            p1 += step * Camera.main.transform.up;
-            p2 += step * Camera.main.transform.up;
+            p1 += step * depthCamera.transform.up;
+            p2 += step * depthCamera.transform.up;
             step *= 2;
         }
     }
@@ -559,13 +615,19 @@ public class RayDisocclusion : MonoBehaviour
     private void AdjustPointOrder()
     {
         Vector3 line = p2 - p1;
-        float dir = Vector3.Dot(line, Camera.main.transform.right);
+        float dir = Vector3.Dot(line, depthCamera.transform.right);
         if (dir < 0)
         {
             Vector3 t = p1;
             p1 = p2;
             p2 = t;
         }
+    }
+
+    private void changeDepthMap()
+    {
+        GetDepthScript = Camera.main.GetComponent<Depth>();
+        // depthCamera = GameObject.Find("DepthCamera").GetComponent<Camera>();
     }
 }
 

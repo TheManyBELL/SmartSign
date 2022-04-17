@@ -14,6 +14,7 @@ public class MarkerPlacementAR : MonoBehaviour
     private List<GameObject> PressSymbolList;
 
     private Mirror_MyController mirror_MyController;
+    private Camera depthCamera;
     private Depth GetDepthScript;
 
     public int RotationSize, PressSize;
@@ -25,7 +26,16 @@ public class MarkerPlacementAR : MonoBehaviour
         RotationSymbolInfoList = new List<SymbolInfo>();
         PressSymbolInfoList = new List<SymbolInfo>();
         mirror_MyController = GetComponent<Mirror_MyController>();
-        GetDepthScript = Camera.main.GetComponent<Depth>();
+        if (GameObject.Find("DepthCamera"))
+        {
+            depthCamera = GameObject.Find("DepthCamera").GetComponent<Camera>();
+            GetDepthScript = GameObject.Find("DepthCamera").GetComponent<Depth>();
+        }
+        else
+        {
+            depthCamera = Camera.main;
+            GetDepthScript = Camera.main.GetComponent<Depth>();
+        }
     }
 
     // Start is called before the first frame update
@@ -80,22 +90,25 @@ public class MarkerPlacementAR : MonoBehaviour
 
         while (!GameObjectVisible(t))
         {
-            t.transform.position += step * Camera.main.transform.up;
-            step *= 2;
+            t.transform.position += step * depthCamera.transform.up;
+            // step *= 2;
         }
     }
 
     private Vector3 MWorldToScreenPointDepth(Vector3 p)
     {
-        Vector3 screenP = Camera.main.WorldToScreenPoint(p);
-        screenP.z = screenP.z / Camera.main.farClipPlane;
+        Vector3 screenP = depthCamera.WorldToScreenPoint(p);
+        screenP.z = screenP.z / depthCamera.farClipPlane;
         return screenP;
     }
 
     private bool GetPointVisibility(Vector3 p)
     {
         Vector3 screenP = MWorldToScreenPointDepth(p);
+        if (screenP.x < 0 || screenP.x > Screen.width || screenP.y < 0 || screenP.y > Screen.height)
+            return true;
         float minDepth = GetDepthScript.depthTextureRead.GetPixel((int)screenP.x, (int)screenP.y).r;
+
         return minDepth > screenP.z;
     }
 

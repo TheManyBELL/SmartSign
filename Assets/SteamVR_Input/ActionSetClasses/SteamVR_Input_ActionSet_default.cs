@@ -161,6 +161,30 @@ namespace Valve.VR
             }
         }
         
+        public virtual SteamVR_Action_Boolean SwitchSymbolMode
+        {
+            get
+            {
+                return SteamVR_Actions.default_SwitchSymbolMode;
+            }
+        }
+        
+        public virtual SteamVR_Action_Boolean ConfirmSelection
+        {
+            get
+            {
+                return SteamVR_Actions.default_ConfirmSelection;
+            }
+        }
+        
+        public virtual SteamVR_Action_Boolean DeleteLastSymbol
+        {
+            get
+            {
+                return SteamVR_Actions.default_DeleteLastSymbol;
+            }
+        }
+        
         public virtual SteamVR_Action_Vibration Haptic
         {
             get

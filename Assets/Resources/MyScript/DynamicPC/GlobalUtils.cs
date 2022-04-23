@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GlobalUtils : MonoBehaviour
 {
-    private Camera depthCamera;
+    public Camera depthCamera;
     private DepthDPC GetDepthScript;
 
     void Awake()
@@ -41,10 +41,9 @@ public class GlobalUtils : MonoBehaviour
     public bool GameObjectVisible(GameObject t)
     {
         Bounds tAABB;
-        var child = t.transform.GetChild(0).gameObject;
-        if (child != null)
+        if (t.GetComponentsInChildren<Transform>(true).Length > 1)
         {
-            tAABB = child.GetComponent<MeshRenderer>().bounds;
+            tAABB = t.transform.GetChild(0).GetComponent<MeshRenderer>().bounds;
         }
         else
         {

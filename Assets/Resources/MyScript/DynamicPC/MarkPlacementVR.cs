@@ -20,14 +20,19 @@ public class MarkPlacementVR : MonoBehaviour
     
     public GameObject rotateSymbolPrefab;
     public GameObject pressSymbolPrefab;
-    private GameObject copySymbol;
+    private GameObject rotateSymbol;
+    private GameObject pressSymbol;
 
-    private GlobalUtils globalUtils;
+    public GlobalUtils globalUtils;
 
     public GameObject assistPlaceSpherePrefab;
     private GameObject assistPlaceSphere;
     public GameObject assistColliderSpherePrefab;
     private GameObject assistColliderSphere;
+
+
+    public GameObject drawpointprefab;
+    public List<GameObject> drawpointList;
 
     private enum SymbolPRState
     {
@@ -37,7 +42,7 @@ public class MarkPlacementVR : MonoBehaviour
 
     private void Awake()
     {
-        globalUtils.GetComponentInParent<GlobalUtils>();
+        globalUtils = GetComponentInParent<GlobalUtils>();
     }
 
     // Start is called before the first frame update
@@ -54,6 +59,14 @@ public class MarkPlacementVR : MonoBehaviour
         assistColliderSphere = Instantiate(assistColliderSpherePrefab);
         assistColliderSphere.layer = LayerMask.NameToLayer("VRCameraUnvisible"); ;
         assistColliderSphere.SetActive(false);
+
+        rotateSymbol = Instantiate(rotateSymbolPrefab);
+        rotateSymbol.SetActive(false);
+
+        pressSymbol = Instantiate(pressSymbolPrefab);
+        pressSymbol.SetActive(false);
+
+        drawpointList = new List<GameObject>();
     }
 
     // Update is called once per frame
@@ -62,15 +75,18 @@ public class MarkPlacementVR : MonoBehaviour
         if (switchSymbolMode.GetStateDown(SteamVR_Input_Sources.RightHand))
         {
             SwitchSymbolMode();
+            Debug.Log("switch symbol mode: " + currentSymbolMode);
         }
         if (currentSymbolMode.Equals(SymbolMode.ARROW))
         {
             if (confirmSelection.GetStateDown(SteamVR_Input_Sources.RightHand))
             {
+                Debug.Log("press the select button");
                 AddArrowPoint();
             }
             if (deleteLastSymbol.GetStateDown(SteamVR_Input_Sources.RightHand))
             {
+                Debug.Log("press the delete button");
                 DeleteLastArrow();
             }
         }
@@ -93,6 +109,7 @@ public class MarkPlacementVR : MonoBehaviour
         {
             currentPointList.Clear();
         }
+        nowPRState = SymbolPRState.Inactive;
 
         // switch mode
         int n_symbol = System.Enum.GetNames(typeof(SymbolMode)).Length; // get symbol numbers
@@ -103,19 +120,34 @@ public class MarkPlacementVR : MonoBehaviour
 
     private void AddArrowPoint() {
         Vector3 newPoint = GetCollisionPoint();
+        Debug.Log("select point is:" + newPoint.ToString());
+
+
         int currentPointNumber = currentPointList.Count;
         if (currentPointNumber < 2)
         {
+            GameObject pointobj = Instantiate(drawpointprefab);
+            pointobj.transform.position = newPoint;
+            pointobj.layer = LayerMask.NameToLayer("DepthCameraUnivisible");
+            drawpointList.Add(pointobj);
+            Debug.Log("current point number is:" + currentPointNumber + ", add new point");
             currentPointList.Add(newPoint);
+
         }
         if (currentPointNumber == 2)
         {
+            Debug.Log("current point number is:" + currentPointNumber + ", update segment");
             myController.CmdUpdateSegmentInfo(new SegmentInfo()
             {
                 startPoint = currentPointList[0],
                 endPoint = currentPointList[1]
             });
             currentPointList.Clear();
+            for(int i = 0; i < drawpointList.Count; i++)
+            {
+                Destroy(drawpointList[i]);
+            }
+            drawpointList.Clear();
         }
     }
 
@@ -143,7 +175,10 @@ public class MarkPlacementVR : MonoBehaviour
 
     private void AddRotation()
     {
-        nowPRState = SymbolPRState.SelectPosition;
+        if(nowPRState == SymbolPRState.Inactive)
+        {
+            nowPRState = SymbolPRState.SelectPosition;
+        }
 
         Ray ray = new Ray(rightHand.transform.position, rightHand.transform.forward);
         RaycastHit hitInfo;
@@ -151,34 +186,42 @@ public class MarkPlacementVR : MonoBehaviour
         int onlyCastAssitSphere = 1 << (assitSphereLayer);
 
         // fisrt select assist sphere position
-        if (nowPRState.Equals(SymbolPRState.SelectPosition))
+        if (nowPRState == SymbolPRState.SelectPosition)
         {
             if (confirmSelection.GetStateDown(SteamVR_Input_Sources.RightHand))
             {
+                Debug.Log("Rotation symbol, select assist sphere position");
+                assistPlaceSphere.SetActive(true);
                 assistPlaceSphere.transform.position = GetCollisionPoint();
                 assistPlaceSphere.GetComponent<MeshRenderer>().enabled = true;
 
                 nowPRState = SymbolPRState.SelectRotation;
+                rotateSymbol.SetActive(true);
             }
         }
 
         // second select symbol rotation on surface, and confirm
-        if (nowPRState.Equals(SymbolPRState.SelectRotation))
+        else if (nowPRState.Equals(SymbolPRState.SelectRotation))
         {
-            if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, onlyCastAssitSphere))
+            Debug.Log("state is select rotation");
+            if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity,onlyCastAssitSphere))
             {
-                copySymbol.transform.position = hitInfo.point;
-                copySymbol.transform.forward = hitInfo.normal;
+                Debug.Log("ray hit");
+                rotateSymbol.transform.position = hitInfo.point;
+                rotateSymbol.transform.forward = hitInfo.normal;
                 if (confirmSelection.GetStateDown(SteamVR_Input_Sources.RightHand))
                 {
+                    Debug.Log("Rotation symbol, select symbol position");
                     assistPlaceSphere.SetActive(false);
                     nowPRState = SymbolPRState.Inactive;
                     myController.CmdUpdateRotationInfo(new SymbolInfo()
                     {
                         up = hitInfo.normal,
-                        position = copySymbol.transform.position
+                        position = rotateSymbol.transform.position
                     });
+                    rotateSymbol.SetActive(false);
                 }
+
             }
         }
 
@@ -186,7 +229,10 @@ public class MarkPlacementVR : MonoBehaviour
 
     private void AddPress()
     {
-        nowPRState = SymbolPRState.SelectPosition;
+        if (nowPRState == SymbolPRState.Inactive)
+        {
+            nowPRState = SymbolPRState.SelectPosition;
+        }
 
         Ray ray = new Ray(rightHand.transform.position, rightHand.transform.forward);
         RaycastHit hitInfo;
@@ -197,27 +243,33 @@ public class MarkPlacementVR : MonoBehaviour
         {
             if (confirmSelection.GetStateDown(SteamVR_Input_Sources.RightHand))
             {
+                Debug.Log("Press symbol, select assist sphere position");
+                assistPlaceSphere.SetActive(true);
                 assistPlaceSphere.transform.position = GetCollisionPoint();
                 assistPlaceSphere.GetComponent<MeshRenderer>().enabled = true;
                 nowPRState = SymbolPRState.SelectRotation;
+                pressSymbol.SetActive(true);
             }
         }
             
-        if (nowPRState.Equals(SymbolPRState.SelectRotation))
+        else if (nowPRState.Equals(SymbolPRState.SelectRotation))
         {
             if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, onlyCastAssitSphere))
             {
-                copySymbol.transform.position = hitInfo.point + 0.05f * hitInfo.normal;
-                copySymbol.transform.right = hitInfo.normal;
+                
+                pressSymbol.transform.position = hitInfo.point + 0.05f * hitInfo.normal;
+                pressSymbol.transform.right = hitInfo.normal;
                 if (confirmSelection.GetStateDown(SteamVR_Input_Sources.RightHand))
                 {
+                    Debug.Log("Press symbol, select symbol position");
                     assistPlaceSphere.SetActive(false);
                     nowPRState = SymbolPRState.Inactive;
                     myController.CmdUpdatePressInfo(new SymbolInfo()
                     {
                         up = hitInfo.normal,
-                        position = copySymbol.transform.position
+                        position = pressSymbol.transform.position
                     });
+                    pressSymbol.SetActive(false);
                 }
             }
         }

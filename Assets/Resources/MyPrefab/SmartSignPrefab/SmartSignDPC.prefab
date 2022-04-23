@@ -45,17 +45,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   switchSymbolMode:
-    actionPath: 
+    actionPath: /actions/default/in/SwitchSymbolMode
     needsReinit: 0
   confirmSelection:
-    actionPath: 
+    actionPath: /actions/default/in/ConfirmSelection
     needsReinit: 0
   deleteLastSymbol:
-    actionPath: 
+    actionPath: /actions/default/in/DeleteLastSymbol
     needsReinit: 0
-  assistRotateSpherePrefab: {fileID: 1917233786080185256, guid: 78471b7db4b064640b6d103faa75dc0a, type: 3}
   rotateSymbolPrefab: {fileID: 7486974711368413920, guid: 3562510d2867c26459ad1c13afb77960, type: 3}
   pressSymbolPrefab: {fileID: 293570593768631736, guid: 84e7ebf45d5a41144bbf442e2ff5e2b5, type: 3}
+  globalUtils: {fileID: 0}
+  assistPlaceSpherePrefab: {fileID: 1917233786080185256, guid: 78471b7db4b064640b6d103faa75dc0a, type: 3}
+  assistColliderSpherePrefab: {fileID: 9085032347184655347, guid: 46a1f4b88fd026a429c5e51b5c7ee466, type: 3}
+  drawpointprefab: {fileID: 9085032347184655347, guid: 46a1f4b88fd026a429c5e51b5c7ee466, type: 3}
+  drawpointList: []
 --- !u!114 &2367881419876713641
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -69,7 +73,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   segmentMaterial: {fileID: 2100000, guid: aed84d6e0166a2545a6cb12b72ad09eb, type: 2}
-  segmentThickness: 0.1
+  segmentThickness: 0.01
   RotateSymbol: {fileID: 7486974711368413920, guid: 3562510d2867c26459ad1c13afb77960, type: 3}
   PressSymbol: {fileID: 293570593768631736, guid: 84e7ebf45d5a41144bbf442e2ff5e2b5, type: 3}
 --- !u!1 &2367881420052549957
@@ -83,7 +87,7 @@ GameObject:
   - component: {fileID: 2367881420052549959}
   - component: {fileID: 2367881420052549958}
   - component: {fileID: 2367881420052549960}
-  - component: {fileID: 3952526956077249072}
+  - component: {fileID: 1131522259775670549}
   m_Layer: 0
   m_Name: SmartSignDPC
   m_TagString: Untagged
@@ -140,7 +144,7 @@ MonoBehaviour:
   syncInterval: 0.1
   VRController: {fileID: 2367881419876713638}
   ARController: {fileID: 2367881420239525804}
---- !u!114 &3952526956077249072
+--- !u!114 &1131522259775670549
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -149,16 +153,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2367881420052549957}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 53b994a3b54183b4fa75a5d1148a6ca0, type: 3}
+  m_Script: {fileID: 11500000, guid: a7ac7808cde3f9a4aa3c9aee54eb6ab4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  depthTexture: {fileID: 0}
-  depthTextureRead: {fileID: 0}
-  Mat: {fileID: 0}
-  colorRT: {fileID: 0}
-  depthRT: {fileID: 0}
-  test: {fileID: 0}
-  origin: 1
+  depthCamera: {fileID: 0}
 --- !u!1 &2367881420239525804
 GameObject:
   m_ObjectHideFlags: 0

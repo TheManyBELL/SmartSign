@@ -111,7 +111,7 @@ public class VR_PlayerScript : NetworkBehaviour
         RayInfo rayInfoUpdateL = new RayInfo();
         rayInfoUpdateR.handMode = HandMode.right;
         rayInfoUpdateL.handMode = HandMode.left;
-
+        
         if (controllerRight.isHit)
         {
             rayInfoUpdateR.startPoint = controllerRight.startPoint;

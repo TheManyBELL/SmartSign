@@ -9,8 +9,6 @@ public class ClientModeController : MonoBehaviour
     public GameObject MixedRealitySceneContent;
     public GameObject CameraRig;
 
-    public GameObject DepthCamera;
-
     void Start()
     {
         if (GlobleInfo.ClientMode.Equals(CameraMode.VR))
@@ -19,7 +17,6 @@ public class ClientModeController : MonoBehaviour
             MixedRealityToolkit.SetActive(false);
             MixedRealityPlayspace.SetActive(false);
             MixedRealitySceneContent.SetActive(false);
-            DepthCamera.SetActive(true);
         }
         if (GlobleInfo.ClientMode.Equals(CameraMode.AR))
         {
@@ -27,7 +24,6 @@ public class ClientModeController : MonoBehaviour
             MixedRealityToolkit.SetActive(true);
             MixedRealityPlayspace.SetActive(true);
             MixedRealitySceneContent.SetActive(true);
-            DepthCamera.SetActive(true);
         }
     }
 }

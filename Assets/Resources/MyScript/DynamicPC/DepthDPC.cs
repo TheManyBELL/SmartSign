@@ -19,6 +19,11 @@ public class DepthDPC : MonoBehaviour
     // 
     public bool origin = true;
 
+    private void Awake()
+    {
+        
+    }
+
     void Start()
     {
         m_Camera = gameObject.GetComponent<Camera>();
@@ -26,11 +31,11 @@ public class DepthDPC : MonoBehaviour
         depthTexture = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.RFloat);
 
         // point cloud depth
-        colorRT = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.Default);
+        colorRT = new RenderTexture(Screen.width, Screen.height, 24, RenderTextureFormat.Default);
         depthRT = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.Depth);
+        
 
         test = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.RFloat);
-
         // depth to read
         depthTextureRead = new Texture2D(Screen.width, Screen.height, TextureFormat.RFloat, true);
 
@@ -55,6 +60,12 @@ public class DepthDPC : MonoBehaviour
     {
         if (origin) return;
 
+        var depthBufferSize = new Vector2Int(depthRT.width, depthRT.height);
+        var targetSize = new Vector2Int(colorRT.width, colorRT.height);
+        if (targetSize != depthBufferSize)
+        {
+            Debug.Log($"Target {colorRT} has a buffer size of {targetSize}, which mismatches depth buffer size of {depthBufferSize}.");
+        }
         m_Camera.SetTargetBuffers(colorRT.colorBuffer, depthRT.depthBuffer);
     }
 

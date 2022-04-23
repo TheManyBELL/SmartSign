@@ -53,6 +53,12 @@ namespace Valve.VR
         
         private static SteamVR_Action_Boolean p_default_ConfirmRotation;
         
+        private static SteamVR_Action_Boolean p_default_SwitchSymbolMode;
+        
+        private static SteamVR_Action_Boolean p_default_ConfirmSelection;
+        
+        private static SteamVR_Action_Boolean p_default_DeleteLastSymbol;
+        
         private static SteamVR_Action_Vibration p_default_Haptic;
         
         private static SteamVR_Action_Vector2 p_platformer_Move;
@@ -213,6 +219,30 @@ namespace Valve.VR
             }
         }
         
+        public static SteamVR_Action_Boolean default_SwitchSymbolMode
+        {
+            get
+            {
+                return SteamVR_Actions.p_default_SwitchSymbolMode.GetCopy<SteamVR_Action_Boolean>();
+            }
+        }
+        
+        public static SteamVR_Action_Boolean default_ConfirmSelection
+        {
+            get
+            {
+                return SteamVR_Actions.p_default_ConfirmSelection.GetCopy<SteamVR_Action_Boolean>();
+            }
+        }
+        
+        public static SteamVR_Action_Boolean default_DeleteLastSymbol
+        {
+            get
+            {
+                return SteamVR_Actions.p_default_DeleteLastSymbol.GetCopy<SteamVR_Action_Boolean>();
+            }
+        }
+        
         public static SteamVR_Action_Vibration default_Haptic
         {
             get
@@ -298,6 +328,9 @@ namespace Valve.VR
                     SteamVR_Actions.default_PlaceRotButton,
                     SteamVR_Actions.default_PlacePressButton,
                     SteamVR_Actions.default_ConfirmRotation,
+                    SteamVR_Actions.default_SwitchSymbolMode,
+                    SteamVR_Actions.default_ConfirmSelection,
+                    SteamVR_Actions.default_DeleteLastSymbol,
                     SteamVR_Actions.default_Haptic,
                     SteamVR_Actions.platformer_Move,
                     SteamVR_Actions.platformer_Jump,
@@ -325,6 +358,9 @@ namespace Valve.VR
                     SteamVR_Actions.default_PlaceRotButton,
                     SteamVR_Actions.default_PlacePressButton,
                     SteamVR_Actions.default_ConfirmRotation,
+                    SteamVR_Actions.default_SwitchSymbolMode,
+                    SteamVR_Actions.default_ConfirmSelection,
+                    SteamVR_Actions.default_DeleteLastSymbol,
                     SteamVR_Actions.platformer_Move,
                     SteamVR_Actions.platformer_Jump,
                     SteamVR_Actions.buggy_Steering,
@@ -354,6 +390,9 @@ namespace Valve.VR
                     SteamVR_Actions.default_PlaceRotButton,
                     SteamVR_Actions.default_PlacePressButton,
                     SteamVR_Actions.default_ConfirmRotation,
+                    SteamVR_Actions.default_SwitchSymbolMode,
+                    SteamVR_Actions.default_ConfirmSelection,
+                    SteamVR_Actions.default_DeleteLastSymbol,
                     SteamVR_Actions.platformer_Jump,
                     SteamVR_Actions.buggy_Brake,
                     SteamVR_Actions.buggy_Reset};
@@ -383,6 +422,9 @@ namespace Valve.VR
                     SteamVR_Actions.default_PlaceRotButton,
                     SteamVR_Actions.default_PlacePressButton,
                     SteamVR_Actions.default_ConfirmRotation,
+                    SteamVR_Actions.default_SwitchSymbolMode,
+                    SteamVR_Actions.default_ConfirmSelection,
+                    SteamVR_Actions.default_DeleteLastSymbol,
                     SteamVR_Actions.platformer_Move,
                     SteamVR_Actions.platformer_Jump,
                     SteamVR_Actions.buggy_Steering,
@@ -411,6 +453,9 @@ namespace Valve.VR
             SteamVR_Actions.p_default_PlaceRotButton = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/default/in/PlaceRotButton")));
             SteamVR_Actions.p_default_PlacePressButton = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/default/in/PlacePressButton")));
             SteamVR_Actions.p_default_ConfirmRotation = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/default/in/ConfirmRotation")));
+            SteamVR_Actions.p_default_SwitchSymbolMode = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/default/in/SwitchSymbolMode")));
+            SteamVR_Actions.p_default_ConfirmSelection = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/default/in/ConfirmSelection")));
+            SteamVR_Actions.p_default_DeleteLastSymbol = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/default/in/DeleteLastSymbol")));
             SteamVR_Actions.p_default_Haptic = ((SteamVR_Action_Vibration)(SteamVR_Action.Create<SteamVR_Action_Vibration>("/actions/default/out/Haptic")));
             SteamVR_Actions.p_platformer_Move = ((SteamVR_Action_Vector2)(SteamVR_Action.Create<SteamVR_Action_Vector2>("/actions/platformer/in/Move")));
             SteamVR_Actions.p_platformer_Jump = ((SteamVR_Action_Boolean)(SteamVR_Action.Create<SteamVR_Action_Boolean>("/actions/platformer/in/Jump")));

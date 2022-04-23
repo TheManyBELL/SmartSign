@@ -89,6 +89,7 @@ public class MirrorController : NetworkBehaviour
 
     void Awake()
     {
+
         Debug.Log("Smart Sign Start");
         clientSegmentList = new List<SegmentInfo>();
         clientRotationList = new List<SymbolInfo>();

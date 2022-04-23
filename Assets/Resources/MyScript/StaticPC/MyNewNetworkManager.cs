@@ -18,7 +18,6 @@ public class MyNewNetworkManager : NetworkManager
     public bool vrMode = false;
     public bool arMode = false;
 
-    
 
     #region Unity Callbacks
 
@@ -214,14 +213,15 @@ public class MyNewNetworkManager : NetworkManager
 
         NetworkClient.Send(characterMessage);
 
-        //if (GlobleInfo.ClientMode.Equals(CameraMode.AR))
-        //{
-        //    CreateEnvironmentMessage syncObjMessage = new CreateEnvironmentMessage {
-        //        startNumber = 3,
-        //        endNumber = 3
-        //    };
-        //    NetworkClient.Send(syncObjMessage);
-        //}
+        if (GlobleInfo.ClientMode.Equals(CameraMode.AR))
+        {
+            CreateEnvironmentMessage syncObjMessage = new CreateEnvironmentMessage
+            {
+                startNumber = 3,
+                endNumber = 3
+            };
+            NetworkClient.Send(syncObjMessage);
+        }
 
         if (GlobleInfo.ClientMode.Equals(CameraMode.VR))
         {
@@ -278,7 +278,7 @@ public class MyNewNetworkManager : NetworkManager
     public override void OnStartServer() {
         base.OnStartServer();
         NetworkServer.RegisterHandler<CreateMMOCharacterMessage>(OnCreateCharacter);
-        // NetworkServer.RegisterHandler<CreateEnvironmentMessage>(OnSyncObject);
+        NetworkServer.RegisterHandler<CreateEnvironmentMessage>(OnSyncObject);
         NetworkServer.RegisterHandler<CreateSmartSignMessage>(OnSmartSign);
     }
 

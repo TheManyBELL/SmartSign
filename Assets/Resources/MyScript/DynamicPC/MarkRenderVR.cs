@@ -11,7 +11,7 @@ public class MarkRenderVR : MonoBehaviour
     private List<GameObject> pressObjectList;
 
     public Material segmentMaterial;
-    public float segmentThickness = 0.1f;
+    public float segmentThickness = 0.01f;
 
     public GameObject RotateSymbol;
     public GameObject PressSymbol;
@@ -43,7 +43,7 @@ public class MarkRenderVR : MonoBehaviour
         int n_curSegment = n_curSegmentObj / 3; // number of segment
         int n_clientSegment = mirrorController.clientSegmentList.Count; // number of latest segment list
 
-        int delta = n_curSegment - n_clientSegment;
+        int delta = n_clientSegment - n_curSegment;
         // delete segment
         for(int i = 0; i > delta; --i)
         {
@@ -58,6 +58,7 @@ public class MarkRenderVR : MonoBehaviour
         for(int i = 0; i < delta; ++i)
         {
             SegmentInfo segment = mirrorController.clientSegmentList[n_curSegment + i];
+            Debug.Log("point1:" + segment.startPoint.ToString() + ",point2:" + segment.endPoint.ToString());
             DrawSegment(segment);
             DrawArrow(segment);
         }
@@ -68,7 +69,7 @@ public class MarkRenderVR : MonoBehaviour
         int n_curRotationObj = rotationObjectList.Count;
         int n_clientRotation = mirrorController.clientRotationList.Count;
 
-        int delta = n_curRotationObj - n_clientRotation;
+        int delta = n_clientRotation - n_curRotationObj;
         // delete rotation 
         for (int i = 0; i > delta; --i)
         {
@@ -93,7 +94,7 @@ public class MarkRenderVR : MonoBehaviour
         int n_curPressObj = pressObjectList.Count;
         int n_clientPress = mirrorController.clientPressList.Count;
 
-        int delta = n_curPressObj - n_clientPress;
+        int delta = n_clientPress - n_curPressObj;
         // delete press 
         for (int i = 0; i > delta; --i)
         {
@@ -121,13 +122,16 @@ public class MarkRenderVR : MonoBehaviour
     {
         GameObject segmentObj = new GameObject();
         segmentObj.transform.SetParent(this.transform);
+        segmentObj.layer = LayerMask.NameToLayer("DepthCameraUnivisible"); 
         LineRenderer segmentRender = segmentObj.AddComponent<LineRenderer>();
         segmentRender.material = segmentMaterial;
         segmentRender.startWidth = segmentThickness;
         segmentRender.endWidth = segmentThickness;
         segmentRender.numCapVertices = 2;
         segmentRender.positionCount = 2;
+        segmentRender.SetPosition(0, segmentInfo.startPoint);
         segmentRender.SetPosition(1, segmentInfo.endPoint);
+        
 
         segmentObjectList.Add(segmentObj);
     }
@@ -143,7 +147,7 @@ public class MarkRenderVR : MonoBehaviour
         Vector2 dir = (screenP1 - screenP2).normalized;
         Vector2 verticalDir = new Vector2(-dir.y, dir.x);
 
-        int length = 5;
+        int length = 20;
         Vector3 screenArrowP1 = screenP2 + length * new Vector3(verticalDir.x, verticalDir.y) + length * new Vector3(dir.x, dir.y),
             screenArrowP2 = screenP2 - length * new Vector3(verticalDir.x, verticalDir.y) + length * new Vector3(dir.x, dir.y);
 

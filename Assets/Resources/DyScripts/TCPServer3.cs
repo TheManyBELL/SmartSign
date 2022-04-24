@@ -58,7 +58,9 @@ public class TCPServer3 : MonoBehaviour
     private int pointcloud_index = 0;
     private bool camera_index_arrived = false;
 
-    public string hostIP;
+    private PointCloudController pointCloudController;
+    private string hostip;
+
     private void Awake()
     {
         //DontDestroyOnLoad(this);
@@ -67,7 +69,17 @@ public class TCPServer3 : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        IPAddress ipAddress = IPAddress.Parse(hostIP);
+        pointCloudController = GetComponentInParent<PointCloudController>();
+        if (GlobleInfo.ClientMode == CameraMode.AR)
+        {
+            hostip = pointCloudController.hostIP_ar;
+        }
+        else if (GlobleInfo.ClientMode == CameraMode.VR)
+        {
+            hostip = pointCloudController.hostIP_vr;
+        }
+        Debug.Log("Server3 host ip is:" + hostip);
+        IPAddress ipAddress = IPAddress.Parse(hostip);
         //IPAddress ipAddress = IPAddress.Parse("10.42.0.8");
         IPEndPoint localEndPoint = new IPEndPoint(ipAddress, 11002);
 

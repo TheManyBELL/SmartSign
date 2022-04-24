@@ -17,7 +17,10 @@ public class MyNewNetworkManager : NetworkManager
     [Tooltip("从AR和VR两种模式中选择仅只选择一个")]
     public bool vrMode = false;
     public bool arMode = false;
-
+    [Header("Sync Environment")]
+    [Tooltip("同步场景的开始序号和结束序号")]
+    public int syncEnv_start=0;
+    public int syncEnv_end = 0;
 
     #region Unity Callbacks
 
@@ -213,14 +216,18 @@ public class MyNewNetworkManager : NetworkManager
 
         NetworkClient.Send(characterMessage);
 
-        if (GlobleInfo.ClientMode.Equals(CameraMode.AR))
+        if (GlobleInfo.ClientMode.Equals(CameraMode.VR))
         {
-            CreateEnvironmentMessage syncObjMessage = new CreateEnvironmentMessage
+            if (syncEnv_end >= syncEnv_start)
             {
-                startNumber = 3,
-                endNumber = 3
-            };
-            NetworkClient.Send(syncObjMessage);
+                CreateEnvironmentMessage syncObjMessage = new CreateEnvironmentMessage
+                {
+                    startNumber = syncEnv_start,
+                    endNumber = syncEnv_end
+                };
+                NetworkClient.Send(syncObjMessage);
+            }
+            
         }
 
         if (GlobleInfo.ClientMode.Equals(CameraMode.VR))

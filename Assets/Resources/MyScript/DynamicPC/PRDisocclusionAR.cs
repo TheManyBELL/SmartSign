@@ -25,7 +25,7 @@ public class PRDisocclusionAR : MonoBehaviour
         PressSymbolList = new List<GameObject>();
         RotationSymbolInfoList = new List<SymbolInfo>();
         PressSymbolInfoList = new List<SymbolInfo>();
-        mirrorController = GetComponent<MirrorController>();
+        mirrorController = GetComponentInParent<MirrorController>();
 
         globalUtils = GetComponentInParent<GlobalUtils>();
     }

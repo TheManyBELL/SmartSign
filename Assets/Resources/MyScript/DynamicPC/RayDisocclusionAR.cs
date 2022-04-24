@@ -69,7 +69,7 @@ public class RayDisocclusionAR : MonoBehaviour
         }
 
         // qinwen code
-        mirrorMyController = GetComponent<MirrorController>();
+        mirrorMyController = GetComponentInParent<MirrorController>();
 
         // visibleVisibility = new bool[0];
         // changeButton = GameObject.Find("TestObj/Canvas/Change").GetComponent<Button>();

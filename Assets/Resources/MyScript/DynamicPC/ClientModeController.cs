@@ -9,8 +9,13 @@ public class ClientModeController : MonoBehaviour
     public GameObject MixedRealitySceneContent;
     public GameObject CameraRig;
 
-    void Start()
+    void OnValidate()
     {
+        if(MixedRealityToolkit == null || MixedRealityPlayspace==null || MixedRealitySceneContent==null || CameraRig == null)
+        {
+            Debug.Log("some object is null");
+            return;
+        }
         if (GlobleInfo.ClientMode.Equals(CameraMode.VR))
         {
             CameraRig.SetActive(true);

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GlobalUtils : MonoBehaviour
 {
-    public Camera depthCamera;
+    private Camera depthCamera;
     private DepthDPC GetDepthScript;
 
     void Awake()

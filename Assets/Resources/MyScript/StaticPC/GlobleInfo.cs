@@ -71,6 +71,32 @@ public enum CameraMode { AR, VR }
 
 public enum SymbolMode { ARROW=0,ROTATE,PRESS}
 
+/// <summary>
+/// [VR端处理所有计算]完整的标识信息数据结构
+/// DPC:dynamic point cloud VR calculate only
+/// </summary>
+public struct DPCArrow
+{
+    public int index; // 此Arrow在同步列表中的下标
+    // 初始数据
+    public Vector3 startPoint;// 线段起点
+    public Vector3 endPoint; // 线段终点
+    // 根据遮挡重计算
+    public List<Vector3> curvePointList; // 实时曲线
+};
+
+
+public struct DPCSymbol
+{
+    public int index;
+    // 初始数据
+    public Vector3 up;
+    public Vector3 position;
+    //  根据遮挡重计算
+    public Vector3 up_new;
+    public Vector3 position_new;
+}
+
 public static class GlobleInfo
 {
     public static CameraMode ClientMode;

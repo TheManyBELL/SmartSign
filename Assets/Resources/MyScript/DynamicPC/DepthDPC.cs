@@ -26,6 +26,8 @@ public class DepthDPC : MonoBehaviour
 
     void Start()
     {
+        GameObject.Find("Diagnostics").SetActive(false);
+
         m_Camera = gameObject.GetComponent<Camera>();
         m_Camera.depthTextureMode = DepthTextureMode.Depth;
         depthTexture = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.RFloat);

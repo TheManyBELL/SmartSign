@@ -4,10 +4,11 @@ using UnityEngine;
 using Valve.VR;
 using Valve.VR.Extras;
 
-public class MarkPlacementVR : MonoBehaviour
+public class MarkPlacementVRA : MonoBehaviour
 {
 
-    private MirrorController myController;
+    private MirrorControllerA myController;
+
     private SymbolMode currentSymbolMode = SymbolMode.ARROW; // default mode is arrow
 
     public SteamVR_Action_Boolean switchSymbolMode;
@@ -17,20 +18,20 @@ public class MarkPlacementVR : MonoBehaviour
     private List<Vector3> currentPointList = new List<Vector3>();
 
     private GameObject rightHand;
-    
+
     public GameObject rotateSymbolPrefab;
     public GameObject pressSymbolPrefab;
     private GameObject rotateSymbol;
     private GameObject pressSymbol;
 
-    public GlobalUtils globalUtils;
+    private GlobalUtils globalUtils; // 工具类，用于深度碰撞
 
     public GameObject assistPlaceSpherePrefab;
     private GameObject assistPlaceSphere;
     public GameObject assistColliderSpherePrefab;
     private GameObject assistColliderSphere;
 
-
+    // 辅助线段选点
     public GameObject drawpointprefab;
     public List<GameObject> drawpointList;
 
@@ -48,10 +49,10 @@ public class MarkPlacementVR : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        myController = GetComponentInParent<MirrorController>();
+        myController = GetComponentInParent<MirrorControllerA>();
 
         rightHand = GameObject.Find("[CameraRig]/Controller (right)");
-        
+
         assistPlaceSphere = Instantiate(assistPlaceSpherePrefab);
         assistPlaceSphere.layer = LayerMask.NameToLayer("AssitRotateSphere"); ;
         assistPlaceSphere.SetActive(false);
@@ -103,7 +104,8 @@ public class MarkPlacementVR : MonoBehaviour
     /// <summary>
     /// clear environment, and then switch mode
     /// </summary>
-    private void SwitchSymbolMode() {
+    private void SwitchSymbolMode()
+    {
         // clear environment
         if (currentSymbolMode.Equals(SymbolMode.ARROW))
         {
@@ -113,12 +115,13 @@ public class MarkPlacementVR : MonoBehaviour
 
         // switch mode
         int n_symbol = System.Enum.GetNames(typeof(SymbolMode)).Length; // get symbol numbers
-        currentSymbolMode = (SymbolMode)(((int)currentSymbolMode+1)% n_symbol);
+        currentSymbolMode = (SymbolMode)(((int)currentSymbolMode + 1) % n_symbol);
 
-        
+
     }
 
-    private void AddArrowPoint() {
+    private void AddArrowPoint()
+    {
         Vector3 newPoint = GetCollisionPoint();
         Debug.Log("select point is:" + newPoint.ToString());
 
@@ -137,13 +140,16 @@ public class MarkPlacementVR : MonoBehaviour
         if (currentPointNumber == 2)
         {
             Debug.Log("current point number is:" + currentPointNumber + ", update segment");
-            myController.CmdUpdateSegmentInfo(new SegmentInfo()
+            myController.CmdAddDPCArrow(new DPCArrow()
             {
+                index = myController.syncArrowList.Count,
                 startPoint = currentPointList[0],
-                endPoint = currentPointList[1]
+                endPoint = currentPointList[1],
+                curvePointList = new List<Vector3>(),
             });
+            // 清空临时变量
             currentPointList.Clear();
-            for(int i = 0; i < drawpointList.Count; i++)
+            for (int i = 0; i < drawpointList.Count; i++)
             {
                 Destroy(drawpointList[i]);
             }
@@ -151,10 +157,11 @@ public class MarkPlacementVR : MonoBehaviour
         }
     }
 
-    private void DeleteLastArrow() {
+    private void DeleteLastArrow()
+    {
 
         Debug.Log("VR客户端发起删除线段请求");
-        myController.CmdDeleteSegmentInfo();
+        //myController.CmdDeleteSegmentInfo();
     }
 
     private Vector3 GetCollisionPoint()
@@ -175,7 +182,7 @@ public class MarkPlacementVR : MonoBehaviour
 
     private void AddRotation()
     {
-        if(nowPRState == SymbolPRState.Inactive)
+        if (nowPRState == SymbolPRState.Inactive)
         {
             nowPRState = SymbolPRState.SelectPosition;
         }
@@ -204,7 +211,7 @@ public class MarkPlacementVR : MonoBehaviour
         else if (nowPRState.Equals(SymbolPRState.SelectRotation))
         {
             Debug.Log("state is select rotation");
-            if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity,onlyCastAssitSphere))
+            if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, onlyCastAssitSphere))
             {
                 Debug.Log("ray hit");
                 rotateSymbol.transform.position = hitInfo.point;
@@ -214,11 +221,14 @@ public class MarkPlacementVR : MonoBehaviour
                     Debug.Log("Rotation symbol, select symbol position");
                     assistPlaceSphere.SetActive(false);
                     nowPRState = SymbolPRState.Inactive;
-                    myController.CmdUpdateRotationInfo(new SymbolInfo()
+                    myController.CmdAddDPCRotation(new DPCSymbol()
                     {
+                        index = myController.syncRotationList.Count,
                         up = hitInfo.normal,
-                        position = rotateSymbol.transform.position
-                    });
+                        position = rotateSymbol.transform.position,
+                        up_new = new Vector3(),
+                        position_new = new Vector3()
+                    }) ;
                     rotateSymbol.SetActive(false);
                 }
 
@@ -251,12 +261,12 @@ public class MarkPlacementVR : MonoBehaviour
                 pressSymbol.SetActive(true);
             }
         }
-            
+
         else if (nowPRState.Equals(SymbolPRState.SelectRotation))
         {
             if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, onlyCastAssitSphere))
             {
-                
+
                 pressSymbol.transform.position = hitInfo.point + 0.05f * hitInfo.normal;
                 pressSymbol.transform.right = hitInfo.normal;
                 if (confirmSelection.GetStateDown(SteamVR_Input_Sources.RightHand))
@@ -264,10 +274,13 @@ public class MarkPlacementVR : MonoBehaviour
                     Debug.Log("Press symbol, select symbol position");
                     assistPlaceSphere.SetActive(false);
                     nowPRState = SymbolPRState.Inactive;
-                    myController.CmdUpdatePressInfo(new SymbolInfo()
+                    myController.CmdAddDPCPress(new DPCSymbol()
                     {
+                        index = myController.syncPressList.Count,
                         up = hitInfo.normal,
-                        position = pressSymbol.transform.position
+                        position = pressSymbol.transform.position,
+                        up_new = new Vector3(),
+                        position_new = new Vector3()
                     });
                     pressSymbol.SetActive(false);
                 }

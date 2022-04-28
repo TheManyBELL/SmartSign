@@ -11,7 +11,7 @@ namespace Mirror
         readonly IList<T> objects;
         readonly IEqualityComparer<T> comparer;
 
-        public int Count => objects.Count;
+        public int Count => objects.Count; 
         public bool IsReadOnly { get; private set; }
         public event SyncListChanged Callback;
 

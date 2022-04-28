@@ -2,9 +2,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MarkRenderVR : MonoBehaviour
+public class MarkRenderVRA : MonoBehaviour
 {
-    private MirrorController MirrorController;
+    private MirrorControllerA mirrorController;
 
     private List<GameObject> segmentObjectList;
     private List<GameObject> rotationObjectList;
@@ -19,16 +19,17 @@ public class MarkRenderVR : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        MirrorController = GetComponentInParent<MirrorController>();
+        mirrorController = GetComponentInParent<MirrorControllerA>();
         segmentObjectList = new List<GameObject>();
         rotationObjectList = new List<GameObject>();
         pressObjectList = new List<GameObject>();
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        RenderSegment();
+        RenderArrow();
         RenderRotation();
         RenderPress();
     }
@@ -36,18 +37,18 @@ public class MarkRenderVR : MonoBehaviour
     /// <summary>
     /// render segmetn on VR client per frame
     /// </summary>
-    private void RenderSegment()
+    private void RenderArrow()
     {
         // 1 arrow contained with 3 segment
         int n_curSegmentObj = segmentObjectList.Count; // number of segment object
-        int n_curSegment = n_curSegmentObj / 3; // number of segment
-        int n_clientSegment = MirrorController.clientSegmentList.Count; // number of latest segment list
+        int n_curArrow = n_curSegmentObj / 3; // number of segment
+        int n_serverArrow = mirrorController.syncArrowList.Count; // number of latest segment list
 
-        int delta = n_clientSegment - n_curSegment;
+        int delta = n_serverArrow - n_curArrow;
         // delete segment
-        for(int i = 0; i > delta; --i)
+        for (int i = 0; i > delta; --i)
         {
-            for(int j = 0; i < 3; ++j)
+            for (int j = 0; i < 3; ++j)
             {
                 GameObject tempObj = segmentObjectList[n_curSegmentObj - 1];
                 segmentObjectList.Remove(tempObj);
@@ -55,10 +56,15 @@ public class MarkRenderVR : MonoBehaviour
             }
         }
         // add new segment
-        for(int i = 0; i < delta; ++i)
+        for (int i = 0; i < delta; ++i)
         {
-            SegmentInfo segment = MirrorController.clientSegmentList[n_curSegment + i];
-            Debug.Log("point1:" + segment.startPoint.ToString() + ",point2:" + segment.endPoint.ToString());
+            DPCArrow arrow = mirrorController.syncArrowList[n_curArrow + i];
+            Debug.Log("point1:" + arrow.startPoint.ToString() + ",point2:" + arrow.endPoint.ToString());
+            SegmentInfo segment = new SegmentInfo()
+            {
+                startPoint = arrow.startPoint,
+                endPoint = arrow.endPoint
+            };
             DrawSegment(segment);
             DrawArrow(segment);
         }
@@ -67,7 +73,7 @@ public class MarkRenderVR : MonoBehaviour
     private void RenderRotation()
     {
         int n_curRotationObj = rotationObjectList.Count;
-        int n_clientRotation = MirrorController.clientRotationList.Count;
+        int n_clientRotation = mirrorController.syncRotationList.Count;
 
         int delta = n_clientRotation - n_curRotationObj;
         // delete rotation 
@@ -80,11 +86,12 @@ public class MarkRenderVR : MonoBehaviour
         // add new rotation
         for (int i = 0; i < delta; ++i)
         {
-            SymbolInfo symbol_rotation = MirrorController.clientRotationList[n_curRotationObj + i];
+            DPCSymbol newRotation = mirrorController.syncRotationList[n_curRotationObj + i];
+
             GameObject tempObj = Instantiate(RotateSymbol);
             tempObj.transform.parent = transform;
-            tempObj.transform.position = symbol_rotation.position;
-            tempObj.transform.forward = symbol_rotation.up;
+            tempObj.transform.position = newRotation.position;
+            tempObj.transform.forward = newRotation.up;
             rotationObjectList.Add(tempObj);
         }
     }
@@ -92,7 +99,7 @@ public class MarkRenderVR : MonoBehaviour
     private void RenderPress()
     {
         int n_curPressObj = pressObjectList.Count;
-        int n_clientPress = MirrorController.clientPressList.Count;
+        int n_clientPress = mirrorController.syncPressList.Count;
 
         int delta = n_clientPress - n_curPressObj;
         // delete press 
@@ -105,11 +112,11 @@ public class MarkRenderVR : MonoBehaviour
         // add new press
         for (int i = 0; i < delta; ++i)
         {
-            SymbolInfo symbol_press = MirrorController.clientPressList[n_curPressObj + i];
+            DPCSymbol newPress = mirrorController.syncPressList[n_curPressObj + i];
             GameObject tempObj = Instantiate(PressSymbol);
             tempObj.transform.parent = transform;
-            tempObj.transform.position = symbol_press.position;
-            tempObj.transform.right = symbol_press.up;
+            tempObj.transform.position = newPress.position;
+            tempObj.transform.right = newPress.up;
             pressObjectList.Add(tempObj);
         }
     }
@@ -122,7 +129,7 @@ public class MarkRenderVR : MonoBehaviour
     {
         GameObject segmentObj = new GameObject();
         segmentObj.transform.SetParent(this.transform);
-        segmentObj.layer = LayerMask.NameToLayer("DepthCameraUnivisible"); 
+        segmentObj.layer = LayerMask.NameToLayer("DepthCameraUnivisible");
         LineRenderer segmentRender = segmentObj.AddComponent<LineRenderer>();
         segmentRender.material = segmentMaterial;
         segmentRender.startWidth = segmentThickness;
@@ -131,7 +138,6 @@ public class MarkRenderVR : MonoBehaviour
         segmentRender.positionCount = 2;
         segmentRender.SetPosition(0, segmentInfo.startPoint);
         segmentRender.SetPosition(1, segmentInfo.endPoint);
-        
 
         segmentObjectList.Add(segmentObj);
     }
@@ -166,6 +172,4 @@ public class MarkRenderVR : MonoBehaviour
             endPoint = segmentInfo.endPoint
         });
     }
-
-   
 }

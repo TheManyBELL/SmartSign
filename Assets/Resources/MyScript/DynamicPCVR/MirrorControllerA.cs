@@ -10,12 +10,21 @@ public class MirrorControllerA : NetworkBehaviour
     public GameObject VRController;
     public GameObject ARController;
 
+    public GameObject depthCameraPrefab;
+    private GameObject depthCamera;
+
     /// <summary>
     /// 需要同步的标识列表
     /// </summary>
     public readonly SyncList<DPCArrow> syncArrowList = new SyncList<DPCArrow>();
     public readonly SyncList<DPCSymbol> syncRotationList = new SyncList<DPCSymbol>();
     public readonly SyncList<DPCSymbol> syncPressList = new SyncList<DPCSymbol>();
+
+    // 需要同步的变量
+    [SyncVar]
+    public CameraParams syncDepthCamera;
+
+    
 
 
     #region command
@@ -69,6 +78,14 @@ public class MirrorControllerA : NetworkBehaviour
         Debug.Log("[server] rotation " + newPress.index + " updated");
     }
 
+    [Command]
+    public void CmdUpdateDepthCamera(CameraParams newParams)
+    {
+        Debug.Log("[server] depth camera updated");
+        syncDepthCamera = newParams;
+
+    }
+
     #endregion
 
     void Awake()
@@ -81,6 +98,11 @@ public class MirrorControllerA : NetworkBehaviour
         {
             VRController.SetActive(true);
             ARController.SetActive(false);
+            depthCamera = Instantiate(depthCameraPrefab);
+            if (depthCamera)
+            {
+                Debug.Log("depth camera is created");
+            }
         }
         if (GlobleInfo.ClientMode.Equals(CameraMode.AR))
         {
@@ -98,7 +120,11 @@ public class MirrorControllerA : NetworkBehaviour
     // Update is called once per frame
     void Update()
     {
-
+        if (depthCamera)
+        {
+            depthCamera.transform.position = syncDepthCamera.position;
+            depthCamera.transform.rotation = syncDepthCamera.rotation;
+        }
     }
 
 

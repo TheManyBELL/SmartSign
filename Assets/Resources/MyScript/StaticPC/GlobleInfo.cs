@@ -85,6 +85,14 @@ public struct DPCArrow
     public List<Vector3> curvePointList; // 实时曲线
 };
 
+/// <summary>
+/// 相机参数
+/// </summary>
+public struct CameraParams
+{
+    public Vector3 position;
+    public Quaternion rotation;
+}
 
 public struct DPCSymbol
 {

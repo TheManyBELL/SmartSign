@@ -14,8 +14,6 @@ public class ArrowDisocclusionVRA : MonoBehaviour
 
     }
 
-    // 1.for arrow in server arrow list 
-    // 
     private void Update()
     {
         for (int i = 0;i<mirrorController.syncArrowList.Count;++i)

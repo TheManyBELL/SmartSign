@@ -19,6 +19,7 @@ public class DepthDPC : MonoBehaviour
     // 
     public bool origin = true;
 
+
     private void Awake()
     {
         
@@ -26,7 +27,7 @@ public class DepthDPC : MonoBehaviour
 
     void Start()
     {
-        GameObject.Find("Diagnostics").SetActive(false);
+        //GameObject.Find("Diagnostics").SetActive(false);
 
         m_Camera = gameObject.GetComponent<Camera>();
         m_Camera.depthTextureMode = DepthTextureMode.Depth;
@@ -101,7 +102,7 @@ public class DepthDPC : MonoBehaviour
     void Update()
     {
         // Debug.Log("depth");
-        this.transform.position = Camera.main.transform.position;
-        this.transform.rotation = Camera.main.transform.rotation;
+        //this.transform.position = Camera.main.transform.position
+        //this.transform.rotation = Camera.main.transform.rotation;
     }
 }

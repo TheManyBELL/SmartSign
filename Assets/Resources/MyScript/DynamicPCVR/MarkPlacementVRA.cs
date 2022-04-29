@@ -43,7 +43,7 @@ public class MarkPlacementVRA : MonoBehaviour
 
     private void Awake()
     {
-        globalUtils = GetComponentInParent<GlobalUtils>();
+        globalUtils = GetComponent<GlobalUtils>();
     }
 
     // Start is called before the first frame update

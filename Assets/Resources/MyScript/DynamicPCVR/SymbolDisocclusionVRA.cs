@@ -20,10 +20,10 @@ public class SymbolDisocclusionVRA : MonoBehaviour
     private void Start()
     {
         mirrorController = GetComponentInParent<MirrorControllerA>();
-        globalUtils = GetComponentInParent<GlobalUtils>();
+        globalUtils = GetComponent<GlobalUtils>();
 
         rotateSymbolObject = Instantiate(rotateSymbolPrefab);
-        pressSymbolObject = Instantiate(pressSymbolObject);
+        pressSymbolObject = Instantiate(pressSymbolPrefab);
 
     }
 
@@ -51,7 +51,9 @@ public class SymbolDisocclusionVRA : MonoBehaviour
             DPCSymbol curPress = mirrorController.syncPressList[i];
             pressSymbolObject.transform.position = curPress.position;
             pressSymbolObject.transform.right = curPress.up;
+
             symbolDisocclusion(pressSymbolObject);
+
             curPress.position_new = pressSymbolObject.transform.position;
             curPress.up_new = pressSymbolObject.transform.right;
             mirrorController.CmdUpdateDPCPress(curPress);

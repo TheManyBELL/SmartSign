@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 5672654179876643091}
   - component: {fileID: 4468969535677363155}
   - component: {fileID: 4122971587577157833}
+  - component: {fileID: 1042393203955980651}
   m_Layer: 0
   m_Name: VR
   m_TagString: Untagged
@@ -104,6 +105,18 @@ MonoBehaviour:
   rotateSymbolPrefab: {fileID: 7486974711368413920, guid: 3562510d2867c26459ad1c13afb77960, type: 3}
   pressSymbolPrefab: {fileID: 293570593768631736, guid: 84e7ebf45d5a41144bbf442e2ff5e2b5, type: 3}
   raiseStep: 0.1
+--- !u!114 &1042393203955980651
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4617206982369766726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a7ac7808cde3f9a4aa3c9aee54eb6ab4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4617206982444834299
 GameObject:
   m_ObjectHideFlags: 0
@@ -114,6 +127,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4617206982444834298}
   - component: {fileID: 9098403594335960741}
+  - component: {fileID: 8944377733197744267}
   m_Layer: 0
   m_Name: AR
   m_TagString: Untagged
@@ -147,6 +161,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6e4e606e026362e4cb9815de59e2fa7e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &8944377733197744267
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4617206982444834299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fa5371b0f1b38a44abfe4033752bbf5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4617206983405905877
 GameObject:
   m_ObjectHideFlags: 0
@@ -158,7 +184,6 @@ GameObject:
   - component: {fileID: 4617206983405905878}
   - component: {fileID: 4617206983405905879}
   - component: {fileID: 4617206983405905876}
-  - component: {fileID: 4739138980931360041}
   m_Layer: 0
   m_Name: SmartSignA
   m_TagString: Untagged
@@ -174,7 +199,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4617206983405905877}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.5379332, y: 1.8684413, z: -4.1587734}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4617206982369766745}
@@ -215,15 +240,4 @@ MonoBehaviour:
   syncInterval: 0.1
   VRController: {fileID: 4617206982369766726}
   ARController: {fileID: 4617206982444834299}
---- !u!114 &4739138980931360041
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4617206983405905877}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7ac7808cde3f9a4aa3c9aee54eb6ab4, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  depthCameraPrefab: {fileID: 8540769224365688559, guid: ac488689caf9c3a46bdb7f0a73d6e954, type: 3}

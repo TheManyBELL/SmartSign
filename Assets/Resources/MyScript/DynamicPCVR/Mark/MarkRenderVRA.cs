@@ -50,7 +50,7 @@ public class MarkRenderVRA : MonoBehaviour
         {
             for (int j = 0; i < 3; ++j)
             {
-                GameObject tempObj = segmentObjectList[n_curSegmentObj - 1];
+                GameObject tempObj = segmentObjectList[n_curSegmentObj - 1 + i];
                 segmentObjectList.Remove(tempObj);
                 Destroy(tempObj);
             }
@@ -79,7 +79,7 @@ public class MarkRenderVRA : MonoBehaviour
         // delete rotation 
         for (int i = 0; i > delta; --i)
         {
-            GameObject tempObj = segmentObjectList[n_clientRotation - 1];
+            GameObject tempObj = segmentObjectList[n_clientRotation - 1 + i];
             rotationObjectList.Remove(tempObj);
             Destroy(tempObj);
         }
@@ -105,7 +105,7 @@ public class MarkRenderVRA : MonoBehaviour
         // delete press 
         for (int i = 0; i > delta; --i)
         {
-            GameObject tempObj = pressObjectList[n_clientPress - 1];
+            GameObject tempObj = pressObjectList[n_clientPress - 1+i];
             pressObjectList.Remove(tempObj);
             Destroy(tempObj);
         }

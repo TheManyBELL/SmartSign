@@ -74,8 +74,8 @@ public class MirrorControllerA : NetworkBehaviour
     [Command]
     public void CmdUpdateDPCPress(DPCSymbol newPress)
     {
-        syncRotationList[newPress.index] = newPress;
-        Debug.Log("[server] rotation " + newPress.index + " updated");
+        syncPressList[newPress.index] = newPress;
+        Debug.Log("[server] press " + newPress.index + " updated");
     }
 
     [Command]

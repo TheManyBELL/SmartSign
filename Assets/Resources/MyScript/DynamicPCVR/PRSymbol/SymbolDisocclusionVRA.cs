@@ -23,7 +23,9 @@ public class SymbolDisocclusionVRA : MonoBehaviour
         globalUtils = GetComponent<GlobalUtils>();
 
         rotateSymbolObject = Instantiate(rotateSymbolPrefab);
+        UtilSetThisObjectLayer(rotateSymbolObject.transform, LayerMask.NameToLayer("CameraNotVisible"));
         pressSymbolObject = Instantiate(pressSymbolPrefab);
+        UtilSetThisObjectLayer(pressSymbolObject.transform, LayerMask.NameToLayer("CameraNotVisible"));
 
     }
 
@@ -46,7 +48,7 @@ public class SymbolDisocclusionVRA : MonoBehaviour
             mirrorController.CmdUpdateDPCRotation(curRotation);
         }
         // update press symbol
-        for (int i = 0; i < mirrorController.syncRotationList.Count; ++i)
+        for (int i = 0; i < mirrorController.syncPressList.Count; ++i)
         {
             DPCSymbol curPress = mirrorController.syncPressList[i];
             pressSymbolObject.transform.position = curPress.position;
@@ -66,6 +68,23 @@ public class SymbolDisocclusionVRA : MonoBehaviour
         while (!globalUtils.GameObjectVisible(t))
         {
             t.transform.position += raiseStep * Vector3.up;
+        }
+    }
+
+
+    private void UtilSetThisObjectLayer(Transform transform, int layer)
+    {
+        if (transform.childCount > 0)
+        {
+            for (int i = 0; i < transform.childCount; i++)
+            {
+                UtilSetThisObjectLayer(transform.GetChild(i), layer);
+            }
+            transform.gameObject.layer = layer;
+        }
+        else
+        {
+            transform.gameObject.layer = layer;
         }
     }
 }

@@ -9,15 +9,20 @@ public class GlobalUtils : MonoBehaviour
 
     void Awake()
     {
-        if (GameObject.Find("DepthCamera"))
+        if (GameObject.Find("DepthCamera(Clone)"))
         {
-            depthCamera = GameObject.Find("DepthCamera").GetComponent<Camera>();
-            GetDepthScript = GameObject.Find("DepthCamera").GetComponent<DepthDPC>();
+            depthCamera = GameObject.Find("DepthCamera(Clone)").GetComponent<Camera>();
+            GetDepthScript = GameObject.Find("DepthCamera(Clone)").GetComponent<DepthDPC>();
+            if (depthCamera)
+            {
+                Debug.Log("[Global Utils]: Depth Camera found");
+            }
         }
         else
         {
-            depthCamera = Camera.main;
-            GetDepthScript = Camera.main.GetComponent<DepthDPC>();
+            //depthCamera = Camera.main;
+            //GetDepthScript = Camera.main.GetComponent<DepthDPC>();
+            Debug.Log("[Global Utils]: Depth Camera not found");
         }
     }
 

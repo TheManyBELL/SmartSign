@@ -145,7 +145,7 @@ public class MarkPlacementVRA : MonoBehaviour
                 index = myController.syncArrowList.Count,
                 startPoint = currentPointList[0],
                 endPoint = currentPointList[1],
-                curvePointList = new List<Vector3>(),
+                curvePointList = new List<Vector3[]>(),
             });
             // 清空临时变量
             currentPointList.Clear();

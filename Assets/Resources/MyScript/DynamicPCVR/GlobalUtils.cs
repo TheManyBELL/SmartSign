@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GlobalUtils : MonoBehaviour
 {
-    private Camera depthCamera;
+    public Camera depthCamera;
     private DepthDPC GetDepthScript;
 
     void Awake()
@@ -21,14 +21,22 @@ public class GlobalUtils : MonoBehaviour
         }
     }
 
-    private Vector3 MWorldToScreenPointDepth(Vector3 p)
+    public float GetDepth(int x, int y) => GetDepthScript.GetDepth(x, y);
+
+    public Vector3 MScreenToWorldPointDepth(Vector3 p)
+    {
+        p.z *= depthCamera.farClipPlane;
+        return depthCamera.ScreenToWorldPoint(p);
+    }
+
+    public Vector3 MWorldToScreenPointDepth(Vector3 p)
     {
         Vector3 screenP = depthCamera.WorldToScreenPoint(p);
         screenP.z = screenP.z / depthCamera.farClipPlane;
         return screenP;
     }
 
-    private bool GetPointVisibility(Vector3 p)
+    public bool GetPointVisibility(Vector3 p)
     {
         Vector3 screenP = MWorldToScreenPointDepth(p);
         if (screenP.x < 0 || screenP.x > Screen.width || screenP.y < 0 || screenP.y > Screen.height)

@@ -82,7 +82,7 @@ public struct DPCArrow
     public Vector3 startPoint;// 线段起点
     public Vector3 endPoint; // 线段终点
     // 根据遮挡重计算
-    public List<Vector3> curvePointList; // 实时曲线
+    public List<Vector3[]> curvePointList; // 实时曲线
 };
 
 /// <summary>

@@ -37,14 +37,16 @@ public class SymbolDisocclusionVRA : MonoBehaviour
         for (int i = 0; i < mirrorController.syncRotationList.Count; ++i)
         {
             DPCSymbol curRotation = mirrorController.syncRotationList[i];
-            // initialize symbol's transform
+            // initialize symbol's transform          
             rotateSymbolObject.transform.position = curRotation.position;
             rotateSymbolObject.transform.forward = curRotation.up;
+            //Debug.Log("position before: " + rotateSymbolObject.transform.position.ToString("f4"));
             // de occlusion
             symbolDisocclusion(rotateSymbolObject);
             // update curRotation's transform
             curRotation.position_new = rotateSymbolObject.transform.position;
             curRotation.up_new = rotateSymbolObject.transform.forward;
+            //Debug.Log("position after: " + rotateSymbolObject.transform.position.ToString("f4"));
             mirrorController.CmdUpdateDPCRotation(curRotation);
         }
         // update press symbol
@@ -67,6 +69,7 @@ public class SymbolDisocclusionVRA : MonoBehaviour
         // De occlusion calculation is performed here
         while (!globalUtils.GameObjectVisible(t))
         {
+            
             t.transform.position += raiseStep * Vector3.up;
         }
     }

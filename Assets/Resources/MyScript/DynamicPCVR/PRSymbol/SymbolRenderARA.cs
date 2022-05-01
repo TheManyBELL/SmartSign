@@ -33,6 +33,9 @@ public class SymbolRenderARA : MonoBehaviour
         int n_clientRotation = mirrorController.syncRotationList.Count; // 此时控制中心的标识总数
 
         int delta = n_clientRotation - n_curRotationObj;
+
+        // update rotation
+
         // delete rotation 
         for (int i = 0; i > delta; --i)
         {
@@ -50,6 +53,12 @@ public class SymbolRenderARA : MonoBehaviour
             tempObj.transform.position = newRotation.position_new;
             tempObj.transform.forward = newRotation.up_new;
             rotationObjectList.Add(tempObj);
+        }
+        // update symbol
+        for(int i = 0; i < rotationObjectList.Count; i++)
+        {
+            rotationObjectList[i].transform.position = mirrorController.syncRotationList[i].position_new;
+            rotationObjectList[i].transform.forward = mirrorController.syncRotationList[i].up_new;
         }
     }
 
@@ -76,6 +85,12 @@ public class SymbolRenderARA : MonoBehaviour
             tempObj.transform.position = newPress.position_new;
             tempObj.transform.right = newPress.up_new;
             pressObjectList.Add(tempObj);
+        }
+        // update symbol
+        for (int i = 0; i < pressObjectList.Count; i++)
+        {
+            pressObjectList[i].transform.position = mirrorController.syncPressList[i].position_new;
+            pressObjectList[i].transform.right = mirrorController.syncPressList[i].up_new;
         }
     }
 

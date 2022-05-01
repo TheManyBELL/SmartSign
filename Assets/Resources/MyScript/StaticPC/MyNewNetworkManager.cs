@@ -240,7 +240,15 @@ public class MyNewNetworkManager : NetworkManager
         }
 
 
-
+        if (GlobleInfo.ClientMode.Equals(CameraMode.AR))
+        {
+            CreateEnvironmentMessage syncDepthCameraMessage = new CreateEnvironmentMessage
+            {
+                startNumber = 3,
+                endNumber = 3
+            };
+            NetworkClient.Send(syncDepthCameraMessage);
+        }
     }
 
     /// <summary>

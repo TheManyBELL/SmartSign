@@ -133,7 +133,6 @@ GameObject:
   m_Component:
   - component: {fileID: 4617206982444834298}
   - component: {fileID: 9098403594335960741}
-  - component: {fileID: 8944377733197744267}
   - component: {fileID: 8791579120703413468}
   m_Layer: 0
   m_Name: AR
@@ -170,18 +169,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   RotateSymbol: {fileID: 7486974711368413920, guid: 3562510d2867c26459ad1c13afb77960, type: 3}
   PressSymbol: {fileID: 293570593768631736, guid: 84e7ebf45d5a41144bbf442e2ff5e2b5, type: 3}
---- !u!114 &8944377733197744267
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4617206982444834299}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3fa5371b0f1b38a44abfe4033752bbf5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &8791579120703413468
 MonoBehaviour:
   m_ObjectHideFlags: 0

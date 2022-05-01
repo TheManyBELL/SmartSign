@@ -9,6 +9,12 @@ public class GlobalUtils : MonoBehaviour
 
     void Awake()
     {
+        
+    }
+
+    private void Update()
+    {
+        if (depthCamera) { return; }
         if (GameObject.Find("DepthCamera(Clone)"))
         {
             depthCamera = GameObject.Find("DepthCamera(Clone)").GetComponent<Camera>();

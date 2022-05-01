@@ -4,27 +4,24 @@ using UnityEngine;
 
 public class CameraUpdateARA : MonoBehaviour
 {
-    private MirrorControllerA mirrorController;
-    private Camera arCamera;
+    private GameObject arCamera;
 
     // Start is called before the first frame update
     void Start()
     {
-        mirrorController = GetComponentInParent<MirrorControllerA>();
         
-        arCamera = GameObject.Find("MixedRealityPlayspace/Main Camera").GetComponent<Camera>();
+        arCamera = GameObject.Find("MixedRealityPlayspace/Main Camera");
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (GlobleInfo.ClientMode.Equals(CameraMode.VR)) { return; }
         if (arCamera!=null)
         {
-            mirrorController.CmdUpdateDepthCamera(new CameraParams
-            {
-                position = arCamera.transform.position,
-                rotation = arCamera.transform.rotation
-            });
+            Debug.Log("Update depth camera now...");
+            transform.position = arCamera.transform.position;
+            transform.rotation = arCamera.transform.rotation;
         }
         else
         {

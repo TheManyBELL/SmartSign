@@ -2,14 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CameraUpdateARA : MonoBehaviour
+public class CameraUpdateAR : MonoBehaviour
 {
     private GameObject arCamera;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+        if (GlobleInfo.ClientMode.Equals(CameraMode.VR)) { return; }
         arCamera = GameObject.Find("MixedRealityPlayspace/Main Camera");
     }
 

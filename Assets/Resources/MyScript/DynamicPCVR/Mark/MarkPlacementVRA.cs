@@ -24,7 +24,7 @@ public class MarkPlacementVRA : MonoBehaviour
     private GameObject rotateSymbol;
     private GameObject pressSymbol;
 
-    private GlobalUtils globalUtils; // 工具类，用于深度碰撞
+    private GlobalUtilsVR globalUtils; // VR工具类，用于深度碰撞
 
     public GameObject assistPlaceSpherePrefab;
     private GameObject assistPlaceSphere;
@@ -43,7 +43,7 @@ public class MarkPlacementVRA : MonoBehaviour
 
     private void Awake()
     {
-        globalUtils = GetComponent<GlobalUtils>();
+        globalUtils = GetComponent<GlobalUtilsVR>();
     }
 
     // Start is called before the first frame update

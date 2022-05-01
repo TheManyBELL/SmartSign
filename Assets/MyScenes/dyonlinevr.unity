@@ -140,7 +140,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2291289167689953262, guid: bbb3bf9e83d8ee540847333ca1de5d20, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 2291289167689953263, guid: bbb3bf9e83d8ee540847333ca1de5d20, type: 3}
       propertyPath: m_RootOrder
@@ -269,16 +269,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8347858650522884860, guid: a390018dab17cc749832567d1eb03a3f, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8347858650523972062, guid: a390018dab17cc749832567d1eb03a3f, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 648187050}
+      objectReference: {fileID: 701561910}
     - target: {fileID: 8347858650525036634, guid: a390018dab17cc749832567d1eb03a3f, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 1067066432}
+      objectReference: {fileID: 722464812}
     m_RemovedComponents:
     - {fileID: 8347858650522756916, guid: a390018dab17cc749832567d1eb03a3f, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: a390018dab17cc749832567d1eb03a3f, type: 3}
@@ -310,7 +310,7 @@ MonoBehaviour:
   gazeTransform: {fileID: 0}
   minHeadVelocityThreshold: 0.5
   maxHeadVelocityThreshold: 2
---- !u!43 &648187050
+--- !u!43 &701561910
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -474,6 +474,41 @@ Mesh:
     offset: 0
     size: 0
     path: 
+--- !u!21 &722464812
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Sprites/Default
+  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AlphaTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - PixelSnap: 0
+    - _EnableExternalAlpha: 0
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Flip: {r: 1, g: 1, b: 1, a: 1}
+    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []
 --- !u!1001 &902422135
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -531,7 +566,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5879761914199037229, guid: dc96a0e4c7242cd48859068234a9e2d1, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dc96a0e4c7242cd48859068234a9e2d1, type: 3}
@@ -721,8 +756,9 @@ MonoBehaviour:
   - {fileID: 4617206983405905877, guid: 08431653dcc48e245b7e02ee48896bd3, type: 3}
   - {fileID: 8540769224365688559, guid: ac488689caf9c3a46bdb7f0a73d6e954, type: 3}
   - {fileID: 5059675896885695173, guid: 29b0e796215b47a43b1709ecf9114d05, type: 3}
-  vrMode: 0
-  arMode: 1
+  - {fileID: 0}
+  vrMode: 1
+  arMode: 0
   syncEnv_start: 4
   syncEnv_end: 4
 --- !u!114 &1046075961
@@ -739,41 +775,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   offsetX: 0
   offsetY: 0
---- !u!21 &1067066432
-Material:
-  serializedVersion: 6
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Sprites/Default
-  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: 
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _AlphaTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats:
-    - PixelSnap: 0
-    - _EnableExternalAlpha: 0
-    m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
-  m_BuildTextureStacks: []
 --- !u!1001 &1078383973
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -787,7 +788,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5244212099212534586, guid: 6e07e649f746c0a4286b7fb3a9ebfa53, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5244212099212534587, guid: 6e07e649f746c0a4286b7fb3a9ebfa53, type: 3}
       propertyPath: m_RootOrder

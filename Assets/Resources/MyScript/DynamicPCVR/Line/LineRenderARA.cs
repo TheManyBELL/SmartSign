@@ -15,6 +15,7 @@ public class LineRenderARA : MonoBehaviour
     void Start()
     {
         mirrorController = GetComponentInParent<MirrorControllerA>();
+        lines = new List<GameObject>();
     }
 
     // Update is called once per frame

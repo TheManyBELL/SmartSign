@@ -90,6 +90,14 @@
       "type": "boolean"
     },
     {
+      "name": "/actions/default/in/ChangeReceiveState",
+      "type": "boolean"
+    },
+    {
+      "name": "/actions/default/in/SwitchServerNumber",
+      "type": "boolean"
+    },
+    {
       "name": "/actions/default/out/Haptic",
       "type": "vibration"
     },

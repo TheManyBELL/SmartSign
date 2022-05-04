@@ -185,6 +185,22 @@ namespace Valve.VR
             }
         }
         
+        public virtual SteamVR_Action_Boolean ChangeReceiveState
+        {
+            get
+            {
+                return SteamVR_Actions.default_ChangeReceiveState;
+            }
+        }
+        
+        public virtual SteamVR_Action_Boolean SwitchServerNumber
+        {
+            get
+            {
+                return SteamVR_Actions.default_SwitchServerNumber;
+            }
+        }
+        
         public virtual SteamVR_Action_Vibration Haptic
         {
             get

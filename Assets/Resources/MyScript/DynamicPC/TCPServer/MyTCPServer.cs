@@ -61,6 +61,8 @@ public class MyTCPServer : MonoBehaviour
     private PointCloudController pointCloudController;
     private string hostip;
     public int serverPort;
+    private ServerNumber myServerNumber;
+    private bool isMeReceiveFrame = true;
 
     private void Awake()
     {
@@ -76,7 +78,7 @@ public class MyTCPServer : MonoBehaviour
         Debug.Log("Server1 host ip is:" + hostip);
         IPAddress ipAddress = IPAddress.Parse(hostip);
         //IPAddress ipAddress = IPAddress.Parse("10.42.0.8");
-        IPEndPoint localEndPoint = new IPEndPoint(ipAddress, serverPort);
+        IPEndPoint localEndPoint = new IPEndPoint(ipAddress, serverPort); // 11000 ~ 11003
 
         // Create a TCP/IP socket.  
         listener = new Socket(ipAddress.AddressFamily,
@@ -89,6 +91,7 @@ public class MyTCPServer : MonoBehaviour
                    new AsyncCallback(AcceptCallback),
                    listener);
 
+        myServerNumber = (ServerNumber)(serverPort - 11000);
     }
 
     private void Update()
@@ -149,7 +152,7 @@ public class MyTCPServer : MonoBehaviour
 
                     if (!FRAME_CREATED)
                     {
-                        FRAME = new byte[width * heigth * (3 + 2) + StateObject2.BufferSize];
+                        FRAME = new byte[width * heigth * (3 + 2) + MyStateObject.BufferSize];
                         FRAME_CREATED = true;
                     }
 
@@ -187,8 +190,16 @@ public class MyTCPServer : MonoBehaviour
 
         // Read data from the client socket.
         int bytesRead = handler.EndReceive(ar);
+        // 如果状态改变指令发起了，并且当前是自己
+        if (GlobleInfo.isReceiveStateChanged && myServerNumber == GlobleInfo.CurentServer)
+        {
+            isMeReceiveFrame = !isMeReceiveFrame;
+            GlobleInfo.isReceiveStateChanged = false; // 谁执行完谁恢复状态
+            Debug.Log("State is changed and isReceiveStateChanged value is set false:"+myServerNumber);
+        }
+        
 
-        if (bytesRead > 0)
+        if (bytesRead > 0 && isMeReceiveFrame)
         {
             //Debug.Log("The byte read is " + bytesRead);
             #region devices_parameter
@@ -272,7 +283,7 @@ public class MyTCPServer : MonoBehaviour
             }
             #endregion
         }
-        handler.BeginReceive(state.buffer, 0, StateObject2.BufferSize, 0,
+        handler.BeginReceive(state.buffer, 0, MyStateObject.BufferSize, 0,
        new AsyncCallback(ReadCallback), state);
 
     }

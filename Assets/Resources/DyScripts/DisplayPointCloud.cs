@@ -80,7 +80,7 @@ public class DisplayPointCloud : MonoBehaviour
         set
         {
             frame = value;
-            Debug.Log("Frame size: " + Frame.Length);
+            // Debug.Log("Frame size: " + Frame.Length);
         }
     }
 
@@ -91,7 +91,7 @@ public class DisplayPointCloud : MonoBehaviour
         set
         {
             depthFrame = value;
-            Debug.Log("DepthFrame size: " + DepthFrame.Length);
+            // Debug.Log("DepthFrame size: " + DepthFrame.Length);
         }
     }
 
@@ -103,7 +103,7 @@ public class DisplayPointCloud : MonoBehaviour
         set
         {
             colorFrame = value;
-            Debug.Log("ColorFrame size: " + ColorFrame.Length);
+            // Debug.Log("ColorFrame size: " + ColorFrame.Length);
         }
     }
 
@@ -116,7 +116,7 @@ public class DisplayPointCloud : MonoBehaviour
         set
         {
             height = value;
-            Debug.Log("Height: " + height);
+            // Debug.Log("Height: " + height);
         }
     }
 
@@ -127,7 +127,7 @@ public class DisplayPointCloud : MonoBehaviour
         set
         {
             width = value;
-            Debug.Log("Width: " + width);
+            // Debug.Log("Width: " + width);
         }
     }
 
@@ -138,7 +138,7 @@ public class DisplayPointCloud : MonoBehaviour
         set
         {
             fx = value;
-            Debug.Log("Fx: " + fx);
+            // Debug.Log("Fx: " + fx);
         }
     }
 
@@ -149,7 +149,7 @@ public class DisplayPointCloud : MonoBehaviour
         set
         {
             fy = value;
-            Debug.Log("Fy: " + fy);
+            // Debug.Log("Fy: " + fy);
         }
     }
 
@@ -160,7 +160,7 @@ public class DisplayPointCloud : MonoBehaviour
         set
         {
             ppx = value;
-            Debug.Log("Ppx: " + ppx);
+            // Debug.Log("Ppx: " + ppx);
         }
     }
 
@@ -171,7 +171,7 @@ public class DisplayPointCloud : MonoBehaviour
         set
         {
             ppy = value;
-            Debug.Log("Ppy: " + ppy);
+            // Debug.Log("Ppy: " + ppy);
         }
     }
 
@@ -182,7 +182,7 @@ public class DisplayPointCloud : MonoBehaviour
         set
         {
             frameRawDimension = value;
-            Debug.Log("FrameRawDimension: " + FrameRawDimension);
+            // Debug.Log("FrameRawDimension: " + FrameRawDimension);
         }
     }
 
@@ -193,7 +193,7 @@ public class DisplayPointCloud : MonoBehaviour
         set
         {
             remainingByte = value;
-            Debug.Log("RemainingByte: " + RemainingByte);
+            // Debug.Log("RemainingByte: " + RemainingByte);
         }
     }
 
@@ -204,7 +204,7 @@ public class DisplayPointCloud : MonoBehaviour
         set
         {
             id = value;
-            Debug.Log("PointCloud ID: " + id);
+            // Debug.Log("PointCloud ID: " + id);
         }
     }
 

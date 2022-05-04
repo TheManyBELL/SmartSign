@@ -105,8 +105,16 @@ public struct DPCSymbol
     public Vector3 position_new;
 }
 
+public enum ServerNumber
+{
+    SERVER1 = 0, SERVER2, SERVER3, SERVER4
+}
+
+
 public static class GlobleInfo
 {
     public static CameraMode ClientMode;
+    public static ServerNumber CurentServer = 0;
+    public static bool isReceiveStateChanged = false;
 
 }

@@ -28,7 +28,7 @@ public class GlobalUtils : MonoBehaviour
         {
             //depthCamera = Camera.main;
             //GetDepthScript = Camera.main.GetComponent<DepthDPC>();
-            Debug.Log("[Global Utils]: Depth Camera not found");
+            // Debug.Log("[Global Utils]: Depth Camera not found");
         }
     }
 

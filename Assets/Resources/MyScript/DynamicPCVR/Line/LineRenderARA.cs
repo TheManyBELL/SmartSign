@@ -11,6 +11,8 @@ public class LineRenderARA : MonoBehaviour
     public Material straightLineMaterial;
     public float straightLineThickness = 0.01f;
 
+    public bool origin_line = true;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -32,17 +34,44 @@ public class LineRenderARA : MonoBehaviour
 
     void DrawLine(ref DPCArrow currend_line)
     {
-        foreach (var t in currend_line.curvePointList)
+        if (origin_line)
         {
-            if (line_index >= lines.Count)
+            for (int i = 0; i < 3; ++i)
             {
-                lines.Add(CreateNewLine("line" + line_index.ToString()));
+                if (line_index >= lines.Count)
+                {
+                    lines.Add(CreateNewLine("line" + line_index.ToString()));
+                }
+
+                if (i == 2)
+                {
+                    lines[line_index].GetComponent<LineRenderer>().positionCount = 2;
+                    lines[line_index].GetComponent<LineRenderer>().SetPosition(0, currend_line.startPoint);
+                    lines[line_index].GetComponent<LineRenderer>().SetPosition(1, currend_line.endPoint);
+                }
+                else
+                {
+                    lines[line_index].GetComponent<LineRenderer>().positionCount = currend_line.curvePointList[i].Length;
+                    lines[line_index].GetComponent<LineRenderer>().SetPositions(currend_line.curvePointList[i]);
+                }
+                ++line_index;
             }
-            Debug.Log(t.Length);
-            lines[line_index].GetComponent<LineRenderer>().positionCount = t.Length;
-            lines[line_index].GetComponent<LineRenderer>().SetPositions(t);
-            ++line_index;
         }
+        else
+        {
+            foreach (var t in currend_line.curvePointList)
+            {
+                if (line_index >= lines.Count)
+                {
+                    lines.Add(CreateNewLine("line" + line_index.ToString()));
+                }
+
+                lines[line_index].GetComponent<LineRenderer>().positionCount = t.Length;
+                lines[line_index].GetComponent<LineRenderer>().SetPositions(t);
+                ++line_index;
+            }
+        }
+
     }
 
     void ClearLine()
@@ -52,6 +81,7 @@ public class LineRenderARA : MonoBehaviour
             lines[line_index++].GetComponent<LineRenderer>().positionCount = 0;
         }
     }
+
 
     private GameObject CreateNewLine(string objName)
     {

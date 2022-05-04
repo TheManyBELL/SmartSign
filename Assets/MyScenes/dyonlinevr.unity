@@ -131,12 +131,16 @@ PrefabInstance:
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 2291289167689953260, guid: bbb3bf9e83d8ee540847333ca1de5d20, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 2291289167689953260, guid: bbb3bf9e83d8ee540847333ca1de5d20, type: 3}
       propertyPath: activeProfile
       value: 
       objectReference: {fileID: 11400000, guid: 81efdf4d5148d234e9a963964ee1e780, type: 2}
     - target: {fileID: 2291289167689953262, guid: bbb3bf9e83d8ee540847333ca1de5d20, type: 3}
       propertyPath: m_Name
-      value: MixedRealityToolkit (Inactive)
+      value: MixedRealityToolkit
       objectReference: {fileID: 0}
     - target: {fileID: 2291289167689953262, guid: bbb3bf9e83d8ee540847333ca1de5d20, type: 3}
       propertyPath: m_IsActive
@@ -274,11 +278,11 @@ PrefabInstance:
     - target: {fileID: 8347858650523972062, guid: a390018dab17cc749832567d1eb03a3f, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 999831699}
+      objectReference: {fileID: 994036168}
     - target: {fileID: 8347858650525036634, guid: a390018dab17cc749832567d1eb03a3f, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 1175515844}
+      objectReference: {fileID: 2135282490}
     m_RemovedComponents:
     - {fileID: 8347858650522756916, guid: a390018dab17cc749832567d1eb03a3f, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: a390018dab17cc749832567d1eb03a3f, type: 3}
@@ -317,13 +321,13 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 0}
-      propertyPath: sceneId
-      value: 1386242280
-      objectReference: {fileID: 0}
     - target: {fileID: 6503991030994286348, guid: 48c01c03e3377e544962def9717363d4, type: 3}
       propertyPath: m_Name
       value: PointCloudVR
+      objectReference: {fileID: 0}
+    - target: {fileID: 6503991030994286348, guid: 48c01c03e3377e544962def9717363d4, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6503991030994286351, guid: 48c01c03e3377e544962def9717363d4, type: 3}
       propertyPath: m_RootOrder
@@ -525,7 +529,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
---- !u!43 &999831699
+--- !u!43 &994036168
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -770,7 +774,7 @@ MonoBehaviour:
   offlineScene: Assets/MyScenes/dyonlinevr.unity
   onlineScene: Assets/MyScenes/dyonlinevr.unity
   transport: {fileID: 1046075959}
-  networkAddress: 219.224.167.191
+  networkAddress: 192.168.38.2
   maxConnections: 100
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 4374600861008913567, guid: 5301dfd1458cacc44bb21c8a1c9f8d12, type: 3}
@@ -781,10 +785,11 @@ MonoBehaviour:
   - {fileID: 1421554394697090846, guid: 231536518bd6fb241ace0ca695eac1c0, type: 3}
   - {fileID: 4617206983405905877, guid: 08431653dcc48e245b7e02ee48896bd3, type: 3}
   - {fileID: 8540769224365688559, guid: ac488689caf9c3a46bdb7f0a73d6e954, type: 3}
+  - {fileID: 8573055440854947891, guid: 1c154317f07c72b448123ddf44a8b458, type: 3}
   vrMode: 1
   arMode: 0
-  syncEnv_start: 0
-  syncEnv_end: -1
+  syncEnv_start: 4
+  syncEnv_end: 4
 --- !u!114 &1046075961
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -860,7 +865,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 6e07e649f746c0a4286b7fb3a9ebfa53, type: 3}
---- !u!21 &1175515844
+--- !u!21 &2135282490
 Material:
   serializedVersion: 6
   m_ObjectHideFlags: 0

@@ -222,6 +222,8 @@ public class DisplayPointCloud : MonoBehaviour
     Material VertexMaterial_1;
     private bool new_frame = false;
 
+    public bool isRenderFrame = true;
+
     private void OnEnable()
     {
         //UIManager.ButtonPressed += OnMarkerRecognitionStarted;
@@ -373,6 +375,7 @@ public class DisplayPointCloud : MonoBehaviour
 
     public void newFrame(ref byte[] frame)
     {
+       
         lock (frameLock)
         {
             frame_queue.Enqueue(frame);
@@ -381,6 +384,8 @@ public class DisplayPointCloud : MonoBehaviour
 
     public void newFrame()
     {
+        Debug.Log("111");
+        if (!isRenderFrame) { return; }
         byte[] copy = new byte[Depth_compressed + Color_compressed + 21];
         Buffer.BlockCopy(Frame, 0, copy, 0, Depth_compressed + Color_compressed + 21);
         lock (frameLock)

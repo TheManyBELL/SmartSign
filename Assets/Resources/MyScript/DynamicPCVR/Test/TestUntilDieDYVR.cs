@@ -64,7 +64,7 @@ public class TestUntilDieDYVR : MonoBehaviour
                         startPoint = p1,
                         endPoint = p2
                     });*/
-                    GameObject.Find("SmartSignA(Clone)").GetComponent<MirrorControllerA>().syncArrowList.Add(new DPCArrow()
+                    GameObject.Find("SmartSignA(Clone)").GetComponent<MirrorControllerA>().CmdAddDPCArrow(new DPCArrow()
                     {
                         index = currentLineIndex++,
                         startPoint = p1,

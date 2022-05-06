@@ -197,41 +197,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2546171502014103289, guid: 78471b7db4b064640b6d103faa75dc0a, type: 3}
   m_PrefabInstance: {fileID: 16192421}
   m_PrefabAsset: {fileID: 0}
---- !u!21 &132842627
-Material:
-  serializedVersion: 6
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_Name: Sprites/Default
-  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: 
-  m_LightmapFlags: 4
-  m_EnableInstancingVariants: 0
-  m_DoubleSidedGI: 0
-  m_CustomRenderQueue: -1
-  stringTagMap: {}
-  disabledShaderPasses: []
-  m_SavedProperties:
-    serializedVersion: 3
-    m_TexEnvs:
-    - _AlphaTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
-    m_Floats:
-    - PixelSnap: 0
-    - _EnableExternalAlpha: 0
-    m_Colors:
-    - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
-  m_BuildTextureStacks: []
 --- !u!1 &146508095
 GameObject:
   m_ObjectHideFlags: 0
@@ -556,16 +521,16 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8347858650522884860, guid: a390018dab17cc749832567d1eb03a3f, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8347858650523972062, guid: a390018dab17cc749832567d1eb03a3f, type: 3}
       propertyPath: m_Mesh
       value: 
-      objectReference: {fileID: 1615127635}
+      objectReference: {fileID: 1631424413}
     - target: {fileID: 8347858650525036634, guid: a390018dab17cc749832567d1eb03a3f, type: 3}
       propertyPath: m_Materials.Array.data[0]
       value: 
-      objectReference: {fileID: 132842627}
+      objectReference: {fileID: 754976866}
     m_RemovedComponents:
     - {fileID: 8347858650522756916, guid: a390018dab17cc749832567d1eb03a3f, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: a390018dab17cc749832567d1eb03a3f, type: 3}
@@ -1062,6 +1027,41 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 48c01c03e3377e544962def9717363d4, type: 3}
+--- !u!21 &754976866
+Material:
+  serializedVersion: 6
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Sprites/Default
+  m_Shader: {fileID: 10753, guid: 0000000000000000f000000000000000, type: 0}
+  m_ShaderKeywords: 
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs:
+    - _AlphaTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _MainTex:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    m_Floats:
+    - PixelSnap: 0
+    - _EnableExternalAlpha: 0
+    m_Colors:
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _Flip: {r: 1, g: 1, b: 1, a: 1}
+    - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
+  m_BuildTextureStacks: []
 --- !u!1001 &902422135
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1119,7 +1119,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5879761914199037229, guid: dc96a0e4c7242cd48859068234a9e2d1, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: dc96a0e4c7242cd48859068234a9e2d1, type: 3}
@@ -1297,7 +1297,7 @@ MonoBehaviour:
   offlineScene: Assets/MyScenes/dyonlinevr.unity
   onlineScene: Assets/MyScenes/dyonlinevr.unity
   transport: {fileID: 1046075959}
-  networkAddress: 192.168.0.132
+  networkAddress: 219.224.167.185
   maxConnections: 100
   authenticator: {fileID: 0}
   playerPrefab: {fileID: 4374600861008913567, guid: 5301dfd1458cacc44bb21c8a1c9f8d12, type: 3}
@@ -1309,8 +1309,8 @@ MonoBehaviour:
   - {fileID: 4617206983405905877, guid: 08431653dcc48e245b7e02ee48896bd3, type: 3}
   - {fileID: 8540769224365688559, guid: ac488689caf9c3a46bdb7f0a73d6e954, type: 3}
   - {fileID: 8573055440854947891, guid: 1c154317f07c72b448123ddf44a8b458, type: 3}
-  vrMode: 1
-  arMode: 0
+  vrMode: 0
+  arMode: 1
   syncEnv_start: 4
   syncEnv_end: 3
 --- !u!114 &1046075961
@@ -1405,7 +1405,7 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 5665739916643452293, guid: f4a12bcece996d246ad5429e5d3f2c15, type: 3}
   m_PrefabInstance: {fileID: 581922959}
   m_PrefabAsset: {fileID: 0}
---- !u!64 &1224911820
+--- !u!64 &1224911823
 MeshCollider:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1661,7 +1661,7 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1587899356}
   m_CullTransparentMesh: 1
---- !u!43 &1615127635
+--- !u!43 &1631424413
 Mesh:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

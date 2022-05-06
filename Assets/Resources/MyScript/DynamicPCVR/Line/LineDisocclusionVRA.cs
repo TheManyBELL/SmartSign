@@ -35,17 +35,17 @@ public class LineDisocclusionVRA : MonoBehaviour
     {
         for (int i = 0; i < mirrorController.syncArrowList.Count;++i)
         {
-            // current_line = mirrorController.syncArrowList[i];
+            current_line = mirrorController.syncArrowList[i];
             // current_line.curvePointList.Clear();
 
-            p1 = mirrorController.syncArrowList[i].startPoint;
-            p2 = mirrorController.syncArrowList[i].endPoint;
+            p1 = current_line.startPoint;
+            p2 = current_line.endPoint;
             curve_list.Clear();
             arrowDisocclusion();
 
-            mirrorController.syncArrowList[i].curvePointList.Clear();
-            mirrorController.syncArrowList[i].curvePointList.AddRange(curve_list);
-            // mirrorController.CmdUpdateDPCArrow(current_line);
+            current_line.curvePointList.Clear();
+            current_line.curvePointList.AddRange(curve_list);
+            mirrorController.CmdUpdateDPCArrow(current_line);
 
         }
     }

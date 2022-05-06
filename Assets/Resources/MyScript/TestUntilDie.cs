@@ -18,6 +18,8 @@ public class TestUntilDie : MonoBehaviour
     private GameObject copySymbol;
     public GameObject AssitRotateSphere;
 
+    private int currentLineIndex = 0;
+
     private enum State
     {
         Inactive = 0, SelectPosition, SelectRotation, SelectP1, SelectP2
@@ -27,7 +29,7 @@ public class TestUntilDie : MonoBehaviour
     public Button PlaceRotButton, PlacePressButton, LineButton;
 
     // new 
-    public Depth GetDepthScript;
+    public DepthDPC GetDepthScript;
     private Camera depthCamera;
     private List<Vector3> symbolOriginPos;
     private int symbolLayer;
@@ -59,23 +61,20 @@ public class TestUntilDie : MonoBehaviour
         if (GameObject.Find("DepthCamera"))
         {
             depthCamera = GameObject.Find("DepthCamera").GetComponent<Camera>();
-            GetDepthScript = GameObject.Find("DepthCamera").GetComponent<Depth>();
+            GetDepthScript = GameObject.Find("DepthCamera").GetComponent<DepthDPC>();
         }
-        else
-        {
-            depthCamera = Camera.main;
-            GetDepthScript = Camera.main.GetComponent<Depth>();
-        }
+
         symbolOriginPos = new List<Vector3>();
         symbolLayer = LayerMask.NameToLayer("Symbol");
 
         draw = false;
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (draw)
+        /*if (draw)
         {
             GameObject.Find("TestObj").GetComponent<RayDisocclusion>().segments.Add(new SegmentInfo()
             {
@@ -83,7 +82,7 @@ public class TestUntilDie : MonoBehaviour
                 endPoint = new Vector3(-1.7f, 0.6f, 3.2f)
             });
             draw = false;
-        }
+        }*/
 
         Debug.Log("test");
         for (int i = 0; i < symbolList.Count; i++)
@@ -171,11 +170,18 @@ public class TestUntilDie : MonoBehaviour
                 if (Input.GetMouseButtonDown(0))
                 {
                     p2 = hitInfo.point + 0.01f * hitInfo.normal;
-                    GameObject.Find("TestObj").GetComponent<RayDisocclusion>().segments.Add(new SegmentInfo()
+                    /*GameObject.Find("TestObj").GetComponent<RayDisocclusion>().segments.Add(new SegmentInfo()
                     {
                         startPoint = p1,
                         endPoint = p2
-                    });
+                    });*/
+                    GameObject.Find("Script").GetComponent<TestMirror>().syncArrowList.Add(new DPCArrow()
+                    {
+                        index = currentLineIndex++,
+                        startPoint = p1,
+                        endPoint = p2,
+                        curvePointList = new List<Vector3[]>()
+                    }); ;
                     nowState = State.Inactive;
                     Debug.Log("p2 " + p2);
                 }   

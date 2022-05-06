@@ -78,7 +78,7 @@ public class RayDisocclusion : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (interval < 10)
+        /*if (interval < 10)
         {
             ++interval;
             return;
@@ -119,7 +119,7 @@ public class RayDisocclusion : MonoBehaviour
             detourToUnvisiblePoint();
 
             segmentIndex++;
-        }
+        }*/
 
     }
 

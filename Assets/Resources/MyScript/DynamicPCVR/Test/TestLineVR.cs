@@ -1,12 +1,12 @@
-ï»¿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
 using UnityEngine.UI;
 
-public class LineDisocclusionVRA : MonoBehaviour
+public class TestLineVR : MonoBehaviour
 {
-    private MirrorControllerA mirrorController;
+    private TestMirror mirrorController;
     private Vector3 p1, p2;
     private DPCArrow current_line;
 
@@ -16,43 +16,44 @@ public class LineDisocclusionVRA : MonoBehaviour
     private int[,] Cnk;
     public bool[] lineVisibility;
 
-    // 
-    private List<Vector3[]> curve_list; 
-
     private GlobalUtils globalUtils;
 
     private void Start()
     {
-        mirrorController = GetComponentInParent<MirrorControllerA>();
+        mirrorController = GetComponent<TestMirror>();
         globalUtils = GetComponent<GlobalUtils>();
 
         InitCnk(VisibilitySampleCount);
         lineVisibility = new bool[VisibilitySampleCount];
-        curve_list = new List<Vector3[]>();
     }
 
     private void Update()
     {
-        for (int i = 0; i < mirrorController.syncArrowList.Count;++i)
+        for (int i = 0; i < mirrorController.syncArrowList.Count; ++i)
         {
-            // current_line = mirrorController.syncArrowList[i];
-            // current_line.curvePointList.Clear();
+            current_line = mirrorController.syncArrowList[i];
 
-            p1 = mirrorController.syncArrowList[i].startPoint;
-            p2 = mirrorController.syncArrowList[i].endPoint;
-            curve_list.Clear();
+            Debug.LogWarning("=======================");
+            Debug.LogWarning("origin count: " + mirrorController.syncArrowList[i].curvePointList.Count);
+            Debug.LogWarning("origin current_line count: " + current_line.curvePointList.Count);
+
+            current_line.curvePointList.Clear();
+
+            Debug.LogWarning("after count: " + mirrorController.syncArrowList[i].curvePointList.Count);
+            Debug.LogWarning("after current_line count: " + current_line.curvePointList.Count);
+            Debug.LogWarning("=======================");
+
             arrowDisocclusion();
-
-            mirrorController.syncArrowList[i].curvePointList.Clear();
-            mirrorController.syncArrowList[i].curvePointList.AddRange(curve_list);
-            // mirrorController.CmdUpdateDPCArrow(current_line);
-
+            mirrorController.CmdUpdateDPCArrow(current_line);
         }
     }
 
     private void arrowDisocclusion()
     {
         // De occlusion calculation is performed here
+        p1 = current_line.startPoint;
+        p2 = current_line.endPoint;
+
         RaisestraightLineLogo();
         DrawArrow();
         AdjustPointOrder();
@@ -94,16 +95,16 @@ public class LineDisocclusionVRA : MonoBehaviour
         Vector2 verticalDir = new Vector2(-dir.y, dir.x);
 
         int length = 10;
-        Vector3 screenArrowP1 = screenP2 + length * new Vector3(verticalDir.x, verticalDir.y) 
+        Vector3 screenArrowP1 = screenP2 + length * new Vector3(verticalDir.x, verticalDir.y)
             + length * new Vector3(dir.x, dir.y);
-        Vector3 screenArrowP2 = screenP2 - length * new Vector3(verticalDir.x, verticalDir.y) 
+        Vector3 screenArrowP2 = screenP2 - length * new Vector3(verticalDir.x, verticalDir.y)
             + length * new Vector3(dir.x, dir.y);
 
         Vector3 arrowP1 = globalUtils.MScreenToWorldPointDepth(screenArrowP1);
         Vector3 arrowP2 = globalUtils.MScreenToWorldPointDepth(screenArrowP2);
 
-        curve_list.Add(new Vector3[] { arrowP1, p2 });
-        curve_list.Add(new Vector3[] { arrowP2, p2 });
+        current_line.curvePointList.Add(new Vector3[] { arrowP1, p2 });
+        current_line.curvePointList.Add(new Vector3[] { arrowP2, p2 });
     }
 
     private void AdjustPointOrder()
@@ -168,7 +169,7 @@ public class LineDisocclusionVRA : MonoBehaviour
             {
                 Vector3 tp = scaleToVec(i);
                 while (i < VisibilitySampleCount && lineVisibility[i]) { i++; }
-                curve_list.Add(new Vector3[] { tp, scaleToVec(i - 1) });
+                current_line.curvePointList.Add(new Vector3[] { tp, scaleToVec(i - 1) });
             }
             i++;
         }
@@ -306,7 +307,7 @@ public class LineDisocclusionVRA : MonoBehaviour
             }
         }
 
-        curve_list.Add(curvePoints);
+        current_line.curvePointList.Add(curvePoints);
     }
 
     // ====================================================== detour to UnvisiblePoint ============================================================
@@ -323,11 +324,11 @@ public class LineDisocclusionVRA : MonoBehaviour
             Vector3 p = scaleToVec(i);
 
             // new 
-            // right visible æ”¾å‰é¢ å› ä¸ºè¿™ä¸ªç‚¹å¯èƒ½åŒæ—¶æ˜¯èµ·ç‚¹å’Œç»ˆç‚¹
+            // right visible ·ÅÇ°Ãæ ÒòÎªÕâ¸öµã¿ÉÄÜÍ¬Ê±ÊÇÆðµãºÍÖÕµã
             if (meetl && i >= 1 && !lineVisibility[i - 1] && lineVisibility[i])
             {
                 controlPoints.Add(p);
-                disturbanceControlPoints(ref controlPoints);  // ç»•ä¸€ä¸‹
+                disturbanceControlPoints(ref controlPoints);  // ÈÆÒ»ÏÂ
                 DrawBezierCurve(ref controlPoints);
                 controlPoints.Clear();
                 meetl = false;
@@ -353,7 +354,7 @@ public class LineDisocclusionVRA : MonoBehaviour
         int countP = controlPoints.Count;
         Vector3 lookAt = globalUtils.depthCamera.transform.forward;
         Vector3 line = controlPoints[countP - 1] - controlPoints[0];
-        Vector3 offset = Vector3.Distance(controlPoints[0], controlPoints[countP - 1]) * Vector3.Cross(line, lookAt).normalized;  
+        Vector3 offset = Vector3.Distance(controlPoints[0], controlPoints[countP - 1]) * Vector3.Cross(line, lookAt).normalized;
         // std::cout << offset.x << " " << offset.y << " " << offset.z << ";" << std::endl;
 
         for (int i = 1, j = countP - 2; i <= j; i++, j--)
@@ -385,6 +386,6 @@ public class LineDisocclusionVRA : MonoBehaviour
             curvePoints[j] = np;
             t += dt;
         }
-        curve_list.Add(curvePoints);
+        current_line.curvePointList.Add(curvePoints);
     }
 }

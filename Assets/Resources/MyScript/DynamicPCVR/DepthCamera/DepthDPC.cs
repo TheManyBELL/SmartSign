@@ -102,7 +102,7 @@ public class DepthDPC : MonoBehaviour
     void Update()
     {
         // Debug.Log("depth");
-        //this.transform.position = Camera.main.transform.position
-        //this.transform.rotation = Camera.main.transform.rotation;
+        this.transform.position = Camera.main.transform.position;
+        this.transform.rotation = Camera.main.transform.rotation;
     }
 }

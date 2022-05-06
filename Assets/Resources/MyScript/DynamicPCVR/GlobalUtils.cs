@@ -9,7 +9,7 @@ public class GlobalUtils : MonoBehaviour
 
     void Awake()
     {
-        
+        GetDepthScript = GameObject.Find("DepthCamera").GetComponent<DepthDPC>();
     }
 
     private void Update()

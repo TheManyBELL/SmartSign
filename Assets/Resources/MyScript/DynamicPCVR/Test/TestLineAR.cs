@@ -2,21 +2,21 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class LineRenderARA : MonoBehaviour
+public class TestLineAR : MonoBehaviour
 {
-    private MirrorControllerA mirrorController; // ÍøÂçÖÐ¿Ø
+    private TestMirror mirrorController; // ÍøÂçÖÐ¿Ø
     private List<GameObject> lines;
     private int line_index;
 
     public Material straightLineMaterial;
     public float straightLineThickness = 0.01f;
 
-    public bool origin_line = true;
+    public bool origin_line = false;
 
     // Start is called before the first frame update
     void Start()
     {
-        mirrorController = GetComponentInParent<MirrorControllerA>();
+        mirrorController = GetComponent<TestMirror>();
         lines = new List<GameObject>();
     }
 
@@ -27,7 +27,6 @@ public class LineRenderARA : MonoBehaviour
         for (int i = 0; i < mirrorController.syncArrowList.Count; ++i)
         {
             DPCArrow current_line = mirrorController.syncArrowList[i];
-            Debug.Log("!!! " + current_line.curvePointList.Count);
             DrawLine(ref current_line);
         }
         ClearLine();

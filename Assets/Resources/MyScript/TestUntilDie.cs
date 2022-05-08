@@ -18,6 +18,8 @@ public class TestUntilDie : MonoBehaviour
     private GameObject copySymbol;
     public GameObject AssitRotateSphere;
 
+    private TestGlobalUtils globalUtils;
+
     private int currentLineIndex = 0;
 
     private enum State
@@ -41,6 +43,9 @@ public class TestUntilDie : MonoBehaviour
 
     public GameObject test;
     public bool draw;
+
+    public GameObject assistColliderSpherePrefab;
+    public GameObject assistColliderSphere;
 
     // Start is called before the first frame update
     void Start()
@@ -69,6 +74,11 @@ public class TestUntilDie : MonoBehaviour
 
         draw = false;
 
+        assistColliderSphere = Instantiate(assistColliderSpherePrefab);
+        assistColliderSphere.layer = LayerMask.NameToLayer("DepthCameraUnivisible"); ;
+        assistColliderSphere.SetActive(false);
+
+        globalUtils = GameObject.Find("Script").GetComponent<TestGlobalUtils>();
     }
 
     // Update is called once per frame
@@ -152,11 +162,13 @@ public class TestUntilDie : MonoBehaviour
         // line 
         else if (nowState == State.SelectP1)
         {
-            if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity))
+            // if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity))
             {
                 if (Input.GetMouseButtonDown(0))
                 {
-                    p1 = hitInfo.point + 0.01f * hitInfo.normal;
+                    // p1 = hitInfo.point + 0.01f * hitInfo.normal;
+                    assistColliderSphere.SetActive(true);
+                    p1 = GetCollisionPoint(ray);
                     nowState = State.SelectP2;
                     Debug.Log("p1 " + p1);
                 }
@@ -165,11 +177,12 @@ public class TestUntilDie : MonoBehaviour
         }
         else if (nowState == State.SelectP2)
         {
-            if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity))
+            if (true)
             {
                 if (Input.GetMouseButtonDown(0))
                 {
-                    p2 = hitInfo.point + 0.01f * hitInfo.normal;
+                    p2 = GetCollisionPoint(ray);
+                    assistColliderSphere.SetActive(false);
                     /*GameObject.Find("TestObj").GetComponent<RayDisocclusion>().segments.Add(new SegmentInfo()
                     {
                         startPoint = p1,
@@ -181,12 +194,28 @@ public class TestUntilDie : MonoBehaviour
                         startPoint = p1,
                         endPoint = p2,
                         curvePointList = new List<Vector3[]>()
-                    }); ;
+                    }); 
                     nowState = State.Inactive;
                     Debug.Log("p2 " + p2);
                 }   
             }
         }
+    }
+
+    private Vector3 GetCollisionPoint(Ray ray)
+    {
+        //TODO
+        int MAXSTEP = 1000, stepCount = 0;
+        float step = 0.01f;
+        assistColliderSphere.transform.position = ray.origin;
+        while (globalUtils.GameObjectVisible(assistColliderSphere))
+        {
+            assistColliderSphere.transform.position += step * ray.direction;
+            stepCount++;
+            if (stepCount > MAXSTEP) break;
+        }
+
+        return (assistColliderSphere.transform.position - 2 * step * ray.direction);
     }
 
     private void ActivateRotPlacement()

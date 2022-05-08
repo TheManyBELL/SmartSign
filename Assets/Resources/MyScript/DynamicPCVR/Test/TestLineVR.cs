@@ -4,33 +4,67 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 
+public struct visibiltyFilter
+{
+    public int true_count, false_count;
+    public bool last_frame_val;
+    public Queue<bool> past_val;
+}
+
 public class TestLineVR : MonoBehaviour
 {
     private TestMirror mirrorController;
     private Vector3 p1, p2;
     private DPCArrow current_line;
 
-    public int VisibilitySampleCount = 20, BezierSampleCount = 50, CatmullRomSampleCount = 50;
+    public int VisibilitySampleCount = 20, BezierSampleCount = 30, CatmullRomSampleCount = 30;
     public bool StarightLineCompleteConvered;
     private const float DirectChangeDepthVal = 0.0002f;
     private int[,] Cnk;
     public bool[] lineVisibility;
 
-    private GlobalUtils globalUtils;
+    // 
+    public bool filter = true;
+    public int filter_frame_count = 20;
+    private int current_line_index;
+    private List<visibiltyFilter[]> pastLineVisibility;
+
+    private TestGlobalUtils globalUtils;
 
     private void Start()
     {
         mirrorController = GetComponent<TestMirror>();
-        globalUtils = GetComponent<GlobalUtils>();
+        globalUtils = GetComponent<TestGlobalUtils>();
 
         InitCnk(VisibilitySampleCount);
         lineVisibility = new bool[VisibilitySampleCount];
+        pastLineVisibility = new List<visibiltyFilter[]>();
     }
 
     private void Update()
     {
+        while (pastLineVisibility.Count > mirrorController.syncArrowList.Count)
+        {
+            pastLineVisibility.RemoveAt(pastLineVisibility.Count - 1);
+        }
+        while (pastLineVisibility.Count < mirrorController.syncArrowList.Count)
+        {
+            visibiltyFilter[] tmp = new visibiltyFilter[VisibilitySampleCount];
+            for (int i = 0; i < VisibilitySampleCount; ++i)
+            {
+                tmp[i] = new visibiltyFilter()
+                {
+                    true_count = 0,
+                    false_count = 0,
+                    past_val = new Queue<bool>()
+                };
+            }
+            pastLineVisibility.Add(tmp);
+        }
+
         for (int i = 0; i < mirrorController.syncArrowList.Count; ++i)
         {
+            current_line_index = i;
             current_line = mirrorController.syncArrowList[i];
 
             Debug.LogWarning("=======================");
@@ -135,6 +169,29 @@ public class TestLineVR : MonoBehaviour
             float minDepth = globalUtils.GetDepth((int)screenP.x, (int)screenP.y);
             // float testVisibleThreshold = 0.00001f; ;
             lineVisibility[i] = (minDepth >= screenP.z);
+
+            //filter
+            pastLineVisibility[current_line_index][i].past_val.Enqueue(lineVisibility[i]);
+            pastLineVisibility[current_line_index][i].true_count += lineVisibility[i] ? 1 : 0;
+            pastLineVisibility[current_line_index][i].false_count += lineVisibility[i] ? 0 : 1;
+            if (pastLineVisibility[current_line_index][i].past_val.Count > filter_frame_count)
+            {
+                bool val = pastLineVisibility[current_line_index][i].past_val.Dequeue();
+                pastLineVisibility[current_line_index][i].true_count -= val ? 1 : 0;
+                pastLineVisibility[current_line_index][i].false_count -= val ? 0 : 1;
+                
+                if (filter && lineVisibility[i] && pastLineVisibility[current_line_index][i].true_count != filter_frame_count)
+                {
+                    lineVisibility[i] = pastLineVisibility[current_line_index][i].last_frame_val;
+                }
+
+                if (filter && !lineVisibility[i] && pastLineVisibility[current_line_index][i].false_count != filter_frame_count)
+                {
+                    lineVisibility[i] = pastLineVisibility[current_line_index][i].last_frame_val;
+                }
+                pastLineVisibility[current_line_index][i].last_frame_val = lineVisibility[i];
+            }
+
             if (completeConvered)
             {
                 completeConvered = !lineVisibility[i];

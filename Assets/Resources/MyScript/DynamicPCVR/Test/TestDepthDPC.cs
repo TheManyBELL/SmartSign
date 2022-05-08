@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
-public class DepthDPC : MonoBehaviour
+public class TestDepthDPC : MonoBehaviour
 {
     // Start is called before the first frame update
     private Camera m_Camera;
@@ -17,12 +17,12 @@ public class DepthDPC : MonoBehaviour
     public RenderTexture test;
 
     // 
-    public bool origin = true;
+    public bool origin = false;
 
 
     private void Awake()
     {
-        
+
     }
 
     void Start()
@@ -36,7 +36,7 @@ public class DepthDPC : MonoBehaviour
         // point cloud depth
         colorRT = new RenderTexture(Screen.width, Screen.height, 24, RenderTextureFormat.Default);
         depthRT = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.Depth);
-        
+
 
         test = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.RFloat);
         // depth to read
@@ -102,7 +102,7 @@ public class DepthDPC : MonoBehaviour
     void Update()
     {
         // Debug.Log("depth");
-        /*this.transform.position = Camera.main.transform.position;
-        this.transform.rotation = Camera.main.transform.rotation;*/
+        this.transform.position = Camera.main.transform.position;
+        this.transform.rotation = Camera.main.transform.rotation;
     }
 }

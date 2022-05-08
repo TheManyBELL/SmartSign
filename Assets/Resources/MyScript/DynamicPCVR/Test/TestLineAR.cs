@@ -9,7 +9,7 @@ public class TestLineAR : MonoBehaviour
     private int line_index;
 
     public Material straightLineMaterial;
-    public float straightLineThickness = 0.01f;
+    public float straightLineThickness = 0.004f;
 
     public bool origin_line = false;
 
@@ -89,6 +89,8 @@ public class TestLineAR : MonoBehaviour
         lineObj.transform.SetParent(this.transform);
         LineRenderer curveRender = lineObj.AddComponent<LineRenderer>();
         curveRender.material = straightLineMaterial;
+        lineObj.layer = LayerMask.NameToLayer("DepthCameraUnivisible"); ;
+
 
         curveRender.startWidth = straightLineThickness;
         curveRender.endWidth = straightLineThickness;

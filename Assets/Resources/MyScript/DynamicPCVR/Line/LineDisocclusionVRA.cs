@@ -4,6 +4,7 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 
+
 public class LineDisocclusionVRA : MonoBehaviour
 {
     private MirrorControllerA mirrorController;
@@ -16,8 +17,13 @@ public class LineDisocclusionVRA : MonoBehaviour
     private int[,] Cnk;
     public bool[] lineVisibility;
 
-    // 
-    private List<Vector3[]> curve_list; 
+    private List<Vector3[]> curve_list;
+
+    // filter
+    public bool filter = true;
+    public int filter_frame_count = 20;
+    private int current_line_index;
+    private List<visibiltyFilter[]> pastLineVisibility;
 
     private GlobalUtils globalUtils;
 
@@ -29,10 +35,31 @@ public class LineDisocclusionVRA : MonoBehaviour
         InitCnk(VisibilitySampleCount);
         lineVisibility = new bool[VisibilitySampleCount];
         curve_list = new List<Vector3[]>();
+        pastLineVisibility = new List<visibiltyFilter[]>();
     }
 
     private void Update()
     {
+        // filter
+        while (pastLineVisibility.Count > mirrorController.syncArrowList.Count)
+        {
+            pastLineVisibility.RemoveAt(pastLineVisibility.Count - 1);
+        }
+        while (pastLineVisibility.Count < mirrorController.syncArrowList.Count)
+        {
+            visibiltyFilter[] tmp = new visibiltyFilter[VisibilitySampleCount];
+            for (int i = 0; i < VisibilitySampleCount; ++i)
+            {
+                tmp[i] = new visibiltyFilter()
+                {
+                    true_count = 0,
+                    false_count = 0,
+                    past_val = new Queue<bool>()
+                };
+            }
+            pastLineVisibility.Add(tmp);
+        }
+
         for (int i = 0; i < mirrorController.syncArrowList.Count;++i)
         {
             current_line = mirrorController.syncArrowList[i];
@@ -134,6 +161,29 @@ public class LineDisocclusionVRA : MonoBehaviour
             float minDepth = globalUtils.GetDepth((int)screenP.x, (int)screenP.y);
             // float testVisibleThreshold = 0.00001f; ;
             lineVisibility[i] = (minDepth >= screenP.z);
+
+            //filter
+            pastLineVisibility[current_line_index][i].past_val.Enqueue(lineVisibility[i]);
+            pastLineVisibility[current_line_index][i].true_count += lineVisibility[i] ? 1 : 0;
+            pastLineVisibility[current_line_index][i].false_count += lineVisibility[i] ? 0 : 1;
+            if (pastLineVisibility[current_line_index][i].past_val.Count > filter_frame_count)
+            {
+                bool val = pastLineVisibility[current_line_index][i].past_val.Dequeue();
+                pastLineVisibility[current_line_index][i].true_count -= val ? 1 : 0;
+                pastLineVisibility[current_line_index][i].false_count -= val ? 0 : 1;
+
+                if (filter && lineVisibility[i] && pastLineVisibility[current_line_index][i].true_count != filter_frame_count)
+                {
+                    lineVisibility[i] = pastLineVisibility[current_line_index][i].last_frame_val;
+                }
+
+                if (filter && !lineVisibility[i] && pastLineVisibility[current_line_index][i].false_count != filter_frame_count)
+                {
+                    lineVisibility[i] = pastLineVisibility[current_line_index][i].last_frame_val;
+                }
+                pastLineVisibility[current_line_index][i].last_frame_val = lineVisibility[i];
+            }
+
             if (completeConvered)
             {
                 completeConvered = !lineVisibility[i];

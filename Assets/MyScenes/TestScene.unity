@@ -259,7 +259,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &117134846
 Transform:
   m_ObjectHideFlags: 0
@@ -654,7 +654,7 @@ PrefabInstance:
       objectReference: {fileID: 11400000, guid: 81efdf4d5148d234e9a963964ee1e780, type: 2}
     - target: {fileID: 2291289167689953262, guid: bbb3bf9e83d8ee540847333ca1de5d20, type: 3}
       propertyPath: m_Name
-      value: MixedRealityToolkit (Inactive)
+      value: MixedRealityToolkit
       objectReference: {fileID: 0}
     - target: {fileID: 2291289167689953262, guid: bbb3bf9e83d8ee540847333ca1de5d20, type: 3}
       propertyPath: m_IsActive
@@ -706,6 +706,24 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bbb3bf9e83d8ee540847333ca1de5d20, type: 3}
+--- !u!1 &565422884 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7597175035863139077, guid: 22332abe7bf93914f83614dfa15c1a3f, type: 3}
+  m_PrefabInstance: {fileID: 1472868096}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &565422885
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 565422884}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 450ded38cb07cba42aff096312e85d7a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hostIP: 192.168.38.2
 --- !u!1 &726445325
 GameObject:
   m_ObjectHideFlags: 0
@@ -1037,7 +1055,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1014663801}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 53b994a3b54183b4fa75a5d1148a6ca0, type: 3}
+  m_Script: {fileID: 11500000, guid: efdba68d6fb7944408590c8be8490b26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   depthTexture: {fileID: 0}
@@ -1046,7 +1064,7 @@ MonoBehaviour:
   colorRT: {fileID: 0}
   depthRT: {fileID: 0}
   test: {fileID: 0}
-  origin: 1
+  origin: 0
 --- !u!81 &1014663803
 AudioListener:
   m_ObjectHideFlags: 0
@@ -1054,7 +1072,7 @@ AudioListener:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1014663801}
-  m_Enabled: 1
+  m_Enabled: 0
 --- !u!20 &1014663804
 Camera:
   m_ObjectHideFlags: 0
@@ -1086,7 +1104,7 @@ Camera:
   m_Depth: 0
   m_CullingMask:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 2147512119
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 8400000, guid: 92b4277c22b77244b923b724aa8b2f53, type: 2}
   m_TargetDisplay: 0
@@ -1154,6 +1172,8 @@ MonoBehaviour:
   raise: 1
   test: {fileID: 1353966631}
   draw: 0
+  assistColliderSpherePrefab: {fileID: 9085032347184655347, guid: 46a1f4b88fd026a429c5e51b5c7ee466, type: 3}
+  assistColliderSphere: {fileID: 0}
 --- !u!4 &1021958301
 Transform:
   m_ObjectHideFlags: 0
@@ -1260,6 +1280,10 @@ PrefabInstance:
     - target: {fileID: 3687616382329666908, guid: f4a12bcece996d246ad5429e5d3f2c15, type: 3}
       propertyPath: m_Name
       value: room704_table
+      objectReference: {fileID: 0}
+    - target: {fileID: 3687616382329666908, guid: f4a12bcece996d246ad5429e5d3f2c15, type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4064176658227914726, guid: f4a12bcece996d246ad5429e5d3f2c15, type: 3}
       propertyPath: m_RootOrder
@@ -1846,10 +1870,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2019651159}
-  - component: {fileID: 2019651160}
   - component: {fileID: 2019651163}
   - component: {fileID: 2019651162}
   - component: {fileID: 2019651161}
+  - component: {fileID: 2019651160}
   m_Layer: 0
   m_Name: Script
   m_TagString: Untagged
@@ -1880,10 +1904,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 2019651158}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a7ac7808cde3f9a4aa3c9aee54eb6ab4, type: 3}
+  m_Script: {fileID: 11500000, guid: e3ef02a405c6f9e4b81bb19e3d63c47f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  depthCamera: {fileID: 1014663804}
+  depthCamera: {fileID: 0}
 --- !u!114 &2019651161
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1897,8 +1921,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   VisibilitySampleCount: 20
-  BezierSampleCount: 50
-  CatmullRomSampleCount: 50
+  BezierSampleCount: 30
+  CatmullRomSampleCount: 30
   StarightLineCompleteConvered: 0
   lineVisibility: 
 --- !u!114 &2019651162
@@ -1915,7 +1939,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   straightLineMaterial: {fileID: 0}
   straightLineThickness: 0.01
-  origin_line: 1
+  origin_line: 0
 --- !u!114 &2019651163
 MonoBehaviour:
   m_ObjectHideFlags: 0

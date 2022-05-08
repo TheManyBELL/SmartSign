@@ -2,34 +2,19 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class GlobalUtils : MonoBehaviour
+public class TestGlobalUtils : MonoBehaviour
 {
     public Camera depthCamera;
-    private DepthDPC GetDepthScript;
+    private TestDepthDPC GetDepthScript;
 
     void Awake()
     {
-        
+        depthCamera = GameObject.Find("DepthCamera").GetComponent<Camera>();
+        GetDepthScript = GameObject.Find("DepthCamera").GetComponent<TestDepthDPC>();
     }
 
     private void Update()
     {
-        if (depthCamera) { return; }
-        if (GameObject.Find("DepthCameraAR(Clone)"))
-        {
-            depthCamera = GameObject.Find("DepthCameraAR(Clone)").GetComponent<Camera>();
-            GetDepthScript = GameObject.Find("DepthCameraAR(Clone)").GetComponent<DepthDPC>();
-            if (depthCamera)
-            {
-                Debug.Log("[Global Utils]: Depth Camera found");
-            }
-        }
-        else
-        {
-            //depthCamera = Camera.main;
-            //GetDepthScript = Camera.main.GetComponent<DepthDPC>();
-            // Debug.Log("[Global Utils]: Depth Camera not found");
-        }
     }
 
     public float GetDepth(int x, int y) => GetDepthScript.GetDepth(x, y);

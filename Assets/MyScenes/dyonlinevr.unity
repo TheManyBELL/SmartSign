@@ -949,6 +949,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LineButton: {fileID: 0}
+  assistColliderSpherePrefab: {fileID: 9085032347184655347, guid: 46a1f4b88fd026a429c5e51b5c7ee466, type: 3}
+  depthCamera: {fileID: 0}
 --- !u!4 &670127196
 Transform:
   m_ObjectHideFlags: 0

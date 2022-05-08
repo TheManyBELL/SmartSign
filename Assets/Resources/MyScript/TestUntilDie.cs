@@ -194,7 +194,7 @@ public class TestUntilDie : MonoBehaviour
                         startPoint = p1,
                         endPoint = p2,
                         curvePointList = new List<Vector3[]>()
-                    }); 
+                    });
                     nowState = State.Inactive;
                     Debug.Log("p2 " + p2);
                 }   

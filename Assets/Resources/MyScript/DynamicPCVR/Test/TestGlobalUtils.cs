@@ -15,6 +15,7 @@ public class TestGlobalUtils : MonoBehaviour
 
     private void Update()
     {
+
     }
 
     public float GetDepth(int x, int y) => GetDepthScript.GetDepth(x, y);

@@ -6,53 +6,43 @@ using UnityEngine.UI;
 
 public class TestUntilDie : MonoBehaviour
 {
-    public Material lineMaterial;
-    public float lineThickness = 0.01f;
-    private GameObject visibleRay;
+    public GameObject RotateSymbolPrefab;
+    public GameObject PressSymbolPrefab;
+    public GameObject assitRotateSpherePrefab;
+    private GameObject assitRotateSphere;
 
-    private List<GameObject> symbolList;
-
-    public GameObject RotateSymbol;
-    public GameObject PressSymbol;
-    private GameObject symbol;
-    private GameObject copySymbol;
-    public GameObject AssitRotateSphere;
-
+    private TestExp GetExpStateScript;
     private TestGlobalUtils globalUtils;
+    private TestMirror mirrorController;
 
-    private int currentLineIndex = 0;
+    private int currentLineIndex = 0, 
+        currentPressIndex = 0, 
+        currentRotateIndex = 0;
 
     private enum State
     {
-        Inactive = 0, SelectPosition, SelectRotation, SelectP1, SelectP2
+        Inactive = 0, SelectPosition, SelectRotation, SelectP1, SelectP2, SelectSplitPoint
     };
     private State nowState = 0;
 
-    public Button PlaceRotButton, PlacePressButton, LineButton;
-
-    // new 
-    public DepthDPC GetDepthScript;
-    private Camera depthCamera;
-    private List<Vector3> symbolOriginPos;
-    private int symbolLayer;
+    // Button
+    private Button PlaceRotButton, PlacePressButton, LineButton, SplitButton;
+    // press and rotate
     private bool press;
-    public GameObject sphere;
-    public bool raise = true;
-
+    private GameObject currentOperateSymbol;
+    // line
     private Vector3 p1, p2;
-
-    public GameObject test;
-    public bool draw;
-
-    public GameObject assistColliderSpherePrefab;
-    public GameObject assistColliderSphere;
+    // segment
+    public GameObject splitPointVisiblePrefab;
+    private List<GameObject> splitPointVisble;
+    private List<Vector3> splitPoints;
 
     // Start is called before the first frame update
     void Start()
     {
-        // visibleRay = CreateNewLine("CastRay");
-        symbolList = new List<GameObject>();
-        AssitRotateSphere.SetActive(false);
+        assitRotateSphere = Instantiate(assitRotateSpherePrefab);
+        assitRotateSphere.layer = LayerMask.NameToLayer("AssitRotateSphere");
+        assitRotateSphere.SetActive(false);
 
         PlaceRotButton = GameObject.Find("TestObj/Canvas/Rotate").GetComponent<Button>();
         PlaceRotButton.onClick.AddListener(ActivateRotPlacement);
@@ -63,300 +53,232 @@ public class TestUntilDie : MonoBehaviour
         LineButton = GameObject.Find("TestObj/Canvas/Line").GetComponent<Button>();
         LineButton.onClick.AddListener(ActivateLine);
 
-        if (GameObject.Find("DepthCamera"))
-        {
-            depthCamera = GameObject.Find("DepthCamera").GetComponent<Camera>();
-            GetDepthScript = GameObject.Find("DepthCamera").GetComponent<DepthDPC>();
-        }
-
-        symbolOriginPos = new List<Vector3>();
-        symbolLayer = LayerMask.NameToLayer("Symbol");
-
-        draw = false;
-
-        assistColliderSphere = Instantiate(assistColliderSpherePrefab);
-        assistColliderSphere.layer = LayerMask.NameToLayer("DepthCameraUnivisible"); ;
-        assistColliderSphere.SetActive(false);
+        SplitButton = GameObject.Find("TestObj/Canvas/Split").GetComponent<Button>();
+        SplitButton.onClick.AddListener(ActivateSplit);
 
         globalUtils = GameObject.Find("Script").GetComponent<TestGlobalUtils>();
+        mirrorController = GameObject.Find("Script").GetComponent<TestMirror>();
+        GetExpStateScript = GameObject.Find("ExpObj").GetComponent<TestExp>();
+
+        splitPoints = new List<Vector3>();
+        splitPointVisble = new List<GameObject>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        /*if (draw)
-        {
-            GameObject.Find("TestObj").GetComponent<RayDisocclusion>().segments.Add(new SegmentInfo()
-            {
-                startPoint = new Vector3(-2.7f, 0.2f, 3.0f),
-                endPoint = new Vector3(-1.7f, 0.6f, 3.2f)
-            });
-            draw = false;
-        }*/
 
-        Debug.Log("test");
-        for (int i = 0; i < symbolList.Count; i++)
-        {
-            symbolList[i].transform.position = symbolOriginPos[i];
-            Debug.Log(symbolList[i].transform.position.ToString("f4"));
-        }
-        for (int i = 0; i < symbolList.Count; i++)
-        {
-            if (raise)
-                RaiseSymbol(symbolList[i]);
-        }
+        if (nowState == State.Inactive) return;
 
-        if (nowState == State.Inactive)
-        {
-            return;
-        }
+        if (nowState == State.SelectPosition) DealSelectPositionState();
+        else if (nowState == State.SelectRotation) DealSelectRotationState();
+        else if (nowState == State.SelectP1) DealSelectLineP1State();
+        else if (nowState == State.SelectP2) DealSelectLineP2State();
+        else if (nowState == State.SelectSplitPoint) DealSelectSplitPointState();
 
-        Ray ray = GameObject.Find("DepthCamera").GetComponent<Camera>().ScreenPointToRay(Input.mousePosition);
-        RaycastHit hitInfo;
-
-        int assitSphereLayer = LayerMask.NameToLayer("AssitRotateSphere");
-        int onlyCastAssitSphere = 1 << (assitSphereLayer);
-        int ignoreAssotSphere = ~onlyCastAssitSphere;
-
-        if (nowState == State.SelectPosition)
-        {
-
-            if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, ignoreAssotSphere))
-            {
-
-                AssitRotateSphere.transform.position = hitInfo.point;
-                AssitRotateSphere.GetComponent<MeshRenderer>().enabled = true;
-                if (Input.GetMouseButtonDown(0))
-                {
-                    nowState = State.SelectRotation;
-                    copySymbol = GameObject.Instantiate(symbol);
-                }
-            }
-        }
-
-        else if (nowState == State.SelectRotation)
-        {
-
-            if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity, onlyCastAssitSphere))
-            {
-                copySymbol.transform.position = hitInfo.point;
-                if (!press)
-                {
-                    copySymbol.transform.forward = hitInfo.normal;
-                }
-                else
-                {
-                    copySymbol.transform.position += 0.05f * hitInfo.normal;
-                    copySymbol.transform.right = hitInfo.normal;
-                }
-                if (Input.GetMouseButtonDown(0))
-                {
-                    symbolList.Add(copySymbol);
-                    nowState = State.Inactive;
-                    AssitRotateSphere.SetActive(false);
-                    // new 
-                    symbolOriginPos.Add(copySymbol.transform.position);
-                }
-            }
-        }
-        // line 
-        else if (nowState == State.SelectP1)
-        {
-            // if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity))
-            {
-                if (Input.GetMouseButtonDown(0))
-                {
-                    // p1 = hitInfo.point + 0.01f * hitInfo.normal;
-                    assistColliderSphere.SetActive(true);
-                    p1 = GetCollisionPoint(ray);
-                    nowState = State.SelectP2;
-                    Debug.Log("p1 " + p1);
-                }
-                    
-            }
-        }
-        else if (nowState == State.SelectP2)
-        {
-            if (true)
-            {
-                if (Input.GetMouseButtonDown(0))
-                {
-                    p2 = GetCollisionPoint(ray);
-                    assistColliderSphere.SetActive(false);
-                    /*GameObject.Find("TestObj").GetComponent<RayDisocclusion>().segments.Add(new SegmentInfo()
-                    {
-                        startPoint = p1,
-                        endPoint = p2
-                    });*/
-                    GameObject.Find("Script").GetComponent<TestMirror>().syncArrowList.Add(new DPCArrow()
-                    {
-                        index = currentLineIndex++,
-                        startPoint = p1,
-                        endPoint = p2,
-                        curvePointList = new List<Vector3[]>()
-                    });
-                    nowState = State.Inactive;
-                    Debug.Log("p2 " + p2);
-                }   
-            }
-        }
-    }
-
-    private Vector3 GetCollisionPoint(Ray ray)
-    {
-        //TODO
-        int MAXSTEP = 1000, stepCount = 0;
-        float step = 0.01f;
-        assistColliderSphere.transform.position = ray.origin;
-        while (globalUtils.GameObjectVisible(assistColliderSphere))
-        {
-            assistColliderSphere.transform.position += step * ray.direction;
-            stepCount++;
-            if (stepCount > MAXSTEP) break;
-        }
-
-        return (assistColliderSphere.transform.position - 2 * step * ray.direction);
     }
 
     private void ActivateRotPlacement()
     {
-        Debug.Log("rot");
+        Debug.Log("rotate");
+        if (GetExpStateScript.manualDraw)
+        {
+            GetExpStateScript.ManualBegin();
+        }
         nowState = State.SelectPosition;
-        AssitRotateSphere.SetActive(true);
-        symbol = RotateSymbol;
         press = false;
     }
 
     private void ActivatePressPlacement()
     {
         Debug.Log("press");
+        if (GetExpStateScript.manualDraw)
+        {
+            GetExpStateScript.ManualBegin();
+        }
         nowState = State.SelectPosition;
-        AssitRotateSphere.SetActive(true);
-        symbol = PressSymbol;
         press = true;
     }
 
     private void ActivateLine()
     {
         Debug.Log("line");
+        if (GetExpStateScript.manualDraw)
+        {
+            GetExpStateScript.ManualBegin();
+        }
         nowState = State.SelectP1;
     }
 
-    private GameObject CreateNewLine(string objName)
+    private void ActivateSplit()
     {
-        GameObject lineObj = new GameObject(objName);
-        lineObj.transform.SetParent(this.transform);
-        LineRenderer lineRender = lineObj.AddComponent<LineRenderer>();
-        lineRender.material = lineMaterial;
-
-        lineRender.startWidth = lineThickness;
-        lineRender.endWidth = lineThickness;
-        return lineObj;
+        Debug.Log("split");
+        if (GetExpStateScript.manualDraw)
+        {
+            GetExpStateScript.ManualBegin();
+        }
+        nowState = State.SelectSplitPoint;
     }
 
-    // new 
-    private Vector3 MWorldToScreenPointDepth(Vector3 p)
+    private void DealSelectPositionState()
     {
-        Vector3 screenP = depthCamera.WorldToScreenPoint(p);
-        screenP.z = screenP.z / depthCamera.farClipPlane;
-        return screenP;
+        assitRotateSphere.transform.position = globalUtils.GetCollisionPoint();
+        assitRotateSphere.SetActive(true);
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (press) currentOperateSymbol = Instantiate(PressSymbolPrefab);
+            else currentOperateSymbol = Instantiate(RotateSymbolPrefab);
+
+            nowState = State.SelectRotation;
+        }
     }
 
-    private bool GetPointVisibility(Vector3 p)
+    private void DealSelectRotationState()
     {
-        Vector3 screenP = MWorldToScreenPointDepth(p);
-        if (screenP.x < 0 || screenP.x > Screen.width || screenP.y < 0 || screenP.y > Screen.height)
-            return true;
-        float minDepth = GetDepthScript.depthTextureRead.GetPixel((int)screenP.x, (int)screenP.y).r;
-        return minDepth > screenP.z;
+        // Ïò AssitRotateSphere send Ò»Ìõ ray
+        int assitSphereLayer = LayerMask.NameToLayer("AssitRotateSphere");
+        int onlyCastAssitSphere = 1 << (assitSphereLayer);
+        Ray t = Camera.main.ScreenPointToRay(Input.mousePosition);
+        RaycastHit hitInfo;
+        if (!Physics.Raycast(t, out hitInfo, Mathf.Infinity, onlyCastAssitSphere)) return;
+
+        if (press) DealPressSymbolRot(hitInfo);
+        else DealRotateSymbolRot(hitInfo); 
     }
 
-    private void GetBoundsScreenBorder(ref GameObject t, ref Vector2 rightTop, ref Vector2 leftBottom)
+    private void DealPressSymbolRot(RaycastHit hitInfo)
     {
-        var tAABB = t.GetComponent<MeshRenderer>().bounds;
-        float x = tAABB.extents.x,
-            y = tAABB.extents.y,
-            z = tAABB.extents.z;
-        Vector3[] vAABB = new Vector3[]{
-            tAABB.center + new Vector3( x,  y,  z),
-            tAABB.center + new Vector3( x,  y, -z),
-            tAABB.center + new Vector3( x, -y,  z),
-            tAABB.center + new Vector3( x, -y, -z),
-            tAABB.center + new Vector3(-x,  y,  z),
-            tAABB.center + new Vector3(-x,  y, -z),
-            tAABB.center + new Vector3(-x, -y,  z),
-            tAABB.center + new Vector3(-x, -y, -z)
-        };
+        // currentOperateSymbol.transform.position = hitInfo.point + 0.05f * hitInfo.normal;
+        currentOperateSymbol.transform.position = hitInfo.point;
+        currentOperateSymbol.transform.right = hitInfo.normal;
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            Debug.Log("Press symbol position: " + hitInfo.point.ToString("f4"));
+            Debug.Log("Press symbol normal: " + hitInfo.normal.ToString("f4"));
+
+            if (GetExpStateScript.manualDraw)
+            {
+                currentPressIndex = 0;
+                GetExpStateScript.ManualEnd();
+            }
+
+            mirrorController.syncPressList.Add(new DPCSymbol()
+            {
+                index = currentPressIndex++,
+                position = hitInfo.point,
+                up = hitInfo.normal
+            });
+
+            DealSelectRotStateEnd();
+        }
+    }
+
+    private void DealRotateSymbolRot(RaycastHit hitInfo)
+    {
+        currentOperateSymbol.transform.position = hitInfo.point;
+        currentOperateSymbol.transform.forward = hitInfo.normal;
+
+        if (GetExpStateScript.manualDraw)
+        {
+            currentRotateIndex = 0;
+            GetExpStateScript.ManualEnd();
+        }
+
+        if (Input.GetMouseButtonDown(0))
+        {
+            Debug.Log("Rotate symbol position: " + hitInfo.point.ToString("f4"));
+            Debug.Log("Rotate symbol normal: " + hitInfo.normal.ToString("f4"));
+
+            mirrorController.syncRotationList.Add(new DPCSymbol()
+            {
+                index = currentRotateIndex++,
+                position = hitInfo.point,
+                up = hitInfo.normal
+            });
+
+            DealSelectRotStateEnd();
+        }
+    }
+
+    private void DealSelectRotStateEnd()
+    {
+        Destroy(currentOperateSymbol);
+        nowState = State.Inactive;
+        assitRotateSphere.SetActive(false);
+    }
+
+    private void DealSelectLineP1State()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            p1 = globalUtils.GetCollisionPoint();
+            nowState = State.SelectP2;
+            Debug.Log("p1 " + p1.ToString("f4"));
+        }
+    }
+
+    private void DealSelectLineP2State()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (GetExpStateScript.manualDraw)
+            {
+                currentLineIndex = 0;
+                GetExpStateScript.ManualEnd();
+            }
+
+            mirrorController.syncArrowList.Add(new DPCArrow()
+            {
+                index = currentLineIndex++,
+                startPoint = p1,
+                endPoint = globalUtils.GetCollisionPoint(),
+                curvePointList = new List<Vector3[]>(),
+                originPointList = new List<Vector3[]>(),
+            });
+
+            nowState = State.Inactive;
+            Debug.Log("p2 " + p2.ToString("f4"));
+        }
+    }
+
+    private void DealSelectSplitPointState()
+    {
+        if (Input.GetMouseButtonDown(0)) {
+            Vector3 p = globalUtils.GetCollisionPoint();
+            splitPoints.Add(p);
+
+            GameObject t = Instantiate(splitPointVisiblePrefab);
+            t.transform.position = p;
+            splitPointVisble.Add(t);
+        }
         
 
-        rightTop = depthCamera.WorldToScreenPoint(vAABB[0]);
-        leftBottom = depthCamera.WorldToScreenPoint(vAABB[0]);
-        foreach (var v in vAABB)
+        float dis = float.MaxValue;
+        if (splitPoints.Count > 3) dis = Vector3.Distance(splitPoints[0], splitPoints[splitPoints.Count - 1]);
+
+        if (dis < 0.1)
         {
-            Vector2 screenV = depthCamera.WorldToScreenPoint(v);
-            rightTop.x = Math.Max(rightTop.x, screenV.x);
-            rightTop.y = Math.Max(rightTop.y, screenV.y);
-            leftBottom.x = Math.Min(leftBottom.x, screenV.x);
-            leftBottom.y = Math.Min(leftBottom.y, screenV.y);
+            splitPoints.RemoveAt(splitPoints.Count - 1);
+            splitPoints.Add(splitPoints[0]);
+            DealSplitRegion();
+            nowState = State.Inactive;
         }
-
-        rightTop.x = Math.Max(rightTop.x, 0);
-        rightTop.y = Math.Max(rightTop.y, 0);
-        rightTop.x = Math.Min(rightTop.x, Screen.width);
-        rightTop.y = Math.Min(rightTop.y, Screen.height);
-
-        leftBottom.x = Math.Max(leftBottom.x, 0);
-        leftBottom.y = Math.Max(leftBottom.y, 0);
-        leftBottom.x = Math.Min(leftBottom.x, Screen.width);
-        leftBottom.y = Math.Min(leftBottom.y, Screen.height);
     }
 
-    private bool GameObjectVisible(GameObject t)
+    private void DealSplitRegion()
     {
-        Bounds tAABB;
-        var child = t.transform.GetChild(0).gameObject;
-        if (child != null)
-        {
-            tAABB = child.GetComponent<MeshRenderer>().bounds;
-        }
-        else
-        {
-            tAABB = t.GetComponent<MeshRenderer>().bounds;
-        }
-        float x = tAABB.extents.x, y = tAABB.extents.y, z = tAABB.extents.z;
-        float scale = 0.9f;
-        Vector3[] vAABB = new Vector3[]{
-            tAABB.center + scale * new Vector3( x,  y,  z),
-            tAABB.center + scale * new Vector3( x,  y, -z),
-            tAABB.center + scale * new Vector3( x, -y,  z),
-            tAABB.center + scale * new Vector3( x, -y, -z),
-            tAABB.center + scale * new Vector3(-x,  y,  z),
-            tAABB.center + scale * new Vector3(-x,  y, -z),
-            tAABB.center + scale * new Vector3(-x, -y,  z),
-            tAABB.center + scale * new Vector3(-x, -y, -z)
-        };
+        /*Debug.Log(splitPoints.Count);
 
-        foreach (var v in vAABB)
-        {
-            if (!GetPointVisibility(v))
-            {
-                return false;
-            }
-        }
+        GameObject line = globalUtils.CreateNewLine("SplitBoundary");
+        line.GetComponent<LineRenderer>().positionCount = splitPoints.Count;
+        line.GetComponent<LineRenderer>().SetPositions(splitPoints.ToArray());*/
 
-        return true;
-    }
 
-    private void RaiseSymbol(GameObject t)
-    {
-        float step = 0.1f;
-
-        Debug.Log(GameObjectVisible(t));
-        while (!GameObjectVisible(t))
-        {
-            t.transform.position += step * depthCamera.transform.up;
-            // step *= 2;
-            // Debug.Log(step);
-        }
+        
+        splitPoints.Clear();
+        foreach(GameObject g in splitPointVisble) Destroy(g);
+        splitPointVisble.Clear();
     }
 }

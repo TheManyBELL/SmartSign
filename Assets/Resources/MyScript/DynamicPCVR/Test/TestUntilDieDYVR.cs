@@ -35,12 +35,15 @@ public class TestUntilDieDYVR : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        if (GlobleInfo.ClientMode.Equals(CameraMode.AR))
+        {
+            return;
+        }
 
         if (!depthCamera)
         {
-            depthCamera = GameObject.Find("DepthCameraAR(Clone)").GetComponent<Camera>();
-            GetDepthScript = GameObject.Find("DepthCameraAR(Clone)").GetComponent<DepthDPC>();
+            depthCamera = GameObject.Find("SmartSignA(Clone)/VR/DepthCameraVR").GetComponent<Camera>();
+            GetDepthScript = GameObject.Find("SmartSignA(Clone)/VR/DepthCameraVR").GetComponent<DepthDPC>();
         }
 
         if (nowState == State.Inactive)
@@ -71,6 +74,7 @@ public class TestUntilDieDYVR : MonoBehaviour
         {
             // if (Physics.Raycast(ray, out hitInfo, Mathf.Infinity))
             {
+                if (Input.GetMouseButtonDown(0))
                 {
                     p2 = GetCollisionPoint(ray);
                     assistColliderSphere.SetActive(false);

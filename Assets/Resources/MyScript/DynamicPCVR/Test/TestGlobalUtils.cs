@@ -5,17 +5,26 @@ using UnityEngine;
 public class TestGlobalUtils : MonoBehaviour
 {
     public Camera depthCamera;
+    public int unvisible_count;     // 用于多少个点被遮挡认为物体不可见
     private TestDepthDPC GetDepthScript;
+
+    // 辅助碰撞
+    public GameObject assistColliderSpherePrefab;
+    public GameObject assistColliderSphere;
 
     void Awake()
     {
         depthCamera = GameObject.Find("DepthCamera").GetComponent<Camera>();
         GetDepthScript = GameObject.Find("DepthCamera").GetComponent<TestDepthDPC>();
+
+        assistColliderSphere = Instantiate(assistColliderSpherePrefab);
+        assistColliderSphere.layer = LayerMask.NameToLayer("DepthCameraUnivisible");
+        assistColliderSphere.SetActive(false);
     }
 
     private void Update()
     {
-
+ 
     }
 
     public float GetDepth(int x, int y) => GetDepthScript.GetDepth(x, y);
@@ -67,13 +76,70 @@ public class TestGlobalUtils : MonoBehaviour
             tAABB.center + scale * new Vector3(-x, -y,  z),
             tAABB.center + scale * new Vector3(-x, -y, -z)
         };
-        foreach (var v in vAABB)
+        int unvisible = 0;
+        /*foreach (var v in vAABB)
         {
             if (!GetPointVisibility(v))
             {
                 return false;
             }
         }
-        return true;
+        return true;*/
+        /*foreach (var v in vAABB)
+        {
+            if (GetPointVisibility(v))
+            {
+                return true;
+            }
+        }
+        return false;*/
+        foreach (var v in vAABB)
+        {
+            if (!GetPointVisibility(v))
+            {
+                ++unvisible;
+            }
+        }
+        return (unvisible <= unvisible_count);
+    }
+
+    public Vector3 GetCollisionPoint()
+    {
+        Ray ray = depthCamera.ScreenPointToRay(Input.mousePosition);
+        return GetCollisionPoint(ray);
+    }
+
+    public Vector3 GetCollisionPoint(Ray ray)
+    {
+        assistColliderSphere.SetActive(true);
+
+        //TODO
+        int MAXSTEP = 1000, stepCount = 0;
+        float step = 0.01f;
+        assistColliderSphere.transform.position = ray.origin;
+        while (GameObjectVisible(assistColliderSphere))
+        {
+            assistColliderSphere.transform.position += step * ray.direction;
+            stepCount++;
+            if (stepCount > MAXSTEP) break;
+        }
+
+        assistColliderSphere.SetActive(false);
+
+        return (assistColliderSphere.transform.position - 2 * step * ray.direction);
+    }
+
+    public GameObject CreateNewLine(string objName)
+    {
+        GameObject lineObj = new GameObject(objName);
+        lineObj.transform.SetParent(this.transform);
+        LineRenderer curveRender = lineObj.AddComponent<LineRenderer>();
+        
+        lineObj.layer = LayerMask.NameToLayer("DepthCameraUnivisible"); ;
+
+        curveRender.startWidth = 0.002f;
+        curveRender.endWidth = 0.002f;
+
+        return lineObj;
     }
 }

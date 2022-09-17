@@ -8,17 +8,21 @@ public class TestDepthDPC : MonoBehaviour
     // Start is called before the first frame update
     private Camera m_Camera;
     public RenderTexture depthTexture;
-    public Texture2D depthTextureRead;
     public Material Mat;
 
     // 另一种方法
     public RenderTexture colorRT;
     public RenderTexture depthRT;
-    public RenderTexture test;
+    public RenderTexture depthFloatRT;
 
-    // 
+    public Texture2D depthTextureRead;
+    public Texture2D colorTextureRead;
+
+    // 使用哪种
     public bool origin = false;
 
+    // 
+    private float zc0, zc1;
 
     private void Awake()
     {
@@ -36,12 +40,14 @@ public class TestDepthDPC : MonoBehaviour
         // point cloud depth
         colorRT = new RenderTexture(Screen.width, Screen.height, 24, RenderTextureFormat.Default);
         depthRT = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.Depth);
+        depthFloatRT = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.RFloat);
 
-
-        test = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.RFloat);
         // depth to read
         depthTextureRead = new Texture2D(Screen.width, Screen.height, TextureFormat.RFloat, true);
+        colorTextureRead = new Texture2D(Screen.width, Screen.height, TextureFormat.RGBAFloat, true);
 
+        zc0 = 1.0f - m_Camera.farClipPlane / m_Camera.nearClipPlane;
+        zc1 = m_Camera.farClipPlane / m_Camera.nearClipPlane;
     }
 
 
@@ -76,27 +82,30 @@ public class TestDepthDPC : MonoBehaviour
     {
         if (origin) return;
 
-
-        Graphics.Blit(depthRT, test);
-
+        Graphics.Blit(depthRT, depthFloatRT);
         RenderTexture currentActiveRT = RenderTexture.active;
-        RenderTexture.active = test;
+        RenderTexture.active = depthFloatRT;
         depthTextureRead.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
+        RenderTexture.active = currentActiveRT;
+
+        currentActiveRT = RenderTexture.active;
+        RenderTexture.active = colorRT;
+        colorTextureRead.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
         RenderTexture.active = currentActiveRT;
     }
 
     public float GetDepth(int x, int y)
     {
         float d = depthTextureRead.GetPixel(x, y).r;
-        // Debug.Log(d);
-        if (!origin)
-        {
-            float zc0 = 1.0f - m_Camera.farClipPlane / m_Camera.nearClipPlane;
-            float zc1 = m_Camera.farClipPlane / m_Camera.nearClipPlane;
-            d = 1.0f / (zc0 * (1.0f - d) + zc1);
-        }
+        if (!origin) d = 1.0f / (zc0 * (1.0f - d) + zc1);
 
         return d;
+    }
+
+    public Color GetColor(int x, int y)
+    {
+        Color c = colorTextureRead.GetPixel(x, y);
+        return c;
     }
 
     void Update()

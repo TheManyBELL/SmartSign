@@ -10,7 +10,9 @@ public class TestGlobalUtils : MonoBehaviour
 
     // 辅助碰撞
     public GameObject assistColliderSpherePrefab;
-    public GameObject assistColliderSphere;
+    private GameObject assistColliderSphere;
+    // 根据顶点生成物体
+    public GameObject splitPrefab; 
 
     void Awake()
     {
@@ -22,12 +24,17 @@ public class TestGlobalUtils : MonoBehaviour
         assistColliderSphere.SetActive(false);
     }
 
+    private void Start()
+    {
+    }
+
     private void Update()
     {
- 
     }
 
     public float GetDepth(int x, int y) => GetDepthScript.GetDepth(x, y);
+
+    public Color GetColor(int x, int y) => GetDepthScript.GetColor(x, y);
 
     public Vector3 MScreenToWorldPointDepth(Vector3 p)
     {
@@ -141,5 +148,68 @@ public class TestGlobalUtils : MonoBehaviour
         curveRender.endWidth = 0.002f;
 
         return lineObj;
+    }
+
+    public void CreateNewObjUsingVertices(ref List<Vector3> vertices, ref List<Color> colors)
+    {
+        /*
+        GameObject testMesh = new GameObject("LookAtThis");
+        MeshFilter filter = testMesh.AddComponent<MeshFilter>();
+        testMesh.AddComponent<MeshRenderer>();
+        Mesh m = new Mesh();
+        filter.mesh = m;
+
+        Vector3[] vertices = { new Vector3(0, 0, 0), new Vector3(2, 0, 0), new Vector3(0, 2, 0) };
+        Color[] colors = { new Color(1, 0, 0), new Color(0, 1, 0), new Color(0, 0, 1) };
+        List<Vector2> uvs = new List<Vector2>{ new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 1) };
+
+        m.SetVertices(vertices);
+        m.SetUVs(0, uvs);
+        m.SetColors(colors);
+        m.SetIndices(new int[]{ 0, 1, 2}, MeshTopology.Triangles, 0);
+        m.RecalculateNormals();
+        m.RecalculateBounds();
+        m.RecalculateTangents();
+        */
+
+
+        /*GameObject split_target = Instantiate(splitPrefab);
+        split_target.name = "SplitTarget";
+
+        Vector3[] vertices = { new Vector3(0, 0, 0), new Vector3(0, 2, 0), new Vector3(2, 2, 0), new Vector3(2, 0, 0) };
+        Color[] colors = { new Color(1, 0, 0), new Color(0, 1, 0), new Color(0, 0, 1), new Color(1, 0, 0) };
+        Vector2[] uvs = { new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 1), new Vector2(1, 1) };
+
+        Mesh m = new Mesh();
+        m.SetVertices(vertices);
+        m.SetUVs(0, uvs);
+        m.SetColors(colors);
+        m.SetIndices(new int[] { 0, 1, 2, 2, 3, 0 }, MeshTopology.Triangles, 0);
+        m.RecalculateNormals();
+        m.RecalculateBounds();
+        m.RecalculateTangents();
+        split_target.GetComponent<MeshFilter>().mesh = m;*/
+
+
+        GameObject split_target = Instantiate(splitPrefab);
+        split_target.name = "SplitTarget";
+
+        var indices = new int[vertices.Count];
+        for (int i = 0; i < vertices.Count; i++)
+            indices[i] = i;
+
+        for (int i = 0; i < colors.Count; ++i)
+        {
+            colors[i] = new Color(1.0f, 0.0f, 0.0f, 1.0f);
+        }
+
+        Mesh m = new Mesh();
+        m.SetVertices(vertices);
+        m.SetColors(colors);
+        m.SetIndices(indices, MeshTopology.Points, 0, false);
+        // m.RecalculateNormals();
+        // m.RecalculateBounds();
+        // m.RecalculateTangents();
+        split_target.GetComponent<MeshFilter>().mesh = m;
     }
 }

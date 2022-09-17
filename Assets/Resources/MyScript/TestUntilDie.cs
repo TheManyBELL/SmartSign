@@ -252,13 +252,16 @@ public class TestUntilDie : MonoBehaviour
             GameObject t = Instantiate(splitPointVisiblePrefab);
             t.transform.position = p;
             splitPointVisble.Add(t);
-        }
-        
+        }       
 
         float dis = float.MaxValue;
-        if (splitPoints.Count > 3) dis = Vector3.Distance(splitPoints[0], splitPoints[splitPoints.Count - 1]);
+        if (splitPoints.Count > 3) {
+            Vector3 plane_p1 = globalUtils.MWorldToScreenPointDepth(splitPoints[0]);
+            Vector3 plane_p2 = globalUtils.MWorldToScreenPointDepth(splitPoints[splitPoints.Count - 1]);
+            dis = Vector3.Distance(plane_p1, plane_p2);
+        }
 
-        if (dis < 0.1)
+        if (dis < 0.01)
         {
             splitPoints.RemoveAt(splitPoints.Count - 1);
             splitPoints.Add(splitPoints[0]);
@@ -275,8 +278,8 @@ public class TestUntilDie : MonoBehaviour
         line.GetComponent<LineRenderer>().positionCount = splitPoints.Count;
         line.GetComponent<LineRenderer>().SetPositions(splitPoints.ToArray());*/
 
+        GameObject.Find("Script").GetComponent<TestSplit>().SplitCPU(splitPoints);
 
-        
         splitPoints.Clear();
         foreach(GameObject g in splitPointVisble) Destroy(g);
         splitPointVisble.Clear();

@@ -256,9 +256,10 @@ public class TestUntilDie : MonoBehaviour
 
         float dis = float.MaxValue;
         if (splitPoints.Count > 3) {
-            Vector3 plane_p1 = globalUtils.MWorldToScreenPointDepth(splitPoints[0]);
-            Vector3 plane_p2 = globalUtils.MWorldToScreenPointDepth(splitPoints[splitPoints.Count - 1]);
-            dis = Vector3.Distance(plane_p1, plane_p2);
+            // Vector3 plane_p1 = globalUtils.MWorldToScreenPointDepth(splitPoints[0]);
+            // Vector3 plane_p2 = globalUtils.MWorldToScreenPointDepth(splitPoints[splitPoints.Count - 1]);
+            // dis = Vector3.Distance(plane_p1, plane_p2);
+            dis = Vector3.Distance(splitPoints[0], splitPoints[splitPoints.Count - 1]);
         }
 
         if (dis < 0.01)

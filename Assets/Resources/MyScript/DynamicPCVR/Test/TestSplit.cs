@@ -22,7 +22,7 @@ public class TestSplit : MonoBehaviour
     public void SplitCPU(List<Vector3> points)
     {
         float xmin = float.MaxValue, xmax = float.MinValue,
-            ymin = float.MaxValue, ymax = float.MaxValue;
+            ymin = float.MaxValue, ymax = float.MinValue;
 
         List<Vector3> plane_points = new List<Vector3>();
         foreach (Vector3 p in points)
@@ -34,6 +34,8 @@ public class TestSplit : MonoBehaviour
             ymin = Mathf.Max(Mathf.Min(ymin, plane_p.y), 0.0f);
             ymax = Mathf.Min(Mathf.Max(ymax, plane_p.y), Screen.height);
         }
+
+        Debug.Log(xmin + " " + xmax + " " + ymin + " " + ymax + " ");
 
         List<Vector3> vertices = new List<Vector3>();
         List<Color> color = new List<Color>();

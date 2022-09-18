@@ -40,13 +40,11 @@ public class TestSplit : MonoBehaviour
         List<Vector3> vertices = new List<Vector3>();
         List<Color> color = new List<Color>();
 
-        float del = (float)50 / 255;
+        float del = (float)64 / 255;
         for (int i = (int)xmin; i < xmax; ++i)
         {
             for (int j = (int)ymin; j < ymax; ++j)
             {
-                for (int k = 0; k < 1000; ++k) { }
-
                 if (pointInPolygon(new Vector2(i, j), plane_points)) {
 
                     float d = globalUtils.GetDepth(i, j);

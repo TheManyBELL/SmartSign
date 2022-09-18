@@ -152,44 +152,36 @@ public class TestGlobalUtils : MonoBehaviour
 
     public void CreateNewObjUsingVertices(ref List<Vector3> vertices, ref List<Color> colors)
     {
-        /*
-        GameObject testMesh = new GameObject("LookAtThis");
-        MeshFilter filter = testMesh.AddComponent<MeshFilter>();
-        testMesh.AddComponent<MeshRenderer>();
-        Mesh m = new Mesh();
-        filter.mesh = m;
-
-        Vector3[] vertices = { new Vector3(0, 0, 0), new Vector3(2, 0, 0), new Vector3(0, 2, 0) };
-        Color[] colors = { new Color(1, 0, 0), new Color(0, 1, 0), new Color(0, 0, 1) };
-        List<Vector2> uvs = new List<Vector2>{ new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 1) };
-
-        m.SetVertices(vertices);
-        m.SetUVs(0, uvs);
-        m.SetColors(colors);
-        m.SetIndices(new int[]{ 0, 1, 2}, MeshTopology.Triangles, 0);
-        m.RecalculateNormals();
-        m.RecalculateBounds();
-        m.RecalculateTangents();
-        */
-
 
         /*GameObject split_target = Instantiate(splitPrefab);
         split_target.name = "SplitTarget";
 
-        Vector3[] vertices = { new Vector3(0, 0, 0), new Vector3(0, 2, 0), new Vector3(2, 2, 0), new Vector3(2, 0, 0) };
-        Color[] colors = { new Color(1, 0, 0), new Color(0, 1, 0), new Color(0, 0, 1), new Color(1, 0, 0) };
-        Vector2[] uvs = { new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 1), new Vector2(1, 1) };
+        Vector3[] vertices2 = { new Vector3(0, 0, 0), new Vector3(0, 2, 0), new Vector3(2, 2, 0), new Vector3(2, 0, 0) };
+        Color[] colors2 = { new Color(1, 0, 0), new Color(0, 1, 0), new Color(0, 0, 1), new Color(1, 0, 0) };
 
         Mesh m = new Mesh();
-        m.SetVertices(vertices);
-        m.SetUVs(0, uvs);
-        m.SetColors(colors);
+        m.SetVertices(vertices2);
+        m.SetColors(colors2);
         m.SetIndices(new int[] { 0, 1, 2, 2, 3, 0 }, MeshTopology.Triangles, 0);
         m.RecalculateNormals();
         m.RecalculateBounds();
         m.RecalculateTangents();
         split_target.GetComponent<MeshFilter>().mesh = m;*/
 
+        /*GameObject split_target = Instantiate(splitPrefab);
+        split_target.name = "SplitTarget";
+
+        Vector3[] vertices2 = { new Vector3(0, 0, 0), new Vector3(0, 2, 0), new Vector3(2, 2, 0), new Vector3(2, 0, 0) };
+        Color[] colors2 = { new Color(0.5f, 0, 0, 1), new Color(0, 0.5f, 0, 1), new Color(0, 0, 0.5f, 1), new Color(0.8f, 0, 0, 1) };
+        Vector2[] uv2 = { new Vector3(0, 0), new Vector3(0, 1), new Vector3(1, 0), new Vector3(0, 0) };
+
+        Mesh m = new Mesh();
+        m.SetVertices(vertices2);
+        m.SetColors(colors2);
+        m.SetIndices(new int[] { 0, 1, 2, 3 }, MeshTopology.Points, 0);
+        split_target.GetComponent<MeshFilter>().mesh = m;*/
+
+        Debug.Log(vertices.Count);
 
         GameObject split_target = Instantiate(splitPrefab);
         split_target.name = "SplitTarget";
@@ -198,18 +190,10 @@ public class TestGlobalUtils : MonoBehaviour
         for (int i = 0; i < vertices.Count; i++)
             indices[i] = i;
 
-        for (int i = 0; i < colors.Count; ++i)
-        {
-            colors[i] = new Color(1.0f, 0.0f, 0.0f, 1.0f);
-        }
-
         Mesh m = new Mesh();
         m.SetVertices(vertices);
         m.SetColors(colors);
         m.SetIndices(indices, MeshTopology.Points, 0, false);
-        // m.RecalculateNormals();
-        // m.RecalculateBounds();
-        // m.RecalculateTangents();
         split_target.GetComponent<MeshFilter>().mesh = m;
     }
 }

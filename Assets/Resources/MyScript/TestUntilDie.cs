@@ -262,7 +262,7 @@ public class TestUntilDie : MonoBehaviour
             dis = Vector3.Distance(splitPoints[0], splitPoints[splitPoints.Count - 1]);
         }
 
-        if (dis < 0.01)
+        if (dis < 0.04)
         {
             splitPoints.RemoveAt(splitPoints.Count - 1);
             splitPoints.Add(splitPoints[0]);

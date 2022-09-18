@@ -42,11 +42,13 @@ Shader "Custom/SplitTarget"
         {
             // Albedo comes from a texture tinted by color
             // fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color;
-            o.Albedo = In.color.rgb;
+            o.Albedo = IN.color.rgb;
+            // o.Albedo = fixed3(0.21763, 0.21763, 0.21763);
+            
             // Metallic and smoothness come from slider variables
-            o.Metallic = _Metallic;
-            o.Smoothness = _Glossiness;
-            o.Alpha = In.color.a;
+            // o.Metallic = _Metallic;
+            // o.Smoothness = _Glossiness;
+            o.Alpha = 1;
         }
         ENDCG
     }

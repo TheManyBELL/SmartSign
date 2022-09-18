@@ -22,7 +22,7 @@ public class TestLineVR : MonoBehaviour
     private const float DirectChangeDepthVal = 0.0002f;
     private int[,] Cnk;
     public bool[] lineVisibility;
-    public float threshold_change_obj = 0.00002f;
+    public float threshold_change_obj = 0.00002f; 
     public float threshold_unvisible = 0.00001f;
     public float threshold_distance = 10.0f;
     // disturb to endpoint
@@ -43,7 +43,6 @@ public class TestLineVR : MonoBehaviour
     // ≤‚ ‘œ‡πÿ
     public bool testChangeDirectly = true, testDrawToEnd = true;
     public GameObject visibleSphere;
-    private GameObject sphere1, sphere2, sphere3;
 
     List<Vector3> fuxk = new List<Vector3>();
 
@@ -55,13 +54,6 @@ public class TestLineVR : MonoBehaviour
         InitCnk(VisibilitySampleCount);
         lineVisibility = new bool[VisibilitySampleCount];
         pastLineVisibility = new List<visibiltyFilter[]>();
-
-        sphere1 = GameObject.Instantiate(visibleSphere);
-        sphere1.name = "sphere1";
-        sphere2 = GameObject.Instantiate(visibleSphere);
-        sphere2.name = "sphere2";
-        sphere3 = GameObject.Instantiate(visibleSphere);
-        sphere3.name = "sphere3";
     }
 
     private void Update()

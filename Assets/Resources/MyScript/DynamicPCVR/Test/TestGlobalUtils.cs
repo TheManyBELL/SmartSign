@@ -12,7 +12,8 @@ public class TestGlobalUtils : MonoBehaviour
     public GameObject assistColliderSpherePrefab;
     private GameObject assistColliderSphere;
     // 根据顶点生成物体
-    public GameObject splitPrefab; 
+    public GameObject splitPrefab;
+    // public Material splitMaterial;
 
     void Awake()
     {
@@ -150,41 +151,26 @@ public class TestGlobalUtils : MonoBehaviour
         return lineObj;
     }
 
-    public void CreateNewObjUsingVertices(ref List<Vector3> vertices, ref List<Color> colors)
+    public GameObject CreateNewObjUsingVertices(ref List<Vector3> vertices, ref List<Color> colors, string name = "", Transform father = null)
     {
-
         /*GameObject split_target = Instantiate(splitPrefab);
         split_target.name = "SplitTarget";
 
         Vector3[] vertices2 = { new Vector3(0, 0, 0), new Vector3(0, 2, 0), new Vector3(2, 2, 0), new Vector3(2, 0, 0) };
-        Color[] colors2 = { new Color(1, 0, 0), new Color(0, 1, 0), new Color(0, 0, 1), new Color(1, 0, 0) };
+        Color[] colors2 = { new Color(0.21763f, 0, 0, 1), new Color(0.21763f, 0, 0, 1), new Color(0.21763f, 0, 0, 1), new Color(0.21763f, 0, 0, 1) };
+        Vector2[] uv2 = { new Vector3(0, 0), new Vector3(0, 1), new Vector3(1, 1), new Vector3(1, 0) };
+        int[] indices = { 0, 1, 2, 0, 2, 3 };
+
 
         Mesh m = new Mesh();
         m.SetVertices(vertices2);
         m.SetColors(colors2);
-        m.SetIndices(new int[] { 0, 1, 2, 2, 3, 0 }, MeshTopology.Triangles, 0);
-        m.RecalculateNormals();
-        m.RecalculateBounds();
-        m.RecalculateTangents();
-        split_target.GetComponent<MeshFilter>().mesh = m;*/
+        m.SetIndices(indices, MeshTopology.Triangles, 0);
+        split_target.GetComponent<MeshFilter>().mesh = m;
+        return split_target;*/
 
-        /*GameObject split_target = Instantiate(splitPrefab);
-        split_target.name = "SplitTarget";
-
-        Vector3[] vertices2 = { new Vector3(0, 0, 0), new Vector3(0, 2, 0), new Vector3(2, 2, 0), new Vector3(2, 0, 0) };
-        Color[] colors2 = { new Color(0.5f, 0, 0, 1), new Color(0, 0.5f, 0, 1), new Color(0, 0, 0.5f, 1), new Color(0.8f, 0, 0, 1) };
-        Vector2[] uv2 = { new Vector3(0, 0), new Vector3(0, 1), new Vector3(1, 0), new Vector3(0, 0) };
-
-        Mesh m = new Mesh();
-        m.SetVertices(vertices2);
-        m.SetColors(colors2);
-        m.SetIndices(new int[] { 0, 1, 2, 3 }, MeshTopology.Points, 0);
-        split_target.GetComponent<MeshFilter>().mesh = m;*/
-
-        Debug.Log(vertices.Count);
-
-        GameObject split_target = Instantiate(splitPrefab);
-        split_target.name = "SplitTarget";
+        GameObject split_target = Instantiate(splitPrefab, father);
+        split_target.name = name;
 
         var indices = new int[vertices.Count];
         for (int i = 0; i < vertices.Count; i++)
@@ -195,5 +181,40 @@ public class TestGlobalUtils : MonoBehaviour
         m.SetColors(colors);
         m.SetIndices(indices, MeshTopology.Points, 0, false);
         split_target.GetComponent<MeshFilter>().mesh = m;
+
+        return split_target;
+
+        /* submesh解决不掉
+         * GameObject split_target = Instantiate(splitPrefab);
+        split_target.name = "SplitTarget";
+
+        int submesh_count = vertices.Count / 50000 + 1, last_submesh_point_count = vertices.Count % 50000;
+        // material
+        Material[] materials = new Material[submesh_count];
+        for (int i = 0; i < submesh_count; ++i) materials[i] = splitMaterial;
+        split_target.GetComponent<MeshRenderer>().materials = materials;
+        // submesh ind
+        var indices = new List<List<int>>(0);
+        int current_index = 0;
+        for (int i = 0; i < submesh_count; ++i)
+        {
+            indices.Add(new List<int>());
+
+            int icount = 50000;
+            if (i == submesh_count - 1) icount = last_submesh_point_count;
+
+            for (int j = 0; j < icount; ++j) indices[i].Add(current_index++);
+        }
+
+        Mesh m = new Mesh();
+        m.SetVertices(vertices);
+        m.SetColors(colors);
+        m.subMeshCount = submesh_count;
+        for (int i = 0; i < indices.Count; ++i)
+        {
+            m.SetIndices(indices[i], MeshTopology.Points, i, false);
+        }
+        split_target.GetComponent<MeshFilter>().mesh = m;
+        */
     }
 }

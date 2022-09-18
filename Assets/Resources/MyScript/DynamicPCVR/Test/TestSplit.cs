@@ -35,11 +35,11 @@ public class TestSplit : MonoBehaviour
             ymax = Mathf.Min(Mathf.Max(ymax, plane_p.y), Screen.height);
         }
 
-        Debug.Log(xmin + " " + xmax + " " + ymin + " " + ymax + " ");
-
+        int split_part_index = 0, m_vertices = 50000, t_vertices = 0;   //当前子物体Index,每个子物体的最大顶点数
+        List<GameObject> split_part = new List<GameObject>();
         List<Vector3> vertices = new List<Vector3>();
         List<Color> color = new List<Color>();
-
+        Vector3 obj_center = new Vector3();
         float del = (float)64 / 255;
         for (int i = (int)xmin; i < xmax; ++i)
         {
@@ -50,18 +50,35 @@ public class TestSplit : MonoBehaviour
                     float d = globalUtils.GetDepth(i, j);
                     if (d == 1.0f) continue;
                     // i dont know why
-                    Color c = globalUtils.GetColor(i, j) - new Color(del, del, del, 0);
+                    Color t = globalUtils.GetColor(i, j);
+                    Color c = new Color(Mathf.Pow(t.r, 2.2f), Mathf.Pow(t.g, 2.2f), Mathf.Pow(t.b, 2.2f), 1.0f);
                     
                     Vector3 plane_p = new Vector3(i, j, d);
                     Vector3 world_p = globalUtils.MScreenToWorldPointDepth(plane_p);
+                    obj_center += world_p;  ++t_vertices;
 
                     vertices.Add(world_p);
                     color.Add(c);
+
+                    if (vertices.Count == m_vertices)
+                    {
+                        split_part.Add(globalUtils.CreateNewObjUsingVertices(ref vertices, ref color,
+                            "splitpart" + split_part_index.ToString()) );
+                        vertices.Clear(); color.Clear();
+                        split_part_index++;
+                    }
                 }
             }
         }
+        if (vertices.Count > 0)
+            split_part.Add(globalUtils.CreateNewObjUsingVertices(ref vertices, ref color,
+                            "splitpart" + split_part_index.ToString()) );
 
-        globalUtils.CreateNewObjUsingVertices(ref vertices, ref color);
+        obj_center /= t_vertices;
+        GameObject split_father = new GameObject("SplitRoot");
+        split_father.transform.position = obj_center;
+        foreach (var p in split_part) p.transform.parent = split_father.transform;
+        
     }
 
     void SplitGPU(List<Vector3> points)

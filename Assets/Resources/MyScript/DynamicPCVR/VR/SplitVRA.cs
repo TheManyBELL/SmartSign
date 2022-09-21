@@ -3,26 +3,26 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class TestSplit : MonoBehaviour
+public class SplitVRA : MonoBehaviour
 {
-    private TestGlobalUtils globalUtils;
+    private GlobalUtilsVR globalUtils;
 
     // Start is called before the first frame update
     void Start()
     {
-        globalUtils = GameObject.Find("Script").GetComponent<TestGlobalUtils>();
+        globalUtils = GetComponent<GlobalUtilsVR>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+
     }
 
-    public void SplitCPU(List<Vector3> points)
+    public GameObject SplitCPU(List<Vector3> points, ref Vector3 center, ref List<List<Vector3>> vertices, ref List<List<Color>> color)
     {
         float xmin = float.MaxValue, xmax = float.MinValue,
-            ymin = float.MaxValue, ymax = float.MinValue;
+                    ymin = float.MaxValue, ymax = float.MinValue;
 
         List<Vector3> plane_points = new List<Vector3>();
         foreach (Vector3 p in points)
@@ -36,9 +36,6 @@ public class TestSplit : MonoBehaviour
         }
 
         int split_part_index = 0, m_vertices = 50000, t_vertices = 0;   //当前子物体Index,每个子物体的最大顶点数
-        List<List<Vector3>> vertices = new List<List<Vector3>>();
-        List<List<Color>> color = new List<List<Color>>();
-        Vector3 obj_center = new Vector3();
 
         vertices.Add(new List<Vector3>()); color.Add(new List<Color>());
         for (int i = (int)xmin; i < xmax; ++i)
@@ -56,7 +53,7 @@ public class TestSplit : MonoBehaviour
 
                     Vector3 plane_p = new Vector3(i, j, d);
                     Vector3 world_p = globalUtils.MScreenToWorldPointDepth(plane_p);
-                    obj_center += world_p; ++t_vertices;
+                    center += world_p; ++t_vertices;
 
                     vertices[split_part_index].Add(world_p);
                     color[split_part_index].Add(c);
@@ -70,9 +67,9 @@ public class TestSplit : MonoBehaviour
             }
         }
 
-        obj_center /= t_vertices;
+        center /= t_vertices;
         GameObject split_father = new GameObject("SplitRoot");
-        split_father.transform.position = obj_center;
+        split_father.transform.position = center;
         for (int i = 0; i < vertices.Count; ++i)
         {
             List<Vector3> v = vertices[i];
@@ -80,9 +77,11 @@ public class TestSplit : MonoBehaviour
             GameObject t = globalUtils.CreateNewObjUsingVertices(ref v, ref c, "Splitpart" + i.ToString());
             t.transform.parent = split_father.transform;
         }
+
+        return split_father;
     }
 
-    void SplitGPU(List<Vector3> points)
+    void GameObject(List<Vector3> points)
     {
 
     }
@@ -125,7 +124,7 @@ public class TestSplit : MonoBehaviour
         {
             k = (x2 - x1) / (y2 - y1);
             b = (x1 * y2 - x2 * y1) / (y2 - y1);
-        } 
+        }
     }
 
     bool pointInPolygon(Vector2 p, List<Vector3> polygon_points)
@@ -145,7 +144,7 @@ public class TestSplit : MonoBehaviour
             Vector3 line_p1 = polygon_points[i],
                 line_p2 = polygon_points[i + 1];
 
-            if (IntersectHorizontalRight(p, k[i], b[i], line_p1, line_p2)) 
+            if (IntersectHorizontalRight(p, k[i], b[i], line_p1, line_p2))
                 intersetion_count++;
         }
         return (intersetion_count % 2 == 1);

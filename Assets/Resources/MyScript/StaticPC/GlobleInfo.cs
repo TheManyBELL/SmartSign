@@ -69,7 +69,7 @@ public struct CreateSmartSignMessage : NetworkMessage
 /// </summary>
 public enum CameraMode { AR, VR }
 
-public enum SymbolMode { ARROW=0,ROTATE,PRESS}
+public enum SymbolMode { ARROW=0,SPLIT,ROTATE,PRESS}
 
 /// <summary>
 /// [VR端处理所有计算]完整的标识信息数据结构
@@ -113,11 +113,25 @@ public enum ServerNumber
     SERVER1 = 0, SERVER2, SERVER3, SERVER4
 }
 
-
 public static class GlobleInfo
 {
     public static CameraMode ClientMode;
     public static ServerNumber CurentServer = 0;
     public static bool isReceiveStateChanged = false;
+}
 
+public struct DPCSplitMesh
+{
+    public int index;
+    public Vector3 center;
+    public List<List<Vector3>> vertices;
+    public List<List<Color>> color;
+}
+
+public struct DPCSplitPosture
+{
+    public int index;
+    public bool valid;      // 决定AR端是否立即渲染
+    public Vector3 position;
+    public Quaternion rotation;
 }

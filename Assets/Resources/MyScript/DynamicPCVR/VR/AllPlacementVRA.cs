@@ -4,7 +4,7 @@ using UnityEngine;
 using Valve.VR;
 using Valve.VR.Extras;
 
-public class MarkPlacementVRA : MonoBehaviour
+public class AllPlacementVRA : MonoBehaviour
 {
 
     private MirrorControllerA myController;
@@ -28,18 +28,26 @@ public class MarkPlacementVRA : MonoBehaviour
 
     public GameObject assistPlaceSpherePrefab;
     private GameObject assistPlaceSphere;
-    public GameObject assistColliderSpherePrefab;
-    private GameObject assistColliderSphere;
 
     // 辅助线段选点
     public GameObject drawpointprefab;
     public List<GameObject> drawpointList;
+    // 辅助分割选点
+    private List<GameObject> splitPointVisble;
+    private List<Vector3> splitPoints;
+    private List<GameObject> splitObjects;
 
     private enum SymbolPRState
     {
         Inactive = 0, SelectPosition, SelectRotation
     }
     private SymbolPRState nowPRState = SymbolPRState.Inactive;
+
+    private enum SplitState
+    {
+        SelectSplitpoint = 0, ManipulateSplitObj
+    }
+    private SplitState nowSplitState = SplitState.SelectSplitpoint;
 
     private void Awake()
     {
@@ -57,10 +65,6 @@ public class MarkPlacementVRA : MonoBehaviour
         assistPlaceSphere.layer = LayerMask.NameToLayer("AssitRotateSphere"); ;
         assistPlaceSphere.SetActive(false);
 
-        assistColliderSphere = Instantiate(assistColliderSpherePrefab);
-        assistColliderSphere.layer = LayerMask.NameToLayer("VRCameraUnvisible"); ;
-        assistColliderSphere.SetActive(false);
-
         rotateSymbol = Instantiate(rotateSymbolPrefab);
         rotateSymbol.SetActive(false);
 
@@ -68,6 +72,9 @@ public class MarkPlacementVRA : MonoBehaviour
         pressSymbol.SetActive(false);
 
         drawpointList = new List<GameObject>();
+        splitPointVisble = new List<GameObject>();
+        splitPoints = new List<Vector3>();
+        splitObjects = new List<GameObject>();
     }
 
     // Update is called once per frame
@@ -91,13 +98,29 @@ public class MarkPlacementVRA : MonoBehaviour
                 DeleteLastArrow();
             }
         }
+        else if (currentSymbolMode.Equals(SymbolMode.SPLIT))
+        {
+            if (confirmSelection.GetStateDown(SteamVR_Input_Sources.RightHand))
+            {
+                if (nowSplitState == SplitState.SelectSplitpoint) AddSplit();
+                else
+                {
+                    globalUtils.RestManipulateObj();
+                    nowSplitState = SplitState.SelectSplitpoint;
+                }
+            }
+            if (deleteLastSymbol.GetStateDown(SteamVR_Input_Sources.RightHand))
+            {
+                DeleteLastSplit();
+            }
+        }
         else if (currentSymbolMode.Equals(SymbolMode.PRESS))
         {
-            AddPress();
+            // AddPress();
         }
         else if (currentSymbolMode.Equals(SymbolMode.ROTATE))
         {
-            AddRotation();
+            // AddRotation();
         }
     }
 
@@ -110,21 +133,23 @@ public class MarkPlacementVRA : MonoBehaviour
         if (currentSymbolMode.Equals(SymbolMode.ARROW))
         {
             currentPointList.Clear();
+            for (int i = 0; i < drawpointList.Count; i++)
+            {
+                Destroy(drawpointList[i]);
+            }
+            drawpointList.Clear();
         }
         nowPRState = SymbolPRState.Inactive;
 
         // switch mode
         int n_symbol = System.Enum.GetNames(typeof(SymbolMode)).Length; // get symbol numbers
         currentSymbolMode = (SymbolMode)(((int)currentSymbolMode + 1) % n_symbol);
-
-
     }
 
     private void AddArrowPoint()
     {
-        Vector3 newPoint = GetCollisionPoint();
+        Vector3 newPoint = globalUtils.GetCollisionPoint();
         Debug.Log("select point is:" + newPoint.ToString());
-
 
         int currentPointNumber = currentPointList.Count;
         if (currentPointNumber < 2)
@@ -159,25 +184,78 @@ public class MarkPlacementVRA : MonoBehaviour
 
     private void DeleteLastArrow()
     {
-
-        Debug.Log("VR客户端发起删除线段请求");
-        //myController.CmdDeleteSegmentInfo();
+        myController.CmdDeleteDPCArrow();
     }
 
-    private Vector3 GetCollisionPoint()
+    private void AddSplit()
     {
-        //TODO
-        int MAXSTEP = 1000, stepCount = 0;
-        float step = 0.01f;
-        assistColliderSphere.transform.position = rightHand.transform.position;
-        while (globalUtils.GameObjectVisible(assistColliderSphere))
+        
+        Vector3 p = globalUtils.GetCollisionPoint();
+        splitPoints.Add(p);
+
+        GameObject t = Instantiate(drawpointprefab);
+        t.transform.position = p;
+        splitPointVisble.Add(t);
+
+        float dis = float.MaxValue;
+        if (splitPoints.Count > 3)
         {
-            assistColliderSphere.transform.position += step * rightHand.transform.forward;
-            stepCount++;
-            if (stepCount > MAXSTEP) break;
+            dis = Vector3.Distance(splitPoints[0], splitPoints[splitPoints.Count - 1]);
         }
 
-        return (assistColliderSphere.transform.position - step * rightHand.transform.forward);
+        if (dis < 0.5)
+        {
+            splitPoints.RemoveAt(splitPoints.Count - 1);
+            splitPoints.Add(splitPoints[0]);
+
+            Vector3 center = new Vector3();
+            List<List<Vector3>> vertices = new List<List<Vector3>>();
+            List<List<Color>> color = new List<List<Color>>();
+            
+            GameObject fa = GetComponent<SplitVRA>().SplitCPU(splitPoints, ref center, ref vertices, ref color);
+            splitObjects.Add(fa);
+
+            myController.CmdAddDPCSplitMesh(new DPCSplitMesh() { 
+                index = myController.syncSplitMeshList.Count,
+                center = center,
+                color = color,
+                vertices = vertices,
+            });
+
+            myController.CmdAddDPCSplitPos(new DPCSplitPosture() {
+                index = myController.syncSplitPosList.Count,
+                valid = false,
+                position = center,
+                rotation = new Quaternion(),
+            });
+            Debug.Assert(myController.syncSplitMeshList.Count == myController.syncSplitPosList.Count);
+            globalUtils.SetManipulateObj(fa);
+            nowSplitState = SplitState.ManipulateSplitObj;
+
+            splitPoints.Clear();
+            foreach (GameObject g in splitPointVisble) Destroy(g);
+            splitPointVisble.Clear();
+        }
+    }
+
+    private void DeleteLastSplit()
+    {
+        GameObject father = splitObjects[splitObjects.Count-1];
+
+        int j = 0;
+        while (j < father.transform.childCount)
+        {
+            Destroy(father.transform.GetChild(j++).gameObject);
+        }
+
+        Destroy(father);
+        splitObjects.RemoveAt(splitObjects.Count - 1);
+
+        myController.CmdDeleteDPCSplitMesh();
+        myController.CmdDeleteDPCSplitPos();
+        Debug.Assert(myController.syncSplitMeshList.Count == myController.syncSplitPosList.Count);
+
+        globalUtils.RestManipulateObj();
     }
 
     private void AddRotation()
@@ -199,7 +277,7 @@ public class MarkPlacementVRA : MonoBehaviour
             {
                 Debug.Log("Rotation symbol, select assist sphere position");
                 assistPlaceSphere.SetActive(true);
-                assistPlaceSphere.transform.position = GetCollisionPoint();
+                assistPlaceSphere.transform.position = globalUtils.GetCollisionPoint();
                 assistPlaceSphere.GetComponent<MeshRenderer>().enabled = true;
 
                 nowPRState = SymbolPRState.SelectRotation;
@@ -255,7 +333,7 @@ public class MarkPlacementVRA : MonoBehaviour
             {
                 Debug.Log("Press symbol, select assist sphere position");
                 assistPlaceSphere.SetActive(true);
-                assistPlaceSphere.transform.position = GetCollisionPoint();
+                assistPlaceSphere.transform.position = globalUtils.GetCollisionPoint();
                 assistPlaceSphere.GetComponent<MeshRenderer>().enabled = true;
                 nowPRState = SymbolPRState.SelectRotation;
                 pressSymbol.SetActive(true);
@@ -289,6 +367,6 @@ public class MarkPlacementVRA : MonoBehaviour
 
     }
 
-
+    
 
 }

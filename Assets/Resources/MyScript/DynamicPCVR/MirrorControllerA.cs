@@ -17,10 +17,8 @@ public class MirrorControllerA : NetworkBehaviour
     public readonly SyncList<DPCArrow> syncArrowList = new SyncList<DPCArrow>();
     public readonly SyncList<DPCSymbol> syncRotationList = new SyncList<DPCSymbol>();
     public readonly SyncList<DPCSymbol> syncPressList = new SyncList<DPCSymbol>();
-
-    // 需要同步的变量
-
-    
+    public readonly SyncList<DPCSplitMesh> syncSplitMeshList = new SyncList<DPCSplitMesh>();
+    public readonly SyncList<DPCSplitPosture> syncSplitPosList = new SyncList<DPCSplitPosture>();
 
 
     #region command
@@ -32,9 +30,7 @@ public class MirrorControllerA : NetworkBehaviour
     public void CmdAddDPCArrow(DPCArrow newArrow)
     {        
         syncArrowList.Add(newArrow);
-        
         Debug.Log("[server] arrow added:" + syncArrowList.Count);
-        
     }
 
     [Command]
@@ -45,10 +41,17 @@ public class MirrorControllerA : NetworkBehaviour
     }
 
     [Command]
+    public void CmdDeleteDPCArrow()
+    {
+        syncArrowList.RemoveAt(syncArrowList.Count - 1);
+        Debug.Log("[server] arrow deleted");
+    }
+
+    // =============================== rotation =======================================
+    [Command]
     public void CmdAddDPCRotation(DPCSymbol newRotation)
     {
         syncRotationList.Add(newRotation);
-
         Debug.Log("[server] arrow added:" + syncRotationList.Count);
     }
 
@@ -60,11 +63,18 @@ public class MirrorControllerA : NetworkBehaviour
     }
 
     [Command]
+    public void CmdDeleteDPCRotation()
+    {
+        syncRotationList.RemoveAt(syncRotationList.Count - 1);
+        Debug.Log("[server] rotation deleted");
+    }
+
+    // ================================== press =======================================
+    [Command]
     public void CmdAddDPCPress(DPCSymbol newPress)
     {
         syncPressList.Add(newPress);
         Debug.Log("server: arrow added:" + syncPressList.Count);
-
     }
 
     [Command]
@@ -72,6 +82,46 @@ public class MirrorControllerA : NetworkBehaviour
     {
         syncPressList[newPress.index] = newPress;
         Debug.Log("[server] press " + newPress.index + " updated");
+    }
+
+    [Command]
+    public void CmdDeleteDPCPress()
+    {
+        syncPressList.RemoveAt(syncPressList.Count - 1);
+        Debug.Log("[server] rotation deleted");
+    }
+
+    // ================================== split ========================================
+    [Command]
+    public void CmdAddDPCSplitMesh(DPCSplitMesh newSplit)
+    {
+        syncSplitMeshList.Add(newSplit);
+        Debug.Log("[server] split added:" + syncArrowList.Count);
+    }
+
+    [Command]
+    public void CmdDeleteDPCSplitMesh()
+    {
+        syncSplitMeshList.RemoveAt(syncSplitMeshList.Count - 1);
+        Debug.Log("[server] split deleted");
+    }
+
+    [Command]
+    public void CmdAddDPCSplitPos(DPCSplitPosture newSplit)
+    {
+        syncSplitPosList.Add(newSplit);
+    }
+
+    [Command]
+    public void CmdDeleteDPCSplitPos()
+    {
+        syncSplitPosList.RemoveAt(syncSplitPosList.Count - 1);
+    }
+
+    [Command]
+    public void CmdUpdateDPCSplitPos(DPCSplitPosture newSplit)
+    {
+        syncSplitPosList[newSplit.index] = newSplit;
     }
 
 

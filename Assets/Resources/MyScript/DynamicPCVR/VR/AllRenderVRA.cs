@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MarkRenderVRA : MonoBehaviour
+public class AllRenderVRA : MonoBehaviour
 {
     private MirrorControllerA mirrorController;
 
@@ -23,7 +23,6 @@ public class MarkRenderVRA : MonoBehaviour
         segmentObjectList = new List<GameObject>();
         rotationObjectList = new List<GameObject>();
         pressObjectList = new List<GameObject>();
-
     }
 
     // Update is called once per frame
@@ -48,10 +47,10 @@ public class MarkRenderVRA : MonoBehaviour
         // delete segment
         for (int i = 0; i > delta; --i)
         {
-            for (int j = 0; i < 3; ++j)
+            for (int j = 0; j < 3; ++j)
             {
-                GameObject tempObj = segmentObjectList[n_curSegmentObj - 1 + i];
-                segmentObjectList.Remove(tempObj);
+                GameObject tempObj = segmentObjectList[segmentObjectList.Count - 1];
+                segmentObjectList.RemoveAt(segmentObjectList.Count - 1);
                 Destroy(tempObj);
             }
         }
@@ -59,7 +58,6 @@ public class MarkRenderVRA : MonoBehaviour
         for (int i = 0; i < delta; ++i)
         {
             DPCArrow arrow = mirrorController.syncArrowList[n_curArrow + i];
-            Debug.Log("point1:" + arrow.startPoint.ToString() + ",point2:" + arrow.endPoint.ToString());
             SegmentInfo segment = new SegmentInfo()
             {
                 startPoint = arrow.startPoint,

@@ -7,6 +7,12 @@ public class GlobalUtils : MonoBehaviour
     public Camera depthCamera;
     private DepthDPC GetDepthScript;
 
+    // 辅助碰撞
+    public GameObject assistColliderSpherePrefab;
+    private GameObject assistColliderSphere;
+    // 根据顶点生成物体
+    public GameObject splitPrefab;
+
     void Awake()
     {
         
@@ -19,16 +25,6 @@ public class GlobalUtils : MonoBehaviour
         {
             depthCamera = GameObject.Find("DepthCameraAR(Clone)").GetComponent<Camera>();
             GetDepthScript = GameObject.Find("DepthCameraAR(Clone)").GetComponent<DepthDPC>();
-            if (depthCamera)
-            {
-                Debug.Log("[Global Utils]: Depth Camera found");
-            }
-        }
-        else
-        {
-            //depthCamera = Camera.main;
-            //GetDepthScript = Camera.main.GetComponent<DepthDPC>();
-            // Debug.Log("[Global Utils]: Depth Camera not found");
         }
     }
 
@@ -89,5 +85,63 @@ public class GlobalUtils : MonoBehaviour
             }
         }
         return true;
+    }
+
+    public Vector3 GetCollisionPoint()
+    {
+        Ray ray = depthCamera.ScreenPointToRay(Input.mousePosition);
+        return GetCollisionPoint(ray);
+    }
+
+    public Vector3 GetCollisionPoint(Ray ray)
+    {
+        assistColliderSphere.SetActive(true);
+
+        //TODO
+        int MAXSTEP = 1000, stepCount = 0;
+        float step = 0.01f;
+        assistColliderSphere.transform.position = ray.origin;
+        while (GameObjectVisible(assistColliderSphere))
+        {
+            assistColliderSphere.transform.position += step * ray.direction;
+            stepCount++;
+            if (stepCount > MAXSTEP) break;
+        }
+
+        assistColliderSphere.SetActive(false);
+
+        return (assistColliderSphere.transform.position - 2 * step * ray.direction);
+    }
+
+    public GameObject CreateNewLine(string objName)
+    {
+        GameObject lineObj = new GameObject(objName);
+        lineObj.transform.SetParent(this.transform);
+        LineRenderer curveRender = lineObj.AddComponent<LineRenderer>();
+
+        lineObj.layer = LayerMask.NameToLayer("DepthCameraUnivisible"); ;
+
+        curveRender.startWidth = 0.002f;
+        curveRender.endWidth = 0.002f;
+
+        return lineObj;
+    }
+
+    public GameObject CreateNewObjUsingVertices(ref List<Vector3> vertices, ref List<Color> colors, string name = "", Transform father = null)
+    {
+        GameObject split_target = Instantiate(splitPrefab, father);
+        split_target.name = name;
+
+        var indices = new int[vertices.Count];
+        for (int i = 0; i < vertices.Count; i++)
+            indices[i] = i;
+
+        Mesh m = new Mesh();
+        m.SetVertices(vertices);
+        m.SetColors(colors);
+        m.SetIndices(indices, MeshTopology.Points, 0, false);
+        split_target.GetComponent<MeshFilter>().mesh = m;
+
+        return split_target;
     }
 }

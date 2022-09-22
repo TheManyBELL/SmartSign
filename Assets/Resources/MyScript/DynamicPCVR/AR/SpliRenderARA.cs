@@ -54,7 +54,7 @@ public class SpliRenderARA : MonoBehaviour
     void DeleteSplitObj()
     {
         int i = split_objs_father.Count;
-        while (i > mirrorController.syncSplitMeshList.Count)
+        while (i-- > mirrorController.syncSplitMeshList.Count)
         {
             GameObject father = split_objs_father[i];
             DestroyGameObject(father);

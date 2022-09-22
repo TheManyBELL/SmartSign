@@ -112,7 +112,7 @@ public class AllPlacementVRA : MonoBehaviour
             }
             if (confirmSelection.GetStateDown(SteamVR_Input_Sources.LeftHand))
             {
-                if (splitPoints.Count > 3) ConfirmSplit();
+                if (splitPoints.Count >= 3) ConfirmSplit();
             }
             if (deleteLastSymbol.GetStateDown(SteamVR_Input_Sources.RightHand))
             {

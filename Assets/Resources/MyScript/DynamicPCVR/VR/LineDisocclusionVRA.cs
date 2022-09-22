@@ -33,7 +33,7 @@ public class LineDisocclusionVRA : MonoBehaviour
     public int test_max_step;
     public bool global_curve;
 
-    private GlobalUtilsVR globalUtils;
+    private GlobalUtils globalUtils;
     // 测试相关
     public bool testChangeDirectly = true, testDrawToEnd = true;
     public GameObject visibleSphere;
@@ -43,7 +43,7 @@ public class LineDisocclusionVRA : MonoBehaviour
     private void Start()
     {
         mirrorController = GetComponentInParent<MirrorControllerA>();
-        globalUtils = GetComponent<GlobalUtilsVR>();
+        globalUtils = GetComponent<GlobalUtils>();
 
         InitCnk(VisibilitySampleCount);
         lineVisibility = new bool[VisibilitySampleCount];

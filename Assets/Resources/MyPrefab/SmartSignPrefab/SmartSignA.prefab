@@ -152,7 +152,7 @@ MonoBehaviour:
   threshold_edge_point_change_dis: 10
   filter: 1
   filter_frame_count: 20
-  test_max_step: 0
+  test_max_step: 200
   global_curve: 1
   testChangeDirectly: 1
   testDrawToEnd: 1
@@ -329,7 +329,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 21c1ce8dbffd27645a48e67b467e7095, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  splitPrefab: {fileID: 0}
+  splitPrefab: {fileID: 6519241072780756851, guid: 4a0f3adb0e3b08244b6cc437834a510f, type: 3}
 --- !u!1 &4617206983405905877
 GameObject:
   m_ObjectHideFlags: 0

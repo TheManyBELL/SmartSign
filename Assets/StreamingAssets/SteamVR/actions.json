@@ -98,6 +98,10 @@
       "type": "boolean"
     },
     {
+      "name": "/actions/default/in/Manipulate",
+      "type": "boolean"
+    },
+    {
       "name": "/actions/default/out/Haptic",
       "type": "vibration"
     },

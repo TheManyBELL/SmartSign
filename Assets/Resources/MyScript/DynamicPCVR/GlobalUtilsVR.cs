@@ -4,8 +4,9 @@ using UnityEngine;
 
 public class GlobalUtilsVR : MonoBehaviour
 {
+    private GameObject rightHand;
     public GameObject DepthCameraObject;
-    private Camera depthCamera;
+    public Camera depthCamera;
     private DepthDPC getDepthScript;
     private ManipulateVRA manipulateScript;
 
@@ -20,6 +21,12 @@ public class GlobalUtilsVR : MonoBehaviour
         depthCamera = DepthCameraObject.GetComponent<Camera>();
         getDepthScript = DepthCameraObject.GetComponent<DepthDPC>();
         manipulateScript = GetComponent<ManipulateVRA>();
+
+        assistColliderSphere = Instantiate(assistColliderSpherePrefab);
+        assistColliderSphere.layer = LayerMask.NameToLayer("DepthCameraUnivisible");
+        assistColliderSphere.SetActive(false);
+
+        rightHand = GameObject.Find("[CameraRig]/Controller (right)");
     }
 
     private void Start()
@@ -95,28 +102,17 @@ public class GlobalUtilsVR : MonoBehaviour
 
     public Vector3 GetCollisionPoint()
     {
-        Ray ray = depthCamera.ScreenPointToRay(Input.mousePosition);
-        return GetCollisionPoint(ray);
-    }
-
-    public Vector3 GetCollisionPoint(Ray ray)
-    {
-        assistColliderSphere.SetActive(true);
-
-        //TODO
         int MAXSTEP = 1000, stepCount = 0;
         float step = 0.01f;
-        assistColliderSphere.transform.position = ray.origin;
+        assistColliderSphere.transform.position = rightHand.transform.position;
         while (GameObjectVisible(assistColliderSphere))
         {
-            assistColliderSphere.transform.position += step * ray.direction;
+            assistColliderSphere.transform.position += step * rightHand.transform.forward;
             stepCount++;
             if (stepCount > MAXSTEP) break;
         }
 
-        assistColliderSphere.SetActive(false);
-
-        return (assistColliderSphere.transform.position - 2 * step * ray.direction);
+        return (assistColliderSphere.transform.position - 3 * step * rightHand.transform.forward);
     }
 
     public GameObject CreateNewLine(string objName)

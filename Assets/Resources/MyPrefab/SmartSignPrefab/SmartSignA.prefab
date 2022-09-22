@@ -9,6 +9,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2138167571596781491}
+  - component: {fileID: 4310711548040148931}
   m_Layer: 0
   m_Name: GrabObj
   m_TagString: Untagged
@@ -30,6 +31,22 @@ Transform:
   m_Father: {fileID: 4617206982369766745}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!54 &4310711548040148931
+Rigidbody:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 260803815472205192}
+  serializedVersion: 2
+  m_Mass: 1
+  m_Drag: 0
+  m_AngularDrag: 0.05
+  m_UseGravity: 0
+  m_IsKinematic: 0
+  m_Interpolate: 0
+  m_Constraints: 0
+  m_CollisionDetection: 0
 --- !u!1 &4617206982369766726
 GameObject:
   m_ObjectHideFlags: 0
@@ -183,6 +200,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   DepthCameraObject: {fileID: 8424565445435906394}
+  depthCamera: {fileID: 0}
   assistColliderSpherePrefab: {fileID: 9085032347184655347, guid: 46a1f4b88fd026a429c5e51b5c7ee466, type: 3}
   splitPrefab: {fileID: 6519241072780756851, guid: 4a0f3adb0e3b08244b6cc437834a510f, type: 3}
 --- !u!114 &6903378985523676704
@@ -233,10 +251,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetObj: {fileID: 0}
   grabObj: {fileID: 260803815472205192}
-  VRHandLeft: {fileID: 0}
-  VRHandRight: {fileID: 0}
   manipulate:
-    actionPath: 
+    actionPath: /actions/default/in/Manipulate
     needsReinit: 0
 --- !u!1 &4617206982444834299
 GameObject:

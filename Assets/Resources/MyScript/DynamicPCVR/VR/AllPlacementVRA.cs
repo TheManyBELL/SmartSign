@@ -106,19 +106,24 @@ public class AllPlacementVRA : MonoBehaviour
                 else
                 {
                     globalUtils.RestManipulateObj();
+                    ConfirmSyncSplit();
                     nowSplitState = SplitState.SelectSplitpoint;
                 }
+            }
+            if (confirmSelection.GetStateDown(SteamVR_Input_Sources.LeftHand))
+            {
+                if (splitPoints.Count > 3) ConfirmSplit();
             }
             if (deleteLastSymbol.GetStateDown(SteamVR_Input_Sources.RightHand))
             {
                 DeleteLastSplit();
             }
         }
-        else if (currentSymbolMode.Equals(SymbolMode.PRESS))
+        // else if (currentSymbolMode.Equals(SymbolMode.PRESS))
         {
             // AddPress();
         }
-        else if (currentSymbolMode.Equals(SymbolMode.ROTATE))
+        // else if (currentSymbolMode.Equals(SymbolMode.ROTATE))
         {
             // AddRotation();
         }
@@ -171,6 +176,7 @@ public class AllPlacementVRA : MonoBehaviour
                 startPoint = currentPointList[0],
                 endPoint = currentPointList[1],
                 curvePointList = new List<Vector3[]>(),
+                originPointList = new List<Vector3[]>(),
             });
             // 清空临时变量
             currentPointList.Clear();
@@ -196,46 +202,41 @@ public class AllPlacementVRA : MonoBehaviour
         GameObject t = Instantiate(drawpointprefab);
         t.transform.position = p;
         splitPointVisble.Add(t);
+    }
 
-        float dis = float.MaxValue;
-        if (splitPoints.Count > 3)
+    private void ConfirmSplit()
+    {
+        splitPoints.Add(splitPoints[0]);
+
+        Vector3 center = new Vector3();
+        List<List<Vector3>> vertices = new List<List<Vector3>>();
+        List<List<Color>> color = new List<List<Color>>();
+
+        GameObject fa = GetComponent<SplitVRA>().SplitCPU(splitPoints, ref center, ref vertices, ref color);
+        splitObjects.Add(fa);
+
+        myController.CmdAddDPCSplitMesh(new DPCSplitMesh()
         {
-            dis = Vector3.Distance(splitPoints[0], splitPoints[splitPoints.Count - 1]);
-        }
+            index = myController.syncSplitMeshList.Count,
+            center = center,
+            color = color,
+            vertices = vertices,
+        });
 
-        if (dis < 0.5)
+        myController.CmdAddDPCSplitPos(new DPCSplitPosture()
         {
-            splitPoints.RemoveAt(splitPoints.Count - 1);
-            splitPoints.Add(splitPoints[0]);
+            index = myController.syncSplitPosList.Count,
+            valid = false,
+            position = center,
+            rotation = new Quaternion(),
+        });
+        Debug.Assert(myController.syncSplitMeshList.Count == myController.syncSplitPosList.Count);
+        globalUtils.SetManipulateObj(fa);
+        nowSplitState = SplitState.ManipulateSplitObj;
 
-            Vector3 center = new Vector3();
-            List<List<Vector3>> vertices = new List<List<Vector3>>();
-            List<List<Color>> color = new List<List<Color>>();
-            
-            GameObject fa = GetComponent<SplitVRA>().SplitCPU(splitPoints, ref center, ref vertices, ref color);
-            splitObjects.Add(fa);
-
-            myController.CmdAddDPCSplitMesh(new DPCSplitMesh() { 
-                index = myController.syncSplitMeshList.Count,
-                center = center,
-                color = color,
-                vertices = vertices,
-            });
-
-            myController.CmdAddDPCSplitPos(new DPCSplitPosture() {
-                index = myController.syncSplitPosList.Count,
-                valid = false,
-                position = center,
-                rotation = new Quaternion(),
-            });
-            Debug.Assert(myController.syncSplitMeshList.Count == myController.syncSplitPosList.Count);
-            globalUtils.SetManipulateObj(fa);
-            nowSplitState = SplitState.ManipulateSplitObj;
-
-            splitPoints.Clear();
-            foreach (GameObject g in splitPointVisble) Destroy(g);
-            splitPointVisble.Clear();
-        }
+        splitPoints.Clear();
+        foreach (GameObject g in splitPointVisble) Destroy(g);
+        splitPointVisble.Clear();
     }
 
     private void DeleteLastSplit()
@@ -255,7 +256,22 @@ public class AllPlacementVRA : MonoBehaviour
         myController.CmdDeleteDPCSplitPos();
         Debug.Assert(myController.syncSplitMeshList.Count == myController.syncSplitPosList.Count);
 
-        globalUtils.RestManipulateObj();
+        if (nowSplitState == SplitState.ManipulateSplitObj)
+        {
+            globalUtils.RestManipulateObj();
+            nowSplitState = SplitState.SelectSplitpoint;
+        }
+    }
+
+    private void ConfirmSyncSplit()
+    {
+        myController.CmdUpdateDPCSplitPos(new DPCSplitPosture()     // 释放时一定更新
+        {
+            index = myController.syncSplitPosList.Count - 1,
+            valid = true,
+            position = splitObjects[splitObjects.Count - 1].transform.position,
+            rotation = splitObjects[splitObjects.Count - 1].transform.rotation,
+        });
     }
 
     private void AddRotation()

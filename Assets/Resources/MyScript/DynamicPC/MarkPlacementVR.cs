@@ -90,11 +90,11 @@ public class MarkPlacementVR : MonoBehaviour
                 DeleteLastArrow();
             }
         }
-        else if (currentSymbolMode.Equals(SymbolMode.PRESS))
+        // else if (currentSymbolMode.Equals(SymbolMode.PRESS))
         {
             AddPress();
         }
-        else if (currentSymbolMode.Equals(SymbolMode.ROTATE))
+        // else if (currentSymbolMode.Equals(SymbolMode.ROTATE))
         {
             AddRotation();
         }

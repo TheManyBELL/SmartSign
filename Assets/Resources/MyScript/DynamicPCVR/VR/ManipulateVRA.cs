@@ -8,8 +8,9 @@ public class ManipulateVRA : MonoBehaviour
 {
     public GameObject targetObj;    // manipulate target object
     public GameObject grabObj;      // for rotate
-    public GameObject VRHandLeft;
-    public GameObject VRHandRight;  
+
+    private GameObject VRHandLeft;
+    private GameObject VRHandRight;  
     private Vector3 VRhandtPosPre;  // for translate
 
     public SteamVR_Action_Boolean manipulate;
@@ -20,24 +21,21 @@ public class ManipulateVRA : MonoBehaviour
     void Start()
     {
         myController = GetComponentInParent<MirrorControllerA>();
+
+        VRHandLeft = GameObject.Find("[CameraRig]/Controller (left)");
+        VRHandRight = GameObject.Find("[CameraRig]/Controller (right)");
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!VRHandLeft)
-        {
-            VRHandLeft = GameObject.Find("VR_Avator/LeftHandController");
-            VRHandRight = GameObject.Find("VR_Avator/RightHandController");
-        }
-
-        if (targetObj == null || VRHandLeft == null) return;
+        if (targetObj == null) return;
 
         bool operated = false;
         if (manipulate.GetState(SteamVR_Input_Sources.LeftHand))    // Rot
         {
             GrabObject();
-            targetObj.transform.rotation = targetObj.transform.rotation;
+            targetObj.transform.rotation = grabObj.transform.rotation;
             operated = true;
         }
 
@@ -70,17 +68,10 @@ public class ManipulateVRA : MonoBehaviour
     public void RegisterObj(GameObject o) => targetObj = o;
 
     public void UnRegisterObj() {
-        
-        myController.CmdUpdateDPCSplitPos(new DPCSplitPosture()     // 释放时一定更新
-        {
-            index = myController.syncSplitPosList.Count - 1,
-            valid = true,
-            position = targetObj.transform.position,
-            rotation = targetObj.transform.rotation,
-        });
 
         grabObj.transform.rotation = new Quaternion();  // 为下一个物体的旋转做准备，暂时不知道是否需要
         targetObj = null;
+
     }
 
     void GrabObject()

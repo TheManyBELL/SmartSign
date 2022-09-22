@@ -5,7 +5,7 @@
       "app_key": "application.generated.unity.server.exe",
       "launch_type": "url",
       "url": "steam://launch/",
-      "action_manifest_path": "E:\\Unity Project 2020.3\\SmartSign\\Assets\\StreamingAssets\\SteamVR\\actions.json",
+      "action_manifest_path": "C:\\Users\\83652\\SmartSign\\Assets\\StreamingAssets\\SteamVR\\actions.json",
       "strings": {
         "en_us": {
           "name": "Server [Testing]"

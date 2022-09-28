@@ -135,6 +135,7 @@ public struct DPCSplitPosture
     public bool valid;      // 决定AR端是否立即渲染
     public Vector3 position;
     public Quaternion rotation;
+    public int correspondingLineIndex;
 }
 
 public struct DPCAxes
@@ -144,4 +145,5 @@ public struct DPCAxes
     public Quaternion init_rotation;
     public Vector3 end_position;
     public Quaternion end_rotation;
+    public int correspondingLineIndex;
 }

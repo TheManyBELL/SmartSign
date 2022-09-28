@@ -313,6 +313,9 @@ public class AllPlacementVRA : MonoBehaviour
         DestroyGameObject(father);
         splitObjects.RemoveAt(splitObjects.Count - 1);
 
+        int lineIndex = myController.syncSplitPosList[syncSplitPosList.Count - 1].correspondingLineIndex;
+        if (lineIndex != -1) myController.CmdDeleteDPCArrow(lineIndex);
+
         myController.CmdDeleteDPCSplitMesh();
         myController.CmdDeleteDPCSplitPos();
         Debug.Assert(myController.syncSplitMeshList.Count == myController.syncSplitPosList.Count);
@@ -337,6 +340,7 @@ public class AllPlacementVRA : MonoBehaviour
             valid = true,
             position = splitObjects[i].transform.position,
             rotation = splitObjects[i].transform.rotation,
+            correspondingLineIndex = autoGenerateLine ? myController.syncArrowList.Count : -1,
         });
 
         if (autoGenerateLine)
@@ -391,6 +395,7 @@ public class AllPlacementVRA : MonoBehaviour
             init_rotation = initialAxesObjects[i].transform.rotation,
             end_position = FinalAxesObjects[i].transform.position,
             end_rotation = FinalAxesObjects[i].transform.rotation,
+            correspondingLineIndex = autoGenerateLine ? myController.syncArrowList.Count : -1,
         });
 
         if (autoGenerateLine)
@@ -416,6 +421,9 @@ public class AllPlacementVRA : MonoBehaviour
 
         if (axes2) DestroyGameObject(axes2);
         FinalAxesObjects.RemoveAt(FinalAxesObjects.Count - 1);
+
+        int lineIndex = myController.syncAxesList[syncAxesList.Count - 1].correspondingLineIndex;
+        if (lineIndex != -1) myController.CmdDeleteDPCArrow(lineIndex);
 
         myController.CmdDeleteDPCAxes();
         if (nowAxesState == AxesState.ManipulateAxes || nowAxesState == AxesState.ManipulateAnotherAxes)

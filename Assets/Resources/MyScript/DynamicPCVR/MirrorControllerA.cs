@@ -48,6 +48,12 @@ public class MirrorControllerA : NetworkBehaviour
         Debug.Log("[server] arrow deleted");
     }
 
+    public void CmdDeleteDPCArrow(int index)
+    {
+        syncArrowList.RemoveAt(index);
+        Debug.Log("[server] arrow deleted");
+    }
+
     // =============================== rotation =======================================
     [Command]
     public void CmdAddDPCRotation(DPCSymbol newRotation)

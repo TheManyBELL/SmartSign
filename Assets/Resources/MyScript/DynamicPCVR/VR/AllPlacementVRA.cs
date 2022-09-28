@@ -178,7 +178,7 @@ public class AllPlacementVRA : MonoBehaviour
     /// </summary>
     private void SwitchSymbolMode()
     {
-        // clear environment
+        // 操作过程中切换模式 clear environment
         if (currentSymbolMode.Equals(SymbolMode.ARROW))
         {
             currentPointList.Clear();
@@ -188,11 +188,33 @@ public class AllPlacementVRA : MonoBehaviour
             }
             drawpointList.Clear();
         }
+
+        if (currentSymbolMode.Equals(SymbolMode.SPLIT))
+        {
+            splitPoints.Clear();
+            for (int i = 0; i < splitPointVisble.Count; i++)
+            {
+                DestroyGameObject(splitPointVisble[i]);
+            }
+            splitPointVisble.Clear();
+        }
+
         nowPRState = SymbolPRState.Inactive;
+        nowSplitState = SplitState.SelectSplitpoint;
+        nowAxesState = AxesState.SelectAxesPosition;
 
         // switch mode
         int n_symbol = System.Enum.GetNames(typeof(SymbolMode)).Length; // get symbol numbers
         currentSymbolMode = (SymbolMode)(((int)currentSymbolMode + 1) % n_symbol);
+        
+        if (myExp.exp_type == Exp.ExpType.CG && currentSymbolMode.Equals(SymbolMode.SPLIT))
+        {
+            currentSymbolMode = SymbolMode.Axes;
+        }
+        if (myExp.exp_type == Exp.ExpType.EG1 && currentSymbolMode.Equals(SymbolMode.Axes))
+        {
+            currentSymbolMode = SymbolMode.SPLIT;
+        }
     }
 
     private void AddArrowPoint()
@@ -288,14 +310,7 @@ public class AllPlacementVRA : MonoBehaviour
     private void DeleteLastSplit()
     {
         GameObject father = splitObjects[splitObjects.Count-1];
-
-        int j = 0;
-        while (j < father.transform.childCount)
-        {
-            Destroy(father.transform.GetChild(j++).gameObject);
-        }
-
-        Destroy(father);
+        DestroyGameObject(father);
         splitObjects.RemoveAt(splitObjects.Count - 1);
 
         myController.CmdDeleteDPCSplitMesh();
@@ -396,23 +411,10 @@ public class AllPlacementVRA : MonoBehaviour
         GameObject axes1 = initialAxesObjects[initialAxesObjects.Count - 1];
         GameObject axes2 = FinalAxesObjects[FinalAxesObjects.Count - 1];
 
-        int j = 0;
-        while (j < axes1.transform.childCount)
-        {
-            Destroy(axes1.transform.GetChild(j++).gameObject);
-        }
-        Destroy(axes1);
+        DestroyGameObject(axes1);
         initialAxesObjects.RemoveAt(initialAxesObjects.Count - 1);
 
-        if (axes2)
-        {
-            j = 0;
-            while (j < axes2.transform.childCount)
-            {
-                Destroy(axes2.transform.GetChild(j++).gameObject);
-            }
-            Destroy(axes2);
-        }
+        if (axes2) DestroyGameObject(axes2);
         FinalAxesObjects.RemoveAt(FinalAxesObjects.Count - 1);
 
         myController.CmdDeleteDPCAxes();
@@ -532,6 +534,16 @@ public class AllPlacementVRA : MonoBehaviour
 
     }
 
-    
+    private void DestroyGameObject(GameObject t)
+    {
+        if (!t) return;
+
+        int j = 0;
+        while (j < t.transform.childCount)
+        {
+            Destroy(t.transform.GetChild(j++).gameObject);
+        }
+        Destroy(t);
+    }
 
 }

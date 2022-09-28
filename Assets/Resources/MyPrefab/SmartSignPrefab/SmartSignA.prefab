@@ -65,6 +65,7 @@ GameObject:
   - component: {fileID: 6903378985523676704}
   - component: {fileID: 6691466015999886801}
   - component: {fileID: 5488052373424425372}
+  - component: {fileID: 3119208616404884327}
   m_Layer: 0
   m_Name: VR
   m_TagString: Untagged
@@ -112,8 +113,8 @@ MonoBehaviour:
   rotateSymbolPrefab: {fileID: 1995401586807690531, guid: 8d3c090a0fcef884b9db35c6e7fc4685, type: 3}
   pressSymbolPrefab: {fileID: 2903551670243213068, guid: 6f0b65624ec006c4a85557e249d78ad4, type: 3}
   assistPlaceSpherePrefab: {fileID: 1917233786080185256, guid: 78471b7db4b064640b6d103faa75dc0a, type: 3}
+  AxesSymbolPrefab: {fileID: 763185395894137768, guid: 311b40d83350df2428b262c867b92a29, type: 3}
   drawpointprefab: {fileID: 9085032347184655347, guid: 46a1f4b88fd026a429c5e51b5c7ee466, type: 3}
-  drawpointList: []
 --- !u!114 &5672654179876643091
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -254,6 +255,25 @@ MonoBehaviour:
   manipulate:
     actionPath: /actions/default/in/Manipulate
     needsReinit: 0
+--- !u!114 &3119208616404884327
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4617206982369766726}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 166d6a00387953a4d84072e6a57b0fb5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  total_dis: 0
+  is_wrong: 0
+  exper_name: lxy
+  exp_type: 0
+  scene_type: 0
+  PointcloudAlignment: 0
+  exp_start: 0
 --- !u!1 &4617206982444834299
 GameObject:
   m_ObjectHideFlags: 0
@@ -266,6 +286,7 @@ GameObject:
   - component: {fileID: 9098403594335960741}
   - component: {fileID: 8791579120703413468}
   - component: {fileID: 2213322651424136255}
+  - component: {fileID: 7115076349316759676}
   m_Layer: 0
   m_Name: AR
   m_TagString: Untagged
@@ -330,6 +351,19 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   splitPrefab: {fileID: 6519241072780756851, guid: 4a0f3adb0e3b08244b6cc437834a510f, type: 3}
+--- !u!114 &7115076349316759676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4617206982444834299}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7b268e68c9d4b4e44a2486d0b102c3ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  axesPrefab: {fileID: 763185395894137768, guid: 311b40d83350df2428b262c867b92a29, type: 3}
 --- !u!1 &4617206983405905877
 GameObject:
   m_ObjectHideFlags: 0

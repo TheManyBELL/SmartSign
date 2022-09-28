@@ -70,7 +70,7 @@ public struct CreateSmartSignMessage : NetworkMessage
 public enum CameraMode { AR, VR }
 
 // public enum SymbolMode { ARROW=0,SPLIT,ROTATE,PRESS}
-public enum SymbolMode { ARROW = 0, SPLIT}
+public enum SymbolMode { ARROW = 0, SPLIT, Axes}
 
 /// <summary>
 /// [VR端处理所有计算]完整的标识信息数据结构
@@ -135,4 +135,13 @@ public struct DPCSplitPosture
     public bool valid;      // 决定AR端是否立即渲染
     public Vector3 position;
     public Quaternion rotation;
+}
+
+public struct DPCAxes
+{
+    public int index;
+    public Vector3 init_position;
+    public Quaternion init_rotation;
+    public Vector3 end_position;
+    public Quaternion end_rotation;
 }

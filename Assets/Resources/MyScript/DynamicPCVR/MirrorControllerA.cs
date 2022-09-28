@@ -19,6 +19,7 @@ public class MirrorControllerA : NetworkBehaviour
     public readonly SyncList<DPCSymbol> syncPressList = new SyncList<DPCSymbol>();
     public readonly SyncList<DPCSplitMesh> syncSplitMeshList = new SyncList<DPCSplitMesh>();
     public readonly SyncList<DPCSplitPosture> syncSplitPosList = new SyncList<DPCSplitPosture>();
+    public readonly SyncList<DPCAxes> syncAxesList = new SyncList<DPCAxes>();
 
 
     #region command
@@ -124,6 +125,24 @@ public class MirrorControllerA : NetworkBehaviour
         syncSplitPosList[newSplit.index] = newSplit;
     }
 
+    // ================================== axes =======================================
+    [Command]
+    public void CmdAddDPCAxes(DPCAxes newAxes)
+    {
+        syncAxesList.Add(newAxes);
+    }
+
+    [Command]
+    public void CmdDeleteDPCAxes()
+    {
+        syncAxesList.RemoveAt(syncAxesList.Count - 1);
+    }
+
+    [Command]
+    public void CmdUpdateDPCAxes(DPCAxes newAxes)
+    {
+        syncAxesList[newAxes.index] = newAxes;
+    }
 
     #endregion
 

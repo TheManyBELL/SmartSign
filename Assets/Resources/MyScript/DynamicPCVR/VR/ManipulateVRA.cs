@@ -31,35 +31,21 @@ public class ManipulateVRA : MonoBehaviour
     {
         if (targetObj == null) return;
 
-        bool operated = false;
         if (manipulate.GetState(SteamVR_Input_Sources.LeftHand))    // Rot
         {
             GrabObject();
             targetObj.transform.rotation = grabObj.transform.rotation;
-            operated = true;
         }
 
         if (manipulate.GetState(SteamVR_Input_Sources.RightHand))   // Translate
         {
             Vector3 offsetPos = VRHandRight.transform.position - VRhandtPosPre;
             targetObj.transform.position += offsetPos;
-            operated = true;
         }
 
         if (!manipulate.GetState(SteamVR_Input_Sources.LeftHand))   //Rot Release
         {
             ReleaseObject();
-        }
-
-        if (operated && myController.syncSplitPosList[myController.syncSplitPosList.Count-1].valid)     // 操作了并且实时更新
-        {
-            myController.CmdUpdateDPCSplitPos(new DPCSplitPosture()
-            {
-                index = myController.syncSplitPosList.Count - 1,
-                valid = true,
-                position = targetObj.transform.position,
-                rotation = targetObj.transform.rotation,
-            });
         }
 
         VRhandtPosPre = VRHandRight.transform.position;

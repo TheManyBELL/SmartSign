@@ -8,6 +8,8 @@ public class AllPlacementVRA : MonoBehaviour
 {
 
     private MirrorControllerA myController;
+    private Exp myExp;
+    private GlobalUtilsVR globalUtils; // VR工具类，用于深度碰撞
 
     private SymbolMode currentSymbolMode = SymbolMode.ARROW; // default mode is arrow
 
@@ -23,19 +25,22 @@ public class AllPlacementVRA : MonoBehaviour
     public GameObject pressSymbolPrefab;
     private GameObject rotateSymbol;
     private GameObject pressSymbol;
-
-    private GlobalUtilsVR globalUtils; // VR工具类，用于深度碰撞
-
     public GameObject assistPlaceSpherePrefab;
     private GameObject assistPlaceSphere;
+    public GameObject AxesSymbolPrefab;
 
     // 辅助线段选点
     public GameObject drawpointprefab;
-    public List<GameObject> drawpointList;
+    private List<GameObject> drawpointList;
     // 辅助分割选点
     private List<GameObject> splitPointVisble;
     private List<Vector3> splitPoints;
     private List<GameObject> splitObjects;
+    // 辅助轴
+    private List<GameObject> initialAxesObjects;
+    private List<GameObject> FinalAxesObjects;
+
+    public bool autoGenerateLine;
 
     private enum SymbolPRState
     {
@@ -49,15 +54,19 @@ public class AllPlacementVRA : MonoBehaviour
     }
     private SplitState nowSplitState = SplitState.SelectSplitpoint;
 
-    private void Awake()
+    private enum AxesState
     {
-        globalUtils = GetComponent<GlobalUtilsVR>();
+        SelectAxesPosition = 0, ManipulateAxes, ManipulateAnotherAxes
     }
+    private AxesState nowAxesState = AxesState.SelectAxesPosition;
+
 
     // Start is called before the first frame update
     void Start()
     {
         myController = GetComponentInParent<MirrorControllerA>();
+        myExp = GetComponent<Exp>();
+        globalUtils = GetComponent<GlobalUtilsVR>();
 
         rightHand = GameObject.Find("[CameraRig]/Controller (right)");
 
@@ -75,24 +84,32 @@ public class AllPlacementVRA : MonoBehaviour
         splitPointVisble = new List<GameObject>();
         splitPoints = new List<Vector3>();
         splitObjects = new List<GameObject>();
+        initialAxesObjects = new List<GameObject>();
+        FinalAxesObjects = new List<GameObject>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (switchSymbolMode.GetStateDown(SteamVR_Input_Sources.RightHand))
+        if (switchSymbolMode.GetStateDown(SteamVR_Input_Sources.RightHand))     // 切换 画线<->分割物体 右手扳机键
         {
             SwitchSymbolMode();
             Debug.Log("switch symbol mode: " + currentSymbolMode);
         }
+
+        if (switchSymbolMode.GetStateDown(SteamVR_Input_Sources.LeftHand))      // VR端开始画标识, AR端结束, 左手扳机键
+        {
+            myExp.VRBeginAREnd();
+        }  
+
         if (currentSymbolMode.Equals(SymbolMode.ARROW))
         {
-            if (confirmSelection.GetStateDown(SteamVR_Input_Sources.RightHand))
+            if (confirmSelection.GetStateDown(SteamVR_Input_Sources.RightHand))     // 右手A键
             {
                 Debug.Log("press the select button");
                 AddArrowPoint();
             }
-            if (deleteLastSymbol.GetStateDown(SteamVR_Input_Sources.RightHand))
+            if (deleteLastSymbol.GetStateDown(SteamVR_Input_Sources.RightHand))     // 右手B键
             {
                 Debug.Log("press the delete button");
                 DeleteLastArrow();
@@ -100,23 +117,50 @@ public class AllPlacementVRA : MonoBehaviour
         }
         else if (currentSymbolMode.Equals(SymbolMode.SPLIT))
         {
-            if (confirmSelection.GetStateDown(SteamVR_Input_Sources.RightHand))
+            if (confirmSelection.GetStateDown(SteamVR_Input_Sources.RightHand))     // 右手A键
             {
-                if (nowSplitState == SplitState.SelectSplitpoint) AddSplit();
-                else
+                if (nowSplitState == SplitState.SelectSplitpoint)   // 选点
+                {
+                    AddSplitPoint();   
+                }
+                else   // 停止操作并发送给AR端
                 {
                     globalUtils.RestManipulateObj();
                     ConfirmSyncSplit();
                     nowSplitState = SplitState.SelectSplitpoint;
                 }
             }
-            if (confirmSelection.GetStateDown(SteamVR_Input_Sources.LeftHand))
+            if (confirmSelection.GetStateDown(SteamVR_Input_Sources.LeftHand))  // 选点结束 左手A键
             {
                 if (splitPoints.Count >= 3) ConfirmSplit();
             }
-            if (deleteLastSymbol.GetStateDown(SteamVR_Input_Sources.RightHand))
+            if (deleteLastSymbol.GetStateDown(SteamVR_Input_Sources.RightHand)) // 删除上一个split的物体  右手B键
             {
                 DeleteLastSplit();
+            }
+        }
+        else if (currentSymbolMode.Equals(SymbolMode.Axes))
+        {
+            if (confirmSelection.GetStateDown(SteamVR_Input_Sources.RightHand))     // 右手A键
+            {
+                if (nowAxesState == AxesState.SelectAxesPosition)   // 选点
+                {
+                    AddAxes();   
+                }
+                else if (nowAxesState == AxesState.ManipulateAxes)
+                {
+                    ManipulateAnotherAxes();
+                } 
+                else
+                {
+                    globalUtils.RestManipulateObj();
+                    ConfirmSyncAxes();
+                    nowAxesState = AxesState.SelectAxesPosition;
+                }
+            }
+            if (deleteLastSymbol.GetStateDown(SteamVR_Input_Sources.RightHand)) // 删除上一个Axes  右手B键
+            {
+                DeleteAxes();
             }
         }
         // else if (currentSymbolMode.Equals(SymbolMode.PRESS))
@@ -193,7 +237,7 @@ public class AllPlacementVRA : MonoBehaviour
         myController.CmdDeleteDPCArrow();
     }
 
-    private void AddSplit()
+    private void AddSplitPoint()
     {
         
         Vector3 p = globalUtils.GetCollisionPoint();
@@ -214,6 +258,8 @@ public class AllPlacementVRA : MonoBehaviour
 
         GameObject fa = GetComponent<SplitVRA>().SplitCPU(splitPoints, ref center, ref vertices, ref color);
         splitObjects.Add(fa);
+
+        myExp.RecordObjInitRot(fa.transform.eulerAngles);
 
         myController.CmdAddDPCSplitMesh(new DPCSplitMesh()
         {
@@ -265,13 +311,116 @@ public class AllPlacementVRA : MonoBehaviour
 
     private void ConfirmSyncSplit()
     {
+        int i = splitObjects.Count - 1;
+
+        myExp.RecordObjEndRot(splitObjects[i].transform.eulerAngles);
+        myExp.VREndARBegin();
+
         myController.CmdUpdateDPCSplitPos(new DPCSplitPosture()     // 释放时一定更新
         {
             index = myController.syncSplitPosList.Count - 1,
             valid = true,
-            position = splitObjects[splitObjects.Count - 1].transform.position,
-            rotation = splitObjects[splitObjects.Count - 1].transform.rotation,
+            position = splitObjects[i].transform.position,
+            rotation = splitObjects[i].transform.rotation,
         });
+
+        if (autoGenerateLine)
+        {
+            myController.CmdAddDPCArrow(new DPCArrow()
+            {
+                index = myController.syncArrowList.Count,
+                startPoint = myController.syncSplitMeshList[i].center,
+                endPoint = splitObjects[i].transform.position,
+                curvePointList = new List<Vector3[]>(),
+                originPointList = new List<Vector3[]>(),
+            });
+        }
+    }
+
+    private void AddAxes()
+    {
+        Vector3 p = globalUtils.GetCollisionPoint();
+        GameObject Axes = Instantiate(AxesSymbolPrefab);
+        Axes.transform.position = p;
+        initialAxesObjects.Add(Axes);
+        FinalAxesObjects.Add(null);
+
+        globalUtils.SetManipulateObj(Axes);
+        nowAxesState = AxesState.ManipulateAxes;
+    }
+
+    private void ManipulateAnotherAxes()
+    {
+        myExp.RecordObjInitRot(initialAxesObjects[initialAxesObjects.Count - 1].transform.eulerAngles);
+
+        GameObject Axes = Instantiate(AxesSymbolPrefab);
+        GameObject cor_Axes = initialAxesObjects[initialAxesObjects.Count - 1];
+        Axes.transform.position = cor_Axes.transform.position;
+        Axes.transform.rotation = cor_Axes.transform.rotation;
+        FinalAxesObjects[FinalAxesObjects.Count - 1] = Axes;
+
+        globalUtils.SetManipulateObj(Axes);
+        nowAxesState = AxesState.ManipulateAnotherAxes;
+    }
+
+    private void ConfirmSyncAxes()
+    {
+        myExp.RecordObjEndRot(FinalAxesObjects[FinalAxesObjects.Count - 1].transform.eulerAngles);
+        myExp.VREndARBegin();
+
+        int i = initialAxesObjects.Count - 1;
+        myController.CmdAddDPCAxes(new DPCAxes()
+        {
+            index = myController.syncAxesList.Count,
+            init_position = initialAxesObjects[i].transform.position,
+            init_rotation = initialAxesObjects[i].transform.rotation,
+            end_position = FinalAxesObjects[i].transform.position,
+            end_rotation = FinalAxesObjects[i].transform.rotation,
+        });
+
+        if (autoGenerateLine)
+        {
+            myController.CmdAddDPCArrow(new DPCArrow()
+            {
+                index = myController.syncArrowList.Count,
+                startPoint = initialAxesObjects[i].transform.position,
+                endPoint = FinalAxesObjects[i].transform.position,
+                curvePointList = new List<Vector3[]>(),
+                originPointList = new List<Vector3[]>(),
+            });
+        }
+    }
+
+    private void DeleteAxes()
+    {
+        GameObject axes1 = initialAxesObjects[initialAxesObjects.Count - 1];
+        GameObject axes2 = FinalAxesObjects[FinalAxesObjects.Count - 1];
+
+        int j = 0;
+        while (j < axes1.transform.childCount)
+        {
+            Destroy(axes1.transform.GetChild(j++).gameObject);
+        }
+        Destroy(axes1);
+        initialAxesObjects.RemoveAt(initialAxesObjects.Count - 1);
+
+        if (axes2)
+        {
+            j = 0;
+            while (j < axes2.transform.childCount)
+            {
+                Destroy(axes2.transform.GetChild(j++).gameObject);
+            }
+            Destroy(axes2);
+        }
+        FinalAxesObjects.RemoveAt(FinalAxesObjects.Count - 1);
+
+        myController.CmdDeleteDPCAxes();
+        if (nowAxesState == AxesState.ManipulateAxes || nowAxesState == AxesState.ManipulateAnotherAxes)
+        {
+            globalUtils.RestManipulateObj();
+            nowAxesState = AxesState.SelectAxesPosition;
+        }
     }
 
     private void AddRotation()

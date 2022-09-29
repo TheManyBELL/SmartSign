@@ -15,6 +15,7 @@ public class ManipulateVRA : MonoBehaviour
 
     public SteamVR_Action_Boolean manipulate;
 
+    private LaserVRA laser;
     private MirrorControllerA myController;
 
     // Start is called before the first frame update
@@ -24,6 +25,7 @@ public class ManipulateVRA : MonoBehaviour
 
         VRHandLeft = GameObject.Find("[CameraRig]/Controller (left)");
         VRHandRight = GameObject.Find("[CameraRig]/Controller (right)");
+        laser = VRHandRight.GetComponent<LaserVRA>();
     }
 
     // Update is called once per frame
@@ -51,13 +53,15 @@ public class ManipulateVRA : MonoBehaviour
         VRhandtPosPre = VRHandRight.transform.position;
     }
 
-    public void RegisterObj(GameObject o) => targetObj = o;
+    public void RegisterObj(GameObject o) {
+        targetObj = o;
+        laser.SetTarget(o);
+    }
 
     public void UnRegisterObj() {
-
         grabObj.transform.rotation = new Quaternion();  // 为下一个物体的旋转做准备，暂时不知道是否需要
         targetObj = null;
-
+        laser.UnsetTarget();
     }
 
     void GrabObject()

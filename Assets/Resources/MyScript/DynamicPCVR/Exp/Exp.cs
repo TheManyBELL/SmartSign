@@ -28,7 +28,9 @@ public class Exp : MonoBehaviour
 
     // 开始点一下这个进行预对齐
     public bool PointcloudAlignment = false;
-    private bool exp_start = false;
+    private bool initial_exp_start = false;     // 实验是否是初次启动
+
+    private bool vrExpStart;    // Vr端操作是否开始  
 
     // Start is called before the first frame update
     void Start()
@@ -67,11 +69,13 @@ public class Exp : MonoBehaviour
 
     public void VRBeginAREnd()
     {
+        vrExpStart = true;
+
         vr_start_time = DateTime.Now;
 
-        if (!exp_start)
+        if (!initial_exp_start)
         {
-            exp_start = true;
+            initial_exp_start = true;
             return;
         }
 
@@ -82,6 +86,8 @@ public class Exp : MonoBehaviour
 
     public void VREndARBegin()
     {
+        vrExpStart = false;
+
         ar_start_time = DateTime.Now;
 
         DateTime vr_end_time = DateTime.Now;
@@ -98,4 +104,6 @@ public class Exp : MonoBehaviour
     {
         end_rotation = end_rot;
     }
+
+    public bool GetVRExpState() => vrExpStart;
 }

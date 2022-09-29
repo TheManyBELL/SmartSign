@@ -56,7 +56,7 @@ public class AllPlacementVRA : MonoBehaviour
 
     private enum AxesState
     {
-        SelectAxesPosition = 0, ManipulateAxes, ManipulateAnotherAxes
+        SelectAxesPosition = 0, ManipulateAxes, SelectAnotherAxesPosition, ManipulateAnotherAxes
     }
     private AxesState nowAxesState = AxesState.SelectAxesPosition;
 
@@ -91,16 +91,20 @@ public class AllPlacementVRA : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (switchSymbolMode.GetStateDown(SteamVR_Input_Sources.LeftHand))      // VR端开始画标识, AR端结束, 左手扳机键
+        {
+            myExp.VRBeginAREnd();
+        }
+
+        if (!myExp.GetVRExpState()) return;
+
         if (switchSymbolMode.GetStateDown(SteamVR_Input_Sources.RightHand))     // 切换 画线<->分割物体 右手扳机键
         {
             SwitchSymbolMode();
             Debug.Log("switch symbol mode: " + currentSymbolMode);
         }
 
-        if (switchSymbolMode.GetStateDown(SteamVR_Input_Sources.LeftHand))      // VR端开始画标识, AR端结束, 左手扳机键
-        {
-            myExp.VRBeginAREnd();
-        }  
+         
 
         if (currentSymbolMode.Equals(SymbolMode.ARROW))
         {
@@ -149,8 +153,13 @@ public class AllPlacementVRA : MonoBehaviour
                 }
                 else if (nowAxesState == AxesState.ManipulateAxes)
                 {
-                    ManipulateAnotherAxes();
+                    globalUtils.RestManipulateObj();
+                    nowAxesState = AxesState.SelectAnotherAxesPosition;
                 } 
+                else if (nowAxesState == AxesState.SelectAnotherAxesPosition)
+                {
+                    AddAnotherAxes();
+                }
                 else
                 {
                     globalUtils.RestManipulateObj();
@@ -163,14 +172,7 @@ public class AllPlacementVRA : MonoBehaviour
                 DeleteAxes();
             }
         }
-        // else if (currentSymbolMode.Equals(SymbolMode.PRESS))
-        {
-            // AddPress();
-        }
-        // else if (currentSymbolMode.Equals(SymbolMode.ROTATE))
-        {
-            // AddRotation();
-        }
+
     }
 
     /// <summary>
@@ -313,7 +315,7 @@ public class AllPlacementVRA : MonoBehaviour
         DestroyGameObject(father);
         splitObjects.RemoveAt(splitObjects.Count - 1);
 
-        int lineIndex = myController.syncSplitPosList[syncSplitPosList.Count - 1].correspondingLineIndex;
+        int lineIndex = myController.syncSplitPosList[myController.syncSplitPosList.Count - 1].correspondingLineIndex;
         if (lineIndex != -1) myController.CmdDeleteDPCArrow(lineIndex);
 
         myController.CmdDeleteDPCSplitMesh();
@@ -368,14 +370,11 @@ public class AllPlacementVRA : MonoBehaviour
         nowAxesState = AxesState.ManipulateAxes;
     }
 
-    private void ManipulateAnotherAxes()
+    private void AddAnotherAxes()
     {
-        myExp.RecordObjInitRot(initialAxesObjects[initialAxesObjects.Count - 1].transform.eulerAngles);
-
+        Vector3 p = globalUtils.GetCollisionPoint();
         GameObject Axes = Instantiate(AxesSymbolPrefab);
-        GameObject cor_Axes = initialAxesObjects[initialAxesObjects.Count - 1];
-        Axes.transform.position = cor_Axes.transform.position;
-        Axes.transform.rotation = cor_Axes.transform.rotation;
+        Axes.transform.position = p;
         FinalAxesObjects[FinalAxesObjects.Count - 1] = Axes;
 
         globalUtils.SetManipulateObj(Axes);
@@ -422,7 +421,7 @@ public class AllPlacementVRA : MonoBehaviour
         if (axes2) DestroyGameObject(axes2);
         FinalAxesObjects.RemoveAt(FinalAxesObjects.Count - 1);
 
-        int lineIndex = myController.syncAxesList[syncAxesList.Count - 1].correspondingLineIndex;
+        int lineIndex = myController.syncAxesList[myController.syncAxesList.Count - 1].correspondingLineIndex;
         if (lineIndex != -1) myController.CmdDeleteDPCArrow(lineIndex);
 
         myController.CmdDeleteDPCAxes();

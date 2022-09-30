@@ -16,6 +16,8 @@ public class Exp : MonoBehaviour
     public float total_dis;
     public int is_wrong;
     // 装配场景需要记录的数据
+    public List<GameObject> dot_objs;
+    private string dots_init_rot, dots_end_rot;
     private Vector3 init_rotation;
     private Vector3 end_rotation;
 
@@ -79,9 +81,11 @@ public class Exp : MonoBehaviour
             return;
         }
 
+        dots_end_rot = "";
+        foreach (var o in dot_objs) dots_end_rot += o.transform.eulerAngles.ToString("f4");
         DateTime ar_end_time = DateTime.Now;
         TimeSpan ar_ope_time = ar_end_time.Subtract(ar_start_time).Duration();
-        writeFile("ar:" + "," + ar_ope_time.TotalMilliseconds.ToString());
+        writeFile("ar:" + "," + ar_ope_time.TotalMilliseconds.ToString() + "," + dots_init_rot + "," + dots_end_rot);
     }
 
     public void VREndARBegin()
@@ -89,6 +93,8 @@ public class Exp : MonoBehaviour
         vrExpStart = false;
 
         ar_start_time = DateTime.Now;
+        dots_init_rot = "";
+        foreach (var o in dot_objs) dots_init_rot += o.transform.eulerAngles.ToString("f4");
 
         DateTime vr_end_time = DateTime.Now;
         TimeSpan vr_ope_time = vr_end_time.Subtract(vr_start_time).Duration();

@@ -100,11 +100,19 @@ public class AllPlacementVRA : MonoBehaviour
 
         if (switchSymbolMode.GetStateDown(SteamVR_Input_Sources.RightHand))     // 切换 画线<->分割物体 右手扳机键
         {
-            SwitchSymbolMode();
+            // SwitchSymbolMode();
             Debug.Log("switch symbol mode: " + currentSymbolMode);
         }
 
-         
+        if (myExp.exp_type == Exp.ExpType.CG)
+        {
+            currentSymbolMode = SymbolMode.Axes;
+        }
+        if (myExp.exp_type == Exp.ExpType.EG1)
+        {
+            currentSymbolMode = SymbolMode.SPLIT;
+        }
+
 
         if (currentSymbolMode.Equals(SymbolMode.ARROW))
         {

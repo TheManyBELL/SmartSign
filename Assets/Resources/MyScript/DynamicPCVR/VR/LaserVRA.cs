@@ -15,6 +15,8 @@ public class LaserVRA : MonoBehaviour
     public SteamVR_Action_Boolean deleteLastSymbol;
     public SteamVR_Action_Boolean manipulate;
 
+    public Material m;
+
     private Vector3[] laser_vertices = new Vector3[2];
 
     // Start is called before the first frame update
@@ -32,6 +34,7 @@ public class LaserVRA : MonoBehaviour
         if (Target) laser_vertices[1] = Target.transform.position;
         else laser_vertices[1] = laser_vertices[0] + 100 * Hand.transform.forward;
         Laser.GetComponent<LineRenderer>().SetPositions(laser_vertices);
+
 
         bool press = switchSymbolMode.GetState(SteamVR_Input_Sources.Any) ||
             confirmSelection.GetState(SteamVR_Input_Sources.Any) ||
@@ -60,6 +63,7 @@ public class LaserVRA : MonoBehaviour
         lineObj.transform.SetParent(this.transform);
         LineRenderer curveRender = lineObj.AddComponent<LineRenderer>();
         lineObj.layer = LayerMask.NameToLayer("DepthCameraUnivisible"); ;
+        curveRender.material = m;
 
         curveRender.startWidth = 0.005f;
         curveRender.endWidth = 0.005f;

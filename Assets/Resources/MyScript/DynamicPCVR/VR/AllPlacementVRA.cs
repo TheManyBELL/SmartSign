@@ -50,7 +50,7 @@ public class AllPlacementVRA : MonoBehaviour
 
     private enum SplitState
     {
-        SelectSplitpoint = 0, ManipulateSplitObj
+        SelectSplitpoint = 0, SelectPosition, ManipulateSplitObj
     }
     private SplitState nowSplitState = SplitState.SelectSplitpoint;
 
@@ -135,11 +135,13 @@ public class AllPlacementVRA : MonoBehaviour
                 {
                     AddSplitPoint();   
                 }
+                else if (nowSplitState == SplitState.SelectPosition)
+                {
+                    SelectSplitPosition();
+                }
                 else   // 停止操作并发送给AR端
                 {
-                    globalUtils.RestManipulateObj();
                     ConfirmSyncSplit();
-                    nowSplitState = SplitState.SelectSplitpoint;
                 }
             }
             if (confirmSelection.GetStateDown(SteamVR_Input_Sources.LeftHand))  // 选点结束 左手A键
@@ -170,9 +172,7 @@ public class AllPlacementVRA : MonoBehaviour
                 }
                 else
                 {
-                    globalUtils.RestManipulateObj();
-                    ConfirmSyncAxes();
-                    nowAxesState = AxesState.SelectAxesPosition;
+                    ConfirmSyncAxes();   
                 }
             }
             if (deleteLastSymbol.GetStateDown(SteamVR_Input_Sources.RightHand)) // 删除上一个Axes  右手B键
@@ -269,6 +269,7 @@ public class AllPlacementVRA : MonoBehaviour
         myController.CmdDeleteDPCArrow();
     }
 
+    // ======================================= Split ========================================
     private void AddSplitPoint()
     {
         
@@ -278,6 +279,17 @@ public class AllPlacementVRA : MonoBehaviour
         GameObject t = Instantiate(drawpointprefab);
         t.transform.position = p;
         splitPointVisble.Add(t);
+    }
+
+    private void SelectSplitPosition()
+    {
+        Vector3 p = globalUtils.GetCollisionPoint();
+
+        GameObject t = splitObjects[splitObjects.Count - 1];
+        t.transform.position = p;
+        globalUtils.SetManipulateObj(t);
+
+        nowSplitState = SplitState.ManipulateSplitObj;
     }
 
     private void ConfirmSplit()
@@ -290,7 +302,6 @@ public class AllPlacementVRA : MonoBehaviour
 
         GameObject fa = GetComponent<SplitVRA>().SplitCPU(splitPoints, ref center, ref vertices, ref color);
         splitObjects.Add(fa);
-
         myExp.RecordObjInitRot(fa.transform.eulerAngles);
 
         myController.CmdAddDPCSplitMesh(new DPCSplitMesh()
@@ -309,12 +320,12 @@ public class AllPlacementVRA : MonoBehaviour
             rotation = new Quaternion(),
         });
         Debug.Assert(myController.syncSplitMeshList.Count == myController.syncSplitPosList.Count);
-        globalUtils.SetManipulateObj(fa);
-        nowSplitState = SplitState.ManipulateSplitObj;
-
+        
         splitPoints.Clear();
         foreach (GameObject g in splitPointVisble) Destroy(g);
         splitPointVisble.Clear();
+
+        nowSplitState = SplitState.SelectPosition;
     }
 
     private void DeleteLastSplit()
@@ -364,8 +375,12 @@ public class AllPlacementVRA : MonoBehaviour
                 originPointList = new List<Vector3[]>(),
             });
         }
+
+        globalUtils.RestManipulateObj();
+        nowSplitState = SplitState.SelectSplitpoint;
     }
 
+    // ======================================= Axes ========================================
     private void AddAxes()
     {
         Vector3 p = globalUtils.GetCollisionPoint();
@@ -416,6 +431,9 @@ public class AllPlacementVRA : MonoBehaviour
                 originPointList = new List<Vector3[]>(),
             });
         }
+
+        globalUtils.RestManipulateObj();
+        nowAxesState = AxesState.SelectAxesPosition;
     }
 
     private void DeleteAxes()
@@ -439,7 +457,8 @@ public class AllPlacementVRA : MonoBehaviour
             nowAxesState = AxesState.SelectAxesPosition;
         }
     }
-
+    
+    // ======================================= Abandon ========================================
     private void AddRotation()
     {
         if (nowPRState == SymbolPRState.Inactive)

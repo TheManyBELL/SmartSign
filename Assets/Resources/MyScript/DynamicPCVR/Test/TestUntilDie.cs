@@ -9,6 +9,7 @@ public class TestUntilDie : MonoBehaviour
     public GameObject RotateSymbolPrefab;
     public GameObject PressSymbolPrefab;
     public GameObject assitRotateSpherePrefab;
+    public GameObject axesPrefab;
     private GameObject assitRotateSphere;
 
     private TestExp GetExpStateScript;
@@ -21,12 +22,12 @@ public class TestUntilDie : MonoBehaviour
 
     private enum State
     {
-        Inactive = 0, SelectPosition, SelectRotation, SelectP1, SelectP2, SelectSplitPoint
+        Inactive = 0, SelectPosition, SelectRotation, SelectP1, SelectP2, SelectSplitPoint, SelectAxesPoint, SelectAnotherAxesPoint,
     };
     private State nowState = 0;
 
     // Button
-    private Button PlaceRotButton, PlacePressButton, LineButton, SplitButton;
+    private Button PlaceRotButton, PlacePressButton, LineButton, SplitButton, AxesButton;
     // press and rotate
     private bool press;
     private GameObject currentOperateSymbol;
@@ -56,6 +57,9 @@ public class TestUntilDie : MonoBehaviour
         SplitButton = GameObject.Find("TestObj/Canvas/Split").GetComponent<Button>();
         SplitButton.onClick.AddListener(ActivateSplit);
 
+        AxesButton = GameObject.Find("TestObj/Canvas/Axes").GetComponent<Button>();
+        AxesButton.onClick.AddListener(ActivateAxes);
+
         globalUtils = GameObject.Find("Script").GetComponent<TestGlobalUtils>();
         mirrorController = GameObject.Find("Script").GetComponent<TestMirror>();
         GetExpStateScript = GameObject.Find("ExpObj").GetComponent<TestExp>();
@@ -75,7 +79,8 @@ public class TestUntilDie : MonoBehaviour
         else if (nowState == State.SelectP1) DealSelectLineP1State();
         else if (nowState == State.SelectP2) DealSelectLineP2State();
         else if (nowState == State.SelectSplitPoint) DealSelectSplitPointState();
-
+        else if (nowState == State.SelectAxesPoint) DealPlaceAxesState();
+        else if (nowState == State.SelectAnotherAxesPoint) DealPlaceAnotherAxesState();
     }
 
     private void ActivateRotPlacement()
@@ -118,6 +123,16 @@ public class TestUntilDie : MonoBehaviour
             GetExpStateScript.ManualBegin();
         }
         nowState = State.SelectSplitPoint;
+    }
+
+    private void ActivateAxes()
+    {
+        Debug.Log("axes");
+        if (GetExpStateScript.manualDraw)
+        {
+            GetExpStateScript.ManualBegin();
+        }
+        nowState = State.SelectAxesPoint;
     }
 
     private void DealSelectPositionState()
@@ -284,5 +299,33 @@ public class TestUntilDie : MonoBehaviour
         splitPoints.Clear();
         foreach(GameObject g in splitPointVisble) Destroy(g);
         splitPointVisble.Clear();
+    }
+
+    private void DealPlaceAxesState()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector3 p = globalUtils.GetCollisionPoint();
+            splitPoints.Add(p);
+
+            GameObject t = Instantiate(axesPrefab);
+            t.transform.position = p;
+
+            nowState = State.SelectAnotherAxesPoint;
+        }
+    }
+
+    private void DealPlaceAnotherAxesState()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Vector3 p = globalUtils.GetCollisionPoint();
+            splitPoints.Add(p);
+
+            GameObject t = Instantiate(axesPrefab);
+            t.transform.position = p;
+
+            nowState = State.Inactive;
+        }
     }
 }

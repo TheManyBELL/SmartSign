@@ -44,12 +44,14 @@ public class MirrorControllerA : NetworkBehaviour
     [Command]
     public void CmdDeleteDPCArrow()
     {
+        if (syncArrowList.Count == 0) return;
         syncArrowList.RemoveAt(syncArrowList.Count - 1);
         Debug.Log("[server] arrow deleted");
     }
 
     public void CmdDeleteDPCArrow(int index)
     {
+        if (index < 0) return;
         syncArrowList.RemoveAt(index);
         Debug.Log("[server] arrow deleted");
     }
@@ -72,6 +74,7 @@ public class MirrorControllerA : NetworkBehaviour
     [Command]
     public void CmdDeleteDPCRotation()
     {
+        if (syncRotationList.Count == 0) return;
         syncRotationList.RemoveAt(syncRotationList.Count - 1);
         Debug.Log("[server] rotation deleted");
     }
@@ -94,6 +97,7 @@ public class MirrorControllerA : NetworkBehaviour
     [Command]
     public void CmdDeleteDPCPress()
     {
+        if (syncPressList.Count == 0) return;
         syncPressList.RemoveAt(syncPressList.Count - 1);
         Debug.Log("[server] rotation deleted");
     }
@@ -109,6 +113,7 @@ public class MirrorControllerA : NetworkBehaviour
     [Command]
     public void CmdDeleteDPCSplitMesh()
     {
+        if (syncSplitMeshList.Count == 0) return;
         syncSplitMeshList.RemoveAt(syncSplitMeshList.Count - 1);
         Debug.Log("[server] split deleted");
     }
@@ -122,6 +127,7 @@ public class MirrorControllerA : NetworkBehaviour
     [Command]
     public void CmdDeleteDPCSplitPos()
     {
+        if (syncSplitPosList.Count == 0) return;
         syncSplitPosList.RemoveAt(syncSplitPosList.Count - 1);
     }
 
@@ -141,6 +147,7 @@ public class MirrorControllerA : NetworkBehaviour
     [Command]
     public void CmdDeleteDPCAxes()
     {
+        if (syncAxesList.Count == 0) return;
         syncAxesList.RemoveAt(syncAxesList.Count - 1);
     }
 

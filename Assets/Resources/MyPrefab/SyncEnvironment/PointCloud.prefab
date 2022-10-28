@@ -13,7 +13,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabPointCloud: {fileID: 1603232658019534062, guid: 924b756bbb6c3e04989fae798a49f7d4, type: 3}
+  displayPointClouds: []
   serverPort: 11003
+  myServerNumber: 0
+  isMeReceiveFrame: 1
 --- !u!114 &4612271052480904260
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -27,7 +30,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabPointCloud: {fileID: 1603232658019534062, guid: 924b756bbb6c3e04989fae798a49f7d4, type: 3}
+  displayPointClouds: []
   serverPort: 11000
+  myServerNumber: 0
+  isMeReceiveFrame: 1
 --- !u!114 &8217862374881381538
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -41,7 +47,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabPointCloud: {fileID: 1603232658019534062, guid: 924b756bbb6c3e04989fae798a49f7d4, type: 3}
+  displayPointClouds: []
   serverPort: 11001
+  myServerNumber: 0
+  isMeReceiveFrame: 1
 --- !u!114 &8472418696206801755
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -55,7 +64,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabPointCloud: {fileID: 1603232658019534062, guid: 924b756bbb6c3e04989fae798a49f7d4, type: 3}
+  displayPointClouds: []
   serverPort: 11002
+  myServerNumber: 0
+  isMeReceiveFrame: 1
 --- !u!1 &8573055440854947891
 GameObject:
   m_ObjectHideFlags: 0
@@ -158,6 +170,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hostIP_ar: 192.168.38.10
   hostIP_vr: 192.168.38.2
+  hostIP: 192.168.38.2
 --- !u!1001 &8573055439531478071
 PrefabInstance:
   m_ObjectHideFlags: 0

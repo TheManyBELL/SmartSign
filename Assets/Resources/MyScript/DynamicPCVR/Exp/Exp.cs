@@ -23,7 +23,7 @@ public class Exp : MonoBehaviour
 
     // 实验者姓名，
     public String exper_name;
-    public enum ExpType { CG = 0, EG1 };
+    public enum ExpType { CG = 0, EG1, EG2 };
     public ExpType exp_type = ExpType.CG;
     public enum SceneType { BLOCK = 0, ASSEMBLY };
     public SceneType scene_type = SceneType.BLOCK;
@@ -32,7 +32,7 @@ public class Exp : MonoBehaviour
     public bool PointcloudAlignment = false;
     private bool initial_exp_start = false;     // 实验是否是初次启动
 
-    private bool vrExpStart;    // Vr端操作是否开始  
+    private bool vrExpStart;    // Vr端操作是否开始  ;
 
     // Start is called before the first frame update
     void Start()
@@ -45,8 +45,8 @@ public class Exp : MonoBehaviour
         if (PointcloudAlignment)
         {
             PointcloudAlignment = false;
-            GameObject.Find("PointCloud").transform.position = new Vector3(0.643f, 1.396f, 0.472f);
-            GameObject.Find("PointCloud").transform.eulerAngles = new Vector3(60.807f, -79.34f, 97.225f);
+            GameObject.Find("PointCloud(Clone)").transform.position = new Vector3(0.49f, 0.98f, 1.94f);
+            GameObject.Find("PointCloud(Clone)").transform.eulerAngles = new Vector3(55.8f, 18.7f, 91f);
         }
     }
 
@@ -55,9 +55,10 @@ public class Exp : MonoBehaviour
     {
         string dir = "Data/";
         string exp_dir = "Block/";
-        if (scene_type == SceneType.ASSEMBLY) exp_dir = "Assembly";
+        if (scene_type == SceneType.ASSEMBLY) exp_dir = "Assembly/";
         string ExpType_dir = "CG/";
         if (exp_type == ExpType.EG1) ExpType_dir = "EG1/";
+        if (exp_type == ExpType.EG2) ExpType_dir = "EG2/";
         string file_dir = dir + exp_dir + ExpType_dir + exper_name + ".csv";
 
         StreamWriter wf = File.AppendText(file_dir);

@@ -70,7 +70,7 @@ public struct CreateSmartSignMessage : NetworkMessage
 public enum CameraMode { AR, VR }
 
 // public enum SymbolMode { ARROW=0,SPLIT,ROTATE,PRESS}
-public enum SymbolMode { ARROW = 0, SPLIT, Axes}
+public enum SymbolMode { ARROW = 0, SPLIT, Axes, Oral}
 
 /// <summary>
 /// [VR端处理所有计算]完整的标识信息数据结构

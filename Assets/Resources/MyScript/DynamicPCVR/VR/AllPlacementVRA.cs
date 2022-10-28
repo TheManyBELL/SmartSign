@@ -60,6 +60,7 @@ public class AllPlacementVRA : MonoBehaviour
     }
     private AxesState nowAxesState = AxesState.SelectAxesPosition;
 
+    public Vector3 oralEnd;
 
     // Start is called before the first frame update
     void Start()
@@ -94,6 +95,11 @@ public class AllPlacementVRA : MonoBehaviour
         if (switchSymbolMode.GetStateDown(SteamVR_Input_Sources.LeftHand))      // VR端开始画标识, AR端结束, 左手扳机键
         {
             myExp.VRBeginAREnd();
+
+            if (GameObject.Find("PointCloud(Clone)/TCPserver2/PointCloud_1"))
+            {
+                GameObject.Find("PointCloud(Clone)/TCPserver2/PointCloud_1").GetComponent<DisplayPointCloud>().isRenderFrame = true;
+            }
         }
 
         if (!myExp.GetVRExpState()) return;
@@ -111,6 +117,10 @@ public class AllPlacementVRA : MonoBehaviour
         if (myExp.exp_type == Exp.ExpType.EG1)
         {
             currentSymbolMode = SymbolMode.SPLIT;
+        }
+        if (myExp.exp_type == Exp.ExpType.EG2)
+        {
+            currentSymbolMode = SymbolMode.Oral;
         }
 
 
@@ -180,7 +190,15 @@ public class AllPlacementVRA : MonoBehaviour
                 DeleteAxes();
             }
         }
-
+        else if (currentSymbolMode.Equals(SymbolMode.Oral))
+        {
+            if (confirmSelection.GetStateDown(SteamVR_Input_Sources.RightHand))
+            {
+                // myExp.RecordObjInitRot();
+                myExp.RecordObjEndRot(oralEnd);
+                myExp.VREndARBegin();
+            }
+        }
     }
 
     /// <summary>
@@ -318,6 +336,7 @@ public class AllPlacementVRA : MonoBehaviour
             valid = false,
             position = center,
             rotation = new Quaternion(),
+            correspondingLineIndex = -1,
         });
         Debug.Assert(myController.syncSplitMeshList.Count == myController.syncSplitPosList.Count);
         
@@ -330,6 +349,20 @@ public class AllPlacementVRA : MonoBehaviour
 
     private void DeleteLastSplit()
     {
+        // SelectSplitpoint = 0, SelectPosition, ManipulateSplitObj
+        SplitState preState = nowSplitState;
+        nowSplitState = SplitState.SelectSplitpoint;
+
+        if (preState == SplitState.SelectSplitpoint && splitPoints.Count > 0)
+        {
+            splitPoints.Clear();
+            foreach (GameObject g in splitPointVisble) Destroy(g);
+            splitPointVisble.Clear();
+            return;
+        }
+
+        if (splitObjects.Count == 0) return;
+
         GameObject father = splitObjects[splitObjects.Count-1];
         DestroyGameObject(father);
         splitObjects.RemoveAt(splitObjects.Count - 1);
@@ -344,7 +377,7 @@ public class AllPlacementVRA : MonoBehaviour
         if (nowSplitState == SplitState.ManipulateSplitObj)
         {
             globalUtils.RestManipulateObj();
-            nowSplitState = SplitState.SelectSplitpoint;
+            
         }
     }
 
@@ -438,6 +471,12 @@ public class AllPlacementVRA : MonoBehaviour
 
     private void DeleteAxes()
     {
+        AxesState preState = nowAxesState;
+        nowAxesState = AxesState.SelectAxesPosition;
+        // SelectAxesPosition = 0, ManipulateAxes, SelectAnotherAxesPosition, ManipulateAnotherAxes
+
+        if (initialAxesObjects.Count == 0) return;
+
         GameObject axes1 = initialAxesObjects[initialAxesObjects.Count - 1];
         GameObject axes2 = FinalAxesObjects[FinalAxesObjects.Count - 1];
 
@@ -447,15 +486,18 @@ public class AllPlacementVRA : MonoBehaviour
         if (axes2) DestroyGameObject(axes2);
         FinalAxesObjects.RemoveAt(FinalAxesObjects.Count - 1);
 
-        int lineIndex = myController.syncAxesList[myController.syncAxesList.Count - 1].correspondingLineIndex;
-        if (lineIndex != -1) myController.CmdDeleteDPCArrow(lineIndex);
-
-        myController.CmdDeleteDPCAxes();
-        if (nowAxesState == AxesState.ManipulateAxes || nowAxesState == AxesState.ManipulateAnotherAxes)
+        if (preState == AxesState.ManipulateAxes || preState == AxesState.ManipulateAnotherAxes)
         {
             globalUtils.RestManipulateObj();
-            nowAxesState = AxesState.SelectAxesPosition;
+            return;
         }
+
+        if (preState == AxesState.SelectAnotherAxesPosition) return;
+
+        // if (nowAxesState == AxesState.SelectAxesPosition)
+        int lineIndex = myController.syncAxesList[myController.syncAxesList.Count - 1].correspondingLineIndex;
+        if (lineIndex != -1) myController.CmdDeleteDPCArrow(lineIndex);
+        myController.CmdDeleteDPCAxes();
     }
     
     // ======================================= Abandon ========================================

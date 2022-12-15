@@ -69,7 +69,7 @@ Camera:
     serializedVersion: 2
     m_Bits: 2147512119
   m_RenderingPath: -1
-  m_TargetTexture: {fileID: 8400000, guid: 92b4277c22b77244b923b724aa8b2f53, type: 2}
+  m_TargetTexture: {fileID: 8400000, guid: 2cef8930e55555b4d8631d1520263ab4, type: 2}
   m_TargetDisplay: 0
   m_TargetEye: 0
   m_HDR: 1
@@ -100,11 +100,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   depthTexture: {fileID: 0}
-  depthTextureRead: {fileID: 0}
   Mat: {fileID: 2100000, guid: 7ef7929ef6596af4c8c198b6fa1dc7c1, type: 2}
   colorRT: {fileID: 0}
   depthRT: {fileID: 0}
-  test: {fileID: 0}
+  depthFloatRT: {fileID: 0}
+  depthTextureRead: {fileID: 0}
+  colorTextureRead: {fileID: 0}
   origin: 0
 --- !u!114 &2099155670799543942
 MonoBehaviour:

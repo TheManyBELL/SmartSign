@@ -1053,7 +1053,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 450ded38cb07cba42aff096312e85d7a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  hostIP: 219.224.167.173
+  hostIP: 192.168.38.2
 --- !u!4 &565422886 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 7597175035863139078, guid: 22332abe7bf93914f83614dfa15c1a3f, type: 3}
@@ -1723,7 +1723,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3687616382329666908, guid: f4a12bcece996d246ad5429e5d3f2c15, type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4064176658227914726, guid: f4a12bcece996d246ad5429e5d3f2c15, type: 3}
       propertyPath: m_RootOrder
@@ -2566,7 +2566,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -557.89, y: 222.4}
+  m_AnchoredPosition: {x: -558.7, y: 219.8}
   m_SizeDelta: {x: 58.79, y: 22.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1873999849
@@ -3153,7 +3153,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -558.01, y: 132.6}
+  m_AnchoredPosition: {x: -559.05, y: 133.5}
   m_SizeDelta: {x: 58.79, y: 22.7}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &2123656583

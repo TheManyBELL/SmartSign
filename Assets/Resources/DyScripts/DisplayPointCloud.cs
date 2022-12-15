@@ -223,6 +223,7 @@ public class DisplayPointCloud : MonoBehaviour
     private bool new_frame = false;
 
     public bool isRenderFrame = true;
+    public bool normalRender = true;
 
     private void OnEnable()
     {
@@ -384,7 +385,7 @@ public class DisplayPointCloud : MonoBehaviour
 
     public void newFrame()
     {
-        if (!isRenderFrame) { return; }
+        if (!isRenderFrame && !normalRender) { return; }
         byte[] copy = new byte[Depth_compressed + Color_compressed + 21];
         Buffer.BlockCopy(Frame, 0, copy, 0, Depth_compressed + Color_compressed + 21);
         lock (frameLock)

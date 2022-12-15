@@ -7,6 +7,8 @@ public class GlobalUtils : MonoBehaviour
     public Camera depthCamera;
     private DepthDPC GetDepthScript;
 
+    public bool topview;
+
     // ¸¨ÖúÅö×²
     public GameObject assistColliderSpherePrefab;
     private GameObject assistColliderSphere;
@@ -18,6 +20,12 @@ public class GlobalUtils : MonoBehaviour
         assistColliderSphere = Instantiate(assistColliderSpherePrefab);
         assistColliderSphere.layer = LayerMask.NameToLayer("DepthCameraUnivisible");
         assistColliderSphere.SetActive(false);
+
+        if (depthCamera)
+        {
+            GetDepthScript = depthCamera.GetComponent<DepthDPC>();
+        }
+        
     }
 
     private void Update()

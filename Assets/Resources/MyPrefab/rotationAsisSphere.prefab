@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7691375210884909208}
   - component: {fileID: 180333784265782532}
   m_Layer: 0
-  m_Name: RotationAsisSphere
+  m_Name: rotationAsisSphere
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

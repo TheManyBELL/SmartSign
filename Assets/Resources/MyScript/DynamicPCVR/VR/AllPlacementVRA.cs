@@ -10,6 +10,7 @@ public class AllPlacementVRA : MonoBehaviour
     private MirrorControllerA myController;
     private Exp myExp;
     private GlobalUtilsVR globalUtils; // VR工具类，用于深度碰撞
+    private LineMiddleFactory middleFactory;
 
     private SymbolMode currentSymbolMode = SymbolMode.ARROW; // default mode is arrow
 
@@ -68,6 +69,7 @@ public class AllPlacementVRA : MonoBehaviour
         myController = GetComponentInParent<MirrorControllerA>();
         myExp = GetComponent<Exp>();
         globalUtils = GetComponent<GlobalUtilsVR>();
+        middleFactory = GetComponent<LineMiddleFactory>();
 
         rightHand = GameObject.Find("[CameraRig]/Controller (right)");
 
@@ -96,9 +98,9 @@ public class AllPlacementVRA : MonoBehaviour
         {
             myExp.VRBeginAREnd();
 
-            if (GameObject.Find("PointCloud(Clone)/TCPserver2/PointCloud_1"))
+            if (GameObject.Find("PointCloud(Clone)/TCPserver2/PointCloud_0"))
             {
-                GameObject.Find("PointCloud(Clone)/TCPserver2/PointCloud_1").GetComponent<DisplayPointCloud>().isRenderFrame = true;
+                GameObject.Find("PointCloud(Clone)/TCPserver2/PointCloud_0").GetComponent<DisplayPointCloud>().isRenderFrame = true;
             }
         }
 
@@ -106,11 +108,11 @@ public class AllPlacementVRA : MonoBehaviour
 
         if (switchSymbolMode.GetStateDown(SteamVR_Input_Sources.RightHand))     // 切换 画线<->分割物体 右手扳机键
         {
-            // SwitchSymbolMode();
+            SwitchSymbolMode();
             Debug.Log("switch symbol mode: " + currentSymbolMode);
         }
 
-        if (myExp.exp_type == Exp.ExpType.CG)
+        /*if (myExp.exp_type == Exp.ExpType.CG)
         {
             currentSymbolMode = SymbolMode.Axes;
         }
@@ -122,8 +124,8 @@ public class AllPlacementVRA : MonoBehaviour
         {
             currentSymbolMode = SymbolMode.Oral;
         }
-
-
+*/
+        currentSymbolMode = SymbolMode.ARROW;
         if (currentSymbolMode.Equals(SymbolMode.ARROW))
         {
             if (confirmSelection.GetStateDown(SteamVR_Input_Sources.RightHand))     // 右手A键
@@ -145,7 +147,7 @@ public class AllPlacementVRA : MonoBehaviour
                 {
                     AddSplitPoint();   
                 }
-                else if (nowSplitState == SplitState.SelectPosition)
+                else if (nowSplitState == SplitState.SelectPosition)  // 选初始位置
                 {
                     SelectSplitPosition();
                 }
@@ -235,11 +237,11 @@ public class AllPlacementVRA : MonoBehaviour
         int n_symbol = System.Enum.GetNames(typeof(SymbolMode)).Length; // get symbol numbers
         currentSymbolMode = (SymbolMode)(((int)currentSymbolMode + 1) % n_symbol);
         
-        if (myExp.exp_type == Exp.ExpType.CG && currentSymbolMode.Equals(SymbolMode.SPLIT))
+        if (myExp.condition == Exp.Condition.CG2 && currentSymbolMode.Equals(SymbolMode.SPLIT))
         {
             currentSymbolMode = SymbolMode.Axes;
         }
-        if (myExp.exp_type == Exp.ExpType.EG1 && currentSymbolMode.Equals(SymbolMode.Axes))
+        if (myExp.condition == Exp.Condition.EG && currentSymbolMode.Equals(SymbolMode.Axes))
         {
             currentSymbolMode = SymbolMode.SPLIT;
         }
@@ -248,7 +250,7 @@ public class AllPlacementVRA : MonoBehaviour
     private void AddArrowPoint()
     {
         Vector3 newPoint = globalUtils.GetCollisionPoint();
-        Debug.Log("select point is:" + newPoint.ToString());
+        // Debug.Log("select point is:" + newPoint.ToString());
 
         int currentPointNumber = currentPointList.Count;
         if (currentPointNumber < 2)
@@ -257,21 +259,23 @@ public class AllPlacementVRA : MonoBehaviour
             pointobj.transform.position = newPoint;
             pointobj.layer = LayerMask.NameToLayer("DepthCameraUnivisible");
             drawpointList.Add(pointobj);
-            Debug.Log("current point number is:" + currentPointNumber + ", add new point");
+            // Debug.Log("current point number is:" + currentPointNumber + ", add new point");
             currentPointList.Add(newPoint);
 
         }
         if (currentPointNumber == 2)
         {
-            Debug.Log("current point number is:" + currentPointNumber + ", update segment");
-            myController.CmdAddDPCArrow(new DPCArrow()
+            // Debug.Log("current point number is:" + currentPointNumber + ", update segment");
+            /*myController.CmdAddDPCArrow(new DPCArrow()
             {
                 index = myController.syncArrowList.Count,
                 startPoint = currentPointList[0],
                 endPoint = currentPointList[1],
                 curvePointList = new List<Vector3[]>(),
                 originPointList = new List<Vector3[]>(),
-            });
+            });*/
+            myExp.VREndARBegin();
+            middleFactory.AddNewLine(currentPointList[0], currentPointList[1]);
             // 清空临时变量
             currentPointList.Clear();
             for (int i = 0; i < drawpointList.Count; i++)
@@ -284,7 +288,8 @@ public class AllPlacementVRA : MonoBehaviour
 
     private void DeleteLastArrow()
     {
-        myController.CmdDeleteDPCArrow();
+        middleFactory
+            .DeleteLine();
     }
 
     // ======================================= Split ========================================

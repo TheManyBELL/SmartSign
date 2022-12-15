@@ -37,8 +37,9 @@ public class MirrorControllerA : NetworkBehaviour
     [Command]
     public void CmdUpdateDPCArrow(DPCArrow newArrow)
     {
+        if (newArrow.index >= syncArrowList.Count) return;
         syncArrowList[newArrow.index] = newArrow;
-        Debug.Log("[server] arrow " + newArrow.index + " updated");
+        // Debug.Log("[server] arrow " + newArrow.index + " updated");
     }
 
     [Command]

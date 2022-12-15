@@ -98,7 +98,7 @@ public class LineDisocclusionVRA : MonoBehaviour
         // De occlusion calculation is performed here
         p1 = current_line.startPoint;
         p2 = current_line.endPoint;
-        Debug.LogWarning(Vector3.Distance(p1, p2));
+        // Debug.LogWarning(Vector3.Distance(p1, p2));
 
         DrawArrow();    // arrow
         AdjustPointOrder();

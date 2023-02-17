@@ -231,10 +231,10 @@ public class LineMiddleFactory : MonoBehaviour
         if (current_ar_line_index < 0 || current_ar_line_index >= line_list.Count) return;
 
         MiddleLine target = line_list[current_ar_line_index];
-        if (target.start_depent_start) target.start_point = asy_calculate.AdjustStartPointDependStart(target.start_point);
-        if (target.start_depent_end) target.start_point = asy_calculate.AdjustStartPointDependEnd(target.start_point);
+        // if (target.start_depent_start) target.start_point = asy_calculate.AdjustStartPointDependStart(target.start_point);
+        // if (target.start_depent_end) target.start_point = asy_calculate.AdjustStartPointDependEnd(target.start_point);
         if (target.end_depent_start) target.end_point = asy_calculate.AdjustEndPointDependStart(target.end_point);
-        if (target.end_depent_end) target.end_point = asy_calculate.AdjustEndPointDependEnd(target.end_point);
+        // if (target.end_depent_end) target.end_point = asy_calculate.AdjustEndPointDependEnd(target.end_point);
 
         // line_list[current_ar_line_index] = target;
 

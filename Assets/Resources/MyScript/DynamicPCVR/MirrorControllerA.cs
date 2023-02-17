@@ -108,7 +108,7 @@ public class MirrorControllerA : NetworkBehaviour
     public void CmdAddDPCSplitMesh(DPCSplitMesh newSplit)
     {
         syncSplitMeshList.Add(newSplit);
-        Debug.Log("[server] split added:" + syncArrowList.Count);
+        // Debug.Log("[server] split added:" + syncArrowList.Count);
     }
 
     [Command]
@@ -116,7 +116,7 @@ public class MirrorControllerA : NetworkBehaviour
     {
         if (syncSplitMeshList.Count == 0) return;
         syncSplitMeshList.RemoveAt(syncSplitMeshList.Count - 1);
-        Debug.Log("[server] split deleted");
+        // Debug.Log("[server] split deleted");
     }
 
     [Command]

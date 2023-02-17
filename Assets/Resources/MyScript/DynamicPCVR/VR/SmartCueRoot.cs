@@ -2,20 +2,43 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public struct Depend
+{
+    public enum DependType { start_start = 0, start_end, end_start, end_end };
 
+    public bool is_depend;
+    public List<KeyValuePair<int, DependType>> depend_list;
+
+    public Depend(bool is_depend)
+    {
+        this.is_depend = is_depend;
+        this.depend_list = new List<KeyValuePair<int, DependType>>();
+    }
+
+    public void AddDepend(int index, DependType type)
+    {
+        is_depend = true;
+        depend_list.Add(new KeyValuePair<int, DependType>(index, type));
+    }
+};
 
 public class SmartCue : MonoBehaviour
 {
     public enum CueType { Line = 0, Axes, Split };
     public CueType type;
     public bool is_synchronous;
-    public bool is_valid;
+    public bool is_valid;   // render in VR
     public int sync_list_index;  // cmp sync list
 
     public SmartCue()
     {
         is_synchronous = false;
         is_valid = true;
+    }
+
+    public bool IsLine()
+    {
+        return type == CueType.Line;
     }
 
     public static void DestroyGameObject(GameObject t)
@@ -33,14 +56,16 @@ public class SmartCue : MonoBehaviour
     public virtual void Synchronize(MirrorControllerA my_controller) {
         Debug.LogWarning("Synchronize to AR");
 
+        is_valid = true;
         is_synchronous = true;
     }
 
-    public virtual void StopSynchronize(MirrorControllerA my_controller)
+    public virtual void StopSynchronize(MirrorControllerA my_controller, bool is_valid)
     {
         Debug.LogWarning("Stop Synchronize");
 
         is_synchronous = false;
+        this.is_valid = is_valid;
     }
 
     public virtual void UpdateSynchronize(MirrorControllerA my_controller)
@@ -51,7 +76,6 @@ public class SmartCue : MonoBehaviour
     public virtual void Remove(MirrorControllerA my_controller) {
         Debug.LogWarning("Remove");
 
-        is_valid = false;
     }
 
 
@@ -60,12 +84,22 @@ public class SmartCue : MonoBehaviour
 public class LineCue : SmartCue
 {
     private Vector3 p1, p2;
-    
-    public LineCue(Vector3 p1, Vector3 p2)
+    public Depend depend;
+    public Ray ray;
+
+    private GameObject start_depend_sphere;
+    private GameObject end_depend_sphere;
+
+    public LineCue(Vector3 p1, Vector3 p2, GameObject prefab = null)
     {
         this.p1 = p1;
         this.p2 = p2;
         type = CueType.Line;
+        depend = new Depend(false);
+        if (prefab) start_depend_sphere = Instantiate(prefab);
+        if (prefab) end_depend_sphere = Instantiate(prefab);
+        if (prefab) start_depend_sphere.transform.position = p1;
+        if (prefab) end_depend_sphere.transform.position = p2;
     }
 
     public override void Synchronize(MirrorControllerA my_controller)
@@ -82,13 +116,19 @@ public class LineCue : SmartCue
         });
 
         sync_list_index = my_controller.syncArrowList.Count;
+
+        if (start_depend_sphere) start_depend_sphere.SetActive(true);
+        if (end_depend_sphere) end_depend_sphere.SetActive(true);
     }
 
-    public override void StopSynchronize(MirrorControllerA my_controller)
+    public override void StopSynchronize(MirrorControllerA my_controller, bool is_valid)
     {
-        base.StopSynchronize(my_controller);
+        base.StopSynchronize(my_controller, is_valid);
 
         my_controller.CmdDeleteDPCArrow();
+
+        if (start_depend_sphere) start_depend_sphere.SetActive(false);
+        if (end_depend_sphere) end_depend_sphere.SetActive(false);
     }
 
     public override void UpdateSynchronize(MirrorControllerA my_controller)
@@ -112,7 +152,9 @@ public class LineCue : SmartCue
     {
         base.Remove(my_controller);
 
-        if (is_synchronous) StopSynchronize(my_controller);
+        if (start_depend_sphere) Destroy(start_depend_sphere);
+        if (end_depend_sphere) Destroy(end_depend_sphere);
+        if (is_synchronous) StopSynchronize(my_controller, false);
     }
 
     public void SetStartPoint(Vector3 p1)
@@ -152,16 +194,20 @@ public class AxesCue : SmartCue
     {
         base.Synchronize(my_controller);
 
+        
         my_controller.CmdAddDPCAxes(new DPCAxes()
         {
             index = my_controller.syncAxesList.Count,
             init_position = initial_axes.transform.position,
             init_rotation = initial_axes.transform.rotation,
-            end_position = initial_axes.transform.position,
-            end_rotation = initial_axes.transform.rotation,
+            end_position = final_axes.transform.position,
+            end_rotation = final_axes.transform.rotation,
             // correspondingLineIndex = autoGenerateLine ? my_controller.syncArrowList.Count : -1,
             correspondingLineIndex = -1
         });
+
+        initial_axes.SetActive(true);
+        final_axes.SetActive(true);
 
         sync_list_index = my_controller.syncAxesList.Count;
     }
@@ -176,16 +222,18 @@ public class AxesCue : SmartCue
             index = sync_list_index,
             init_position = initial_axes.transform.position,
             init_rotation = initial_axes.transform.rotation,
-            end_position = initial_axes.transform.position,
-            end_rotation = initial_axes.transform.rotation,
+            end_position = final_axes.transform.position,
+            end_rotation = final_axes.transform.rotation,
             correspondingLineIndex = -1
         });
     }
 
-    public override void StopSynchronize(MirrorControllerA my_controller)
+    public override void StopSynchronize(MirrorControllerA my_controller, bool is_valid)
     {
-        base.StopSynchronize(my_controller);
+        base.StopSynchronize(my_controller, is_valid);
 
+        initial_axes.SetActive(is_valid);
+        final_axes.SetActive(is_valid);
         my_controller.CmdDeleteDPCAxes();
     }
 
@@ -196,7 +244,7 @@ public class AxesCue : SmartCue
         DestroyGameObject(initial_axes);
         DestroyGameObject(final_axes);
 
-        if (is_synchronous) StopSynchronize(my_controller);
+        if (is_synchronous) StopSynchronize(my_controller, false);
     }
 }
 
@@ -211,8 +259,8 @@ public class CutpieceCue : SmartCue
     public CutpieceCue(Vector3 center, List<List<Vector3>> vertices, List<List<Color>> color, GameObject split_obj)
     {
         this.center = center;
-        this.vertices = vertices;
-        this.color = color;
+        this.vertices = new List<List<Vector3>>(vertices);
+        this.color = new List<List<Color>>(color);
         this.split_obj = split_obj;
         type = CueType.Split;
     }
@@ -239,6 +287,7 @@ public class CutpieceCue : SmartCue
             correspondingLineIndex = -1
         });
 
+        split_obj.SetActive(true);
         sync_list_index = my_controller.syncSplitMeshList.Count;
     }
 
@@ -259,10 +308,11 @@ public class CutpieceCue : SmartCue
         });
     }
 
-    public override void StopSynchronize(MirrorControllerA my_controller)
+    public override void StopSynchronize(MirrorControllerA my_controller, bool is_valid)
     {
-        base.StopSynchronize(my_controller);
+        base.StopSynchronize(my_controller, is_valid);
 
+        split_obj.SetActive(is_valid);
         my_controller.CmdDeleteDPCSplitMesh();
         my_controller.CmdDeleteDPCSplitPos();
     }
@@ -272,6 +322,12 @@ public class CutpieceCue : SmartCue
         base.Remove(my_controller);
         DestroyGameObject(split_obj);
 
-        if (is_synchronous) StopSynchronize(my_controller);
+        if (is_synchronous) StopSynchronize(my_controller, false);
+    }
+
+    public void DebugLog()
+    {
+        
+
     }
 }

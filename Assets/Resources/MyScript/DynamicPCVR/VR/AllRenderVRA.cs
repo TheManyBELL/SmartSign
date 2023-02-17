@@ -32,8 +32,8 @@ public class AllRenderVRA : MonoBehaviour
     void Update()
     {
         RenderArrowMiddleFactory();
-        RenderRotation();
-        RenderPress();
+        // RenderRotation();
+        // RenderPress();
     }
 
     /// <summary>
@@ -76,7 +76,7 @@ public class AllRenderVRA : MonoBehaviour
         int valid_line = 0;
         for (int i = 0; i < middleFactory.cue_list.Count; ++i)
         {
-            if (middleFactory.cue_list[i].type == SmartCue.CueType.Line)
+            if (middleFactory.cue_list[i].type == SmartCue.CueType.Line && middleFactory.cue_list[i].is_valid)
             {
                 valid_line += 1;
             }
@@ -95,6 +95,8 @@ public class AllRenderVRA : MonoBehaviour
         int line_obj_indexs = 0;
         for (int i = 0; i < middleFactory.cue_list.Count; ++i)
         {
+            
+            // Debug.LogWarningFormat("size {0}, count {1}", middleFactory.cue_list.Count, i);
             SmartCue cue = middleFactory.cue_list[i];
             if (cue.type != SmartCue.CueType.Line || !cue.is_valid) continue;
 

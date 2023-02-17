@@ -33,6 +33,7 @@ public class TestDepthDPC : MonoBehaviour
     {
         //GameObject.Find("Diagnostics").SetActive(false);
         //if (GlobleInfo.ClientMode.Equals(CameraMode.VR)) { return; }
+        Debug.LogWarningFormat("screen width {0} screen height {1}", Screen.width, Screen.height);
         m_Camera = gameObject.GetComponent<Camera>();
         m_Camera.depthTextureMode = DepthTextureMode.Depth;
         depthTexture = new RenderTexture(Screen.width, Screen.height, 0, RenderTextureFormat.RFloat);

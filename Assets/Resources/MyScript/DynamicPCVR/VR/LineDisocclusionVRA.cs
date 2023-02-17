@@ -101,14 +101,15 @@ public class LineDisocclusionVRA : MonoBehaviour
         // Debug.LogWarning(Vector3.Distance(p1, p2));
 
         DrawArrow();    // arrow
-        AdjustPointOrder();
-        RaisestraightLineLogo();
-        DrawVisiblestraightLine();  // origin 不加去遮挡，被遮挡的直线不画的原直线
+        // AdjustPointOrder();
+        // RaisestraightLineLogo();
+        // DrawVisiblestraightLine();  // origin 不加去遮挡，被遮挡的直线不画的原直线
+        current_line.originPointList.Add(new Vector3[] { p1, p2 });
 
-        fuxk.Add(p1);
-        if (global_curve) GlobalCurve();
+        // fuxk.Add(p1);
+        if (global_curve) SampleThreeOrderBezierControlPoint(); // GlobalCurve();
         else LocalCurve();
-        fuxk.Add(p2);
+        // fuxk.Add(p2);
 
         Vector3[] t_array = fuxk.ToArray();
         current_line.curvePointList.Add(t_array);
@@ -922,5 +923,101 @@ public class LineDisocclusionVRA : MonoBehaviour
             UpdateArrow(fuxk[fuxk.Count - 5], current_line.endPoint);
         }
 
+    }
+
+    // =================================================== new method is not OK ===================================================
+    Vector3 SampleOnBezierCurve(List<Vector3> control_points, float t)
+    {
+        int n = control_points.Count - 1;
+
+        Vector3 np = new Vector3(0.0f, 0.0f, 0.0f);
+        for (int i = 0; i <= n; ++i)
+        {
+            float coef = (float)Math.Pow(t, i) * (float)Math.Pow(1 - t, n - i) * Cnk[n, i];
+            np += coef * control_points[i];
+        }
+
+        return np;
+    }
+
+    bool AllVisible(ref List<Vector3> control_points)
+    {
+        bool all_visible = true;
+        float dt = 1.0f / VisibilitySampleCount;
+        float t = dt;
+        for (int i = 1; i < VisibilitySampleCount - 1; ++i)
+        {
+            Vector3 on_curve = SampleOnBezierCurve(control_points, t);
+            if (!globalUtils.GetPointVisibility(on_curve))
+            {
+                all_visible = false;
+                break;
+            }
+            t += dt;
+        }
+        return all_visible;
+    }
+
+    bool AllInRange(ref List<Vector3> control_points)
+    {
+        bool all_in_range = true;
+        float dt = 1.0f / VisibilitySampleCount;
+        float t = dt;
+        for (int i = 1; i < VisibilitySampleCount - 1; ++i)
+        {
+            Vector3 on_curve = SampleOnBezierCurve(control_points, t);
+            if (globalUtils.OutOfRange(on_curve))
+            {
+                all_in_range = false;
+                break;
+            }
+            t += dt;
+        }
+        return all_in_range;
+    }
+
+    void SampleThreeOrderBezierControlPoint()
+    {
+        Vector3 direction = new Vector3(0, 1.0f, 0);
+        List<Vector3> beizer_control_points = new List<Vector3>() { p1, (p1 + p2) / 2, p2 };
+        // for (samplePointIndex = 1; samplePointIndex < SampleCount - 1; samplePointIndex++)
+
+        Vector3 cur_p = (p1 + p2) / 2;
+        float step_length = 0.01f;
+
+        while (true)
+        {
+            bool all_visible = AllVisible(ref beizer_control_points),
+                all_in_range = AllInRange(ref beizer_control_points);
+
+            if (!all_in_range)
+            {
+                cur_p -= (step_length / 1.2f) * direction;
+                break;
+            }
+
+            if (all_visible)
+            {
+                cur_p -= (step_length / 1.2f) * direction;
+                do
+                {
+                    cur_p += 0.02f * direction;
+                    beizer_control_points[1] = cur_p;
+                }
+                while (!AllVisible(ref beizer_control_points));
+                break;
+            }
+
+            cur_p += step_length * direction;
+            beizer_control_points[1] = cur_p;
+            step_length *= 1.2f;
+        }
+
+        DrawBezierCurve(ref beizer_control_points);
+
+        if (GetPointVisibility(p2, threshold_unvisible) || testDrawToEnd)
+        {
+            UpdateArrow(fuxk[fuxk.Count - 5], fuxk[fuxk.Count - 1]);
+        }
     }
 }

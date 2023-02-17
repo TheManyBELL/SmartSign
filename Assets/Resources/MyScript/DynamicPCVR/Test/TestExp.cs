@@ -42,7 +42,7 @@ public class TestExp : MonoBehaviour
 
     public bool init = false;
     public bool manualDraw = true;
-    private TestMirror mirrorController;
+    public TestMirror mirrorController;
 
     // Start is called before the first frame update
     void Start()
@@ -314,11 +314,11 @@ public class TestExp : MonoBehaviour
         } 
         string file_dir = dir + exp_dir + ExpType_dir + exper_name + ".csv";
 
-        StreamWriter wf = File.AppendText(file_dir);
+       /* StreamWriter wf = File.AppendText(file_dir);
 
         wf.WriteLine(s);
         wf.Flush();    
-        wf.Close();    
+        wf.Close(); */   
         
         Debug.Log("write success");
     }

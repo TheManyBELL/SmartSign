@@ -128,4 +128,12 @@ public class GlobalUtils : MonoBehaviour
 
         return split_target;
     }
+
+    public bool OutOfRange(Vector3 p)
+    {
+        Vector3 screen_p = MWorldToScreenPointDepth(p);
+        return (screen_p.x < 0 || screen_p.x > Screen.width ||
+                screen_p.y < 0 || screen_p.y > Screen.height ||
+                screen_p.z < 0);
+    }
 }

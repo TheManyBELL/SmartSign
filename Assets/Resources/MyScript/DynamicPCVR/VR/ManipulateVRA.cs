@@ -59,7 +59,7 @@ public class ManipulateVRA : MonoBehaviour
     }
 
     public void UnRegisterObj() {
-        grabObj.transform.rotation = new Quaternion();  // 为下一个物体的旋转做准备，暂时不知道是否需要
+        grabObj.transform.rotation = new Quaternion();  
         targetObj = null;
         laser.UnsetTarget();
     }

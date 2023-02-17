@@ -35,6 +35,60 @@ public class TestGlobalUtils : MonoBehaviour
 
     public float GetDepth(int x, int y) => GetDepthScript.GetDepth(x, y);
 
+    public float GetSmoothDepth(int x, int y)
+    {
+        float[] depth_around = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
+        float[] weight_around = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f };
+
+        if (x > 0)  // left
+        {
+            depth_around[0] = GetDepth(x - 1, y);
+            weight_around[0] = 0.125f;
+        }
+
+        if (y > 0)  // bottom
+        {
+            depth_around[1] = GetDepth(x, y - 1);
+            weight_around[1] = 0.125f;
+        }
+
+        if (x < Screen.width)   // right
+        {
+            depth_around[2] = GetDepth(x + 1, y);
+            weight_around[2] = 0.125f;
+        }
+
+        if (y < Screen.height)   // top
+        {
+            depth_around[3] = GetDepth(x, y + 1);
+            weight_around[3] = 0.125f;
+        }
+
+        {
+            depth_around[4] = GetDepth(x, y);
+            weight_around[4] = 0.5f;
+        }
+
+        // 权重归一化
+        float total = 0.0f;
+        for (int i = 0; i < 5; ++i)
+        {
+            total += weight_around[i];
+        }
+        for (int i = 0; i < 5; ++i)
+        {
+            weight_around[i] /= total;
+        }
+
+        float smooth_depth = 0.0f;
+        for (int i = 0; i < 5; ++i)
+        {
+            smooth_depth += weight_around[i] * depth_around[i];
+        }
+
+        return smooth_depth;
+    }
+
     public Color GetColor(int x, int y) => GetDepthScript.GetColor(x, y);
 
     public Vector3 MScreenToWorldPointDepth(Vector3 p)

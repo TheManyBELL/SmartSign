@@ -736,6 +736,7 @@ GameObject:
   - component: {fileID: 418947595}
   - component: {fileID: 418947600}
   - component: {fileID: 418947599}
+  - component: {fileID: 418947601}
   - component: {fileID: 418947598}
   m_Layer: 0
   m_Name: Camera
@@ -761,14 +762,14 @@ Camera:
   m_GameObject: {fileID: 418947594}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 1
+  m_ClearFlags: 2
   m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
   m_SensorSize: {x: 36, y: 24}
   m_LensShift: {x: 0, y: 0}
-  m_FocalLength: 50
+  m_FocalLength: 20.78461
   m_NormalizedViewPortRect:
     serializedVersion: 2
     x: 0
@@ -777,7 +778,7 @@ Camera:
     height: 1
   near clip plane: 0.1
   far clip plane: 1000
-  field of view: 60
+  field of view: 60.000004
   orthographic: 0
   orthographic size: 5
   m_Depth: 0
@@ -866,6 +867,27 @@ MonoBehaviour:
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
+--- !u!114 &418947601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 418947594}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b6fdfe193168324cb87d360adb79092, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mainCamera: {fileID: 0}
+  fieldOfViewMin: 20
+  fieldOfviewMax: 100
+  moveSpeed: 3
+  sensitivityDrag: 1
+  sensitivityRotate: 3
+  sensitivetyMouseWheel: 30
+  xAxisinversion: 0
+  yAsixinversion: 0
 --- !u!1001 &454242934
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -880,7 +902,7 @@ PrefabInstance:
     - target: {fileID: 2291289167689953260, guid: bbb3bf9e83d8ee540847333ca1de5d20, type: 3}
       propertyPath: activeProfile
       value: 
-      objectReference: {fileID: 11400000, guid: 81efdf4d5148d234e9a963964ee1e780, type: 2}
+      objectReference: {fileID: 11400000, guid: 5688a70cce3dc084bafdd8edb23d1b6e, type: 2}
     - target: {fileID: 2291289167689953262, guid: bbb3bf9e83d8ee540847333ca1de5d20, type: 3}
       propertyPath: m_Name
       value: MixedRealityToolkit
@@ -1723,7 +1745,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3687616382329666908, guid: f4a12bcece996d246ad5429e5d3f2c15, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4064176658227914726, guid: f4a12bcece996d246ad5429e5d3f2c15, type: 3}
       propertyPath: m_RootOrder
@@ -2409,6 +2431,7 @@ MonoBehaviour:
   follow_pointclout: []
   init: 1
   manualDraw: 1
+  mirrorController: {fileID: 0}
 --- !u!1 &1841638618
 GameObject:
   m_ObjectHideFlags: 0

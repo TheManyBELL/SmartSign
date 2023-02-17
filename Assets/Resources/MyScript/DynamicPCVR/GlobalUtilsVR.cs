@@ -100,6 +100,21 @@ public class GlobalUtilsVR : MonoBehaviour
         return true;
     }
 
+    public Vector3 GetCollisionPoint(Ray ray)
+    {
+        int MAXSTEP = 1000, stepCount = 0;
+        float step = 0.01f;
+        assistColliderSphere.transform.position = ray.origin;
+        while (GameObjectVisible(assistColliderSphere))
+        {
+            assistColliderSphere.transform.position += step * ray.direction;
+            stepCount++;
+            if (stepCount > MAXSTEP) break;
+        }
+
+        return (assistColliderSphere.transform.position - 3 * step * ray.direction);
+    }
+
     public Vector3 GetCollisionPoint()
     {
         int MAXSTEP = 1000, stepCount = 0;

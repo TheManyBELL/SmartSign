@@ -4,15 +4,17 @@ using UnityEngine;
 
 public class TestMirror : MonoBehaviour
 {
-    public List<DPCArrow> syncArrowList = new List<DPCArrow>();
-    public List<DPCSymbol> syncRotationList = new List<DPCSymbol>();
-    public List<DPCSymbol> syncPressList = new List<DPCSymbol>();
+    public List<DPCArrow> syncArrowList;
+    public List<DPCSymbol> syncRotationList;
+    public List<DPCSymbol> syncPressList;
 
     // Start is called before the first frame update
     void Start()
     {
-        
-    }
+        syncArrowList = new List<DPCArrow>();
+        syncRotationList = new List<DPCSymbol>();
+        syncPressList = new List<DPCSymbol>();
+}
 
     // Update is called once per frame
     void Update()

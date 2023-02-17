@@ -121,7 +121,8 @@ namespace Valve.VR.Extras
             Ray raycast = new Ray(transform.position, transform.forward);
             RaycastHit hit;
             bool bHit = Physics.Raycast(raycast, out hit);
-            focusCircle.SetActive(bHit);
+            // focusCircle.SetActive(bHit);
+            focusCircle.SetActive(false);
             // @author:qinwen
             if (bHit)
             {
@@ -129,11 +130,14 @@ namespace Valve.VR.Extras
                 startPoint = transform.position;
                 endPoint = hit.point;// 有问题
                 hitNormal = hit.normal; // 碰撞点法向量
+                // Debug.LogFormat("Endpoint: {0}", endPoint);
 
-                Quaternion newRotation = Quaternion.LookRotation(hitNormal);
+                // hit.collider.GetComponentInParent<>
+
+                /*Quaternion newRotation = Quaternion.LookRotation(hitNormal);
                 focusCircle.transform.rotation = newRotation;
-                Vector3 circlePoint = endPoint + hitNormal * circleDistanceRate; // 平移一段位置
-                focusCircle.transform.position = circlePoint;
+                Vector3 circlePoint = endPoint + hitNormal * circleDistanceRate; 
+                focusCircle.transform.position = circlePoint;*/
 
             }
             else

@@ -150,14 +150,12 @@ GameObject:
   - component: {fileID: 8843385126129766564}
   - component: {fileID: 5672654179876643091}
   - component: {fileID: 4468969535677363155}
-  - component: {fileID: 4122971587577157833}
   - component: {fileID: 1042393203955980651}
   - component: {fileID: 6440578365734438965}
   - component: {fileID: 6903378985523676704}
   - component: {fileID: 6691466015999886801}
   - component: {fileID: 5488052373424425372}
   - component: {fileID: 3119208616404884327}
-  - component: {fileID: 3306204752082126954}
   - component: {fileID: 6496038465311946279}
   - component: {fileID: 4545930268364543120}
   m_Layer: 0
@@ -224,6 +222,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b5d7a111bcfb969448a4729ddb4d9e9f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentSymbolMode: 0
   switchSymbolMode:
     actionPath: /actions/default/in/SwitchSymbolMode
     needsReinit: 0
@@ -232,6 +231,9 @@ MonoBehaviour:
     needsReinit: 0
   deleteLastSymbol:
     actionPath: /actions/default/in/DeleteLastSymbol
+    needsReinit: 0
+  confirmDependency:
+    actionPath: /actions/default/in/DependConfirm
     needsReinit: 0
   visiblePointprefab: {fileID: 9085032347184655347, guid: 46a1f4b88fd026a429c5e51b5c7ee466, type: 3}
   AxesPrefab: {fileID: 763185395894137768, guid: 311b40d83350df2428b262c867b92a29, type: 3}
@@ -280,21 +282,6 @@ MonoBehaviour:
   testChangeDirectly: 1
   testDrawToEnd: 1
   visibleSphere: {fileID: 9085032347184655347, guid: 46a1f4b88fd026a429c5e51b5c7ee466, type: 3}
---- !u!114 &4122971587577157833
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4617206982369766726}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd1bfa9a6947bcf45a755da6462684ac, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  rotateSymbolPrefab: {fileID: 1995401586807690531, guid: 8d3c090a0fcef884b9db35c6e7fc4685, type: 3}
-  pressSymbolPrefab: {fileID: 2903551670243213068, guid: 6f0b65624ec006c4a85557e249d78ad4, type: 3}
-  raiseStep: 0.1
 --- !u!114 &1042393203955980651
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -398,35 +385,11 @@ MonoBehaviour:
   - {fileID: 1854910659524370286}
   - {fileID: 3590483674811511157}
   - {fileID: 8815193325048478990}
+  asynchronous_ar_begin: 0
   exper_name: lxy
   condition: 0
-  task: 0
+  task: 2
   PointcloudAlignment: 0
---- !u!114 &3306204752082126954
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4617206982369766726}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c8f55603d880ce64ebf13fe507d948af, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  current_ar_line_index: 0
-  current_exp_type: 1
-  debug_demo_mode: 1
-  debug_asynchronous_manual_switch: 0
-  dependency_threshold: 0.05
-  threshold_sphere_prefab: {fileID: 1917233786080185256, guid: 78471b7db4b064640b6d103faa75dc0a, type: 3}
-  visible_dependency_threshold: 1
-  next_line:
-    actionPath: /actions/default/in/ConfirmSelection
-    needsReinit: 0
-  previous_line:
-    actionPath: /actions/default/in/DeleteLastSymbol
-    needsReinit: 0
 --- !u!114 &6496038465311946279
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -441,18 +404,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cue_list: []
   synchronous_index: 0
-  type: 0
+  type: 1
   debug_demo_mode: 0
   debug_asynchronous_manual_switch: 0
   next_cue:
-    actionPath: 
+    actionPath: /actions/default/in/DeleteLastSymbol
     needsReinit: 0
   previous_cue:
-    actionPath: 
+    actionPath: /actions/default/in/DependConfirm
     needsReinit: 0
-  dependency_threshold: 0
-  threshold_sphere_prefab: {fileID: 0}
-  visible_dependency_threshold: 0
+  depend_sphere_prefab: {fileID: 1917233786080185256, guid: 78471b7db4b064640b6d103faa75dc0a, type: 3}
 --- !u!114 &4545930268364543120
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -751,13 +712,13 @@ PrefabInstance:
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 121689881cdaf44459706dce14e6a69e, type: 3}
---- !u!1 &8424565445435906394 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 1181072195885455236, guid: 121689881cdaf44459706dce14e6a69e, type: 3}
-  m_PrefabInstance: {fileID: 7245750036417154782}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &8424565445435906390 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 1181072195885455240, guid: 121689881cdaf44459706dce14e6a69e, type: 3}
+  m_PrefabInstance: {fileID: 7245750036417154782}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &8424565445435906394 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1181072195885455236, guid: 121689881cdaf44459706dce14e6a69e, type: 3}
   m_PrefabInstance: {fileID: 7245750036417154782}
   m_PrefabAsset: {fileID: 0}

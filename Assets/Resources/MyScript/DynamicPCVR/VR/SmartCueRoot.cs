@@ -160,11 +160,13 @@ public class LineCue : SmartCue
     public void SetStartPoint(Vector3 p1)
     {
         this.p1 = p1;
+        if (start_depend_sphere) start_depend_sphere.transform.position = p1;
     }
 
     public void SetEndPoint(Vector3 p2)
     {
         this.p2 = p2;
+        if (end_depend_sphere) end_depend_sphere.transform.position = p2;
     }
 
     public Vector3 GetStartPoint()
@@ -319,10 +321,10 @@ public class CutpieceCue : SmartCue
 
     public override void Remove(MirrorControllerA my_controller)
     {
+        if (is_synchronous) StopSynchronize(my_controller, false);
+
         base.Remove(my_controller);
         DestroyGameObject(split_obj);
-
-        if (is_synchronous) StopSynchronize(my_controller, false);
     }
 
     public void DebugLog()

@@ -184,7 +184,7 @@ public class MyTCPServer : MonoBehaviour
 
     private void ReadCallback(IAsyncResult ar)
     {
-        Debug.LogWarning(myServerNumber + ": read call back");
+        // Debug.LogWarning(myServerNumber + ": read call back");
         String content = String.Empty;
 
         // Retrieve the state object and the handler socket  

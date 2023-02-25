@@ -112,7 +112,7 @@ public class GlobalUtilsVR : MonoBehaviour
             if (stepCount > MAXSTEP) break;
         }
 
-        return (assistColliderSphere.transform.position - 3 * step * ray.direction);
+        return (assistColliderSphere.transform.position - 1 * step * ray.direction);
     }
 
     public Vector3 GetCollisionPoint()

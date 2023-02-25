@@ -237,7 +237,11 @@ MonoBehaviour:
     needsReinit: 0
   visiblePointprefab: {fileID: 9085032347184655347, guid: 46a1f4b88fd026a429c5e51b5c7ee466, type: 3}
   AxesPrefab: {fileID: 763185395894137768, guid: 311b40d83350df2428b262c867b92a29, type: 3}
+  image: {fileID: 0}
   autoGenerateLine: 0
+  message: 
+  nowSplitState: 0
+  nowAxesState: 0
   oralEnd: {x: 0, y: 0, z: 0}
 --- !u!114 &5672654179876643091
 MonoBehaviour:
@@ -251,7 +255,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e1d20a5fece22b48bbd3d0784387479, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  segmentMaterial: {fileID: 2100000, guid: aed84d6e0166a2545a6cb12b72ad09eb, type: 2}
+  segmentMaterial: {fileID: 0}
   segmentThickness: 0.01
   RotateSymbol: {fileID: 1995401586807690531, guid: 8d3c090a0fcef884b9db35c6e7fc4685, type: 3}
   PressSymbol: {fileID: 2903551670243213068, guid: 6f0b65624ec006c4a85557e249d78ad4, type: 3}
@@ -277,8 +281,9 @@ MonoBehaviour:
   threshold_edge_point_change_dis: 10
   filter: 1
   filter_frame_count: 20
-  test_max_step: 200
+  test_max_step: 20
   global_curve: 1
+  arrow_length: 40
   testChangeDirectly: 1
   testDrawToEnd: 1
   visibleSphere: {fileID: 9085032347184655347, guid: 46a1f4b88fd026a429c5e51b5c7ee466, type: 3}
@@ -389,7 +394,6 @@ MonoBehaviour:
   exper_name: lxy
   condition: 0
   task: 2
-  PointcloudAlignment: 0
 --- !u!114 &6496038465311946279
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -404,7 +408,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   cue_list: []
   synchronous_index: 0
-  type: 1
+  type: 0
   debug_demo_mode: 0
   debug_asynchronous_manual_switch: 0
   next_cue:

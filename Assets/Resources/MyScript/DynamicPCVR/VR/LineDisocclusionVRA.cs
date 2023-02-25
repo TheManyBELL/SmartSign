@@ -32,6 +32,7 @@ public class LineDisocclusionVRA : MonoBehaviour
 
     public int test_max_step;
     public bool global_curve;
+    public int arrow_length;
 
     private GlobalUtils globalUtils;
     // 测试相关
@@ -107,7 +108,7 @@ public class LineDisocclusionVRA : MonoBehaviour
         current_line.originPointList.Add(new Vector3[] { p1, p2 });
 
         // fuxk.Add(p1);
-        if (global_curve) SampleThreeOrderBezierControlPoint(); // GlobalCurve();
+        if (global_curve) SampleThreeOrderBezierControlPoint(); 
         else LocalCurve();
         // fuxk.Add(p2);
 
@@ -368,7 +369,7 @@ public class LineDisocclusionVRA : MonoBehaviour
             return;
         }
 
-        int length = 10;
+        int length = (int)(arrow_length / Vector3.Distance(Camera.main.transform.position, p2));
         Vector3 screenArrowP1 = screenP2 + length * new Vector3(verticalDir.x, verticalDir.y)
             + length * new Vector3(dir.x, dir.y);
         Vector3 screenArrowP2 = screenP2 - length * new Vector3(verticalDir.x, verticalDir.y)
@@ -717,7 +718,7 @@ public class LineDisocclusionVRA : MonoBehaviour
         Vector2 dir = (screenP - screenP2).normalized;
         Vector2 verticalDir = new Vector2(-dir.y, dir.x);
 
-        int length = 10;
+        int length = (int)(20.0f / Vector3.Distance(Camera.main.transform.position, endpoint));
         Vector3 screenArrowP1 = screenP2 + length * new Vector3(verticalDir.x, verticalDir.y)
             + length * new Vector3(dir.x, dir.y);
         Vector3 screenArrowP2 = screenP2 - length * new Vector3(verticalDir.x, verticalDir.y)
@@ -805,13 +806,16 @@ public class LineDisocclusionVRA : MonoBehaviour
                 float coef = (float)Math.Pow(t, i) * (float)Math.Pow(1 - t, n - i) * Cnk[n, i];
                 np += coef * controlPoints[i];
             }
-            if (testChangeDirectly)
+            t += dt;
+
+            if (!GetPointVisibility(np, threshold_unvisible))   // 被遮挡部分不渲染
             {
-                ChangePointDepth(ref np, 0.0001f);
+                continue;
             }
+
             // curvePoints[j] = np;
             fuxk.Add(np);
-            t += dt;
+            
         }
         // current_line.curvePointList.Add(curvePoints);
     }
@@ -984,17 +988,12 @@ public class LineDisocclusionVRA : MonoBehaviour
 
         Vector3 cur_p = (p1 + p2) / 2;
         float step_length = 0.01f;
+        int step = 0;
 
         while (true)
         {
             bool all_visible = AllVisible(ref beizer_control_points),
                 all_in_range = AllInRange(ref beizer_control_points);
-
-            if (!all_in_range)
-            {
-                cur_p -= (step_length / 1.2f) * direction;
-                break;
-            }
 
             if (all_visible)
             {
@@ -1011,6 +1010,9 @@ public class LineDisocclusionVRA : MonoBehaviour
             cur_p += step_length * direction;
             beizer_control_points[1] = cur_p;
             step_length *= 1.2f;
+
+            step++;
+            if (step >= test_max_step) break;
         }
 
         DrawBezierCurve(ref beizer_control_points);

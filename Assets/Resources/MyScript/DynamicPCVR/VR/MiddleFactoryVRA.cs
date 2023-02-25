@@ -61,13 +61,14 @@ public class MiddleFactoryVRA : MonoBehaviour
         // 判断是否做完，切换下一条直线
         if ((!debug_demo_mode && CurrentCueComplete()) || next_cue.GetStateDown(SteamVR_Input_Sources.LeftHand))
         {
+            UpdatePointCloud();
             SynchronizeNextCueStep1();    
         }
 
-        if (debug_asynchronous_manual_switch || previous_cue.GetStateDown(SteamVR_Input_Sources.LeftHand))
+        if (previous_cue.GetStateDown(SteamVR_Input_Sources.LeftHand))
         {
+            UpdatePointCloud();
             SynchronizePreviousCueStep1();
-            debug_asynchronous_manual_switch = false;
         }
     }
 
@@ -85,8 +86,9 @@ public class MiddleFactoryVRA : MonoBehaviour
 
     public void AddLine(Vector3 start_point, Vector3 end_point)
     {
-        cue_list.Add(new LineCue(start_point, end_point, depend_sphere_prefab));
-        // cue_list.Add(new LineCue(start_point, end_point));
+        if (type == Type.异步) cue_list.Add(new LineCue(start_point, end_point, depend_sphere_prefab));
+        else cue_list.Add(new LineCue(start_point, end_point));
+
         SynchronizeCurrentCue();
     }
 
@@ -213,12 +215,12 @@ public class MiddleFactoryVRA : MonoBehaviour
                 else if (d.Value == Depend.DependType.end_start)
                 {
                     Debug.LogWarning("end_start");
-                    line.SetEndPoint(asy_calculate.AdjustEndPointDependStart(line.GetStartPoint()));
+                    line.SetEndPoint(asy_calculate.AdjustEndPointDependStart(line.GetEndPoint()));
                 }
                 else if (d.Value == Depend.DependType.end_end)
                 {
                     Debug.LogWarning("end_end");
-                    line.SetEndPoint(asy_calculate.AdjustEndPointDependEnd(line.GetStartPoint(), cue_list[synchronous_index]));
+                    line.SetEndPoint(asy_calculate.AdjustEndPointDependEnd(line.GetEndPoint(), cue_list[synchronous_index]));
                 }
             }
             line.UpdateSynchronize(my_controller);
@@ -234,5 +236,13 @@ public class MiddleFactoryVRA : MonoBehaviour
     {
 
 
+    }
+
+    void UpdatePointCloud()
+    {
+        if (GameObject.Find("PointCloud(Clone)/TCPserver2/PointCloud_0"))
+        {
+            GameObject.Find("PointCloud(Clone)/TCPserver2/PointCloud_0").GetComponent<DisplayPointCloud>().isRenderFrame = true;
+        }
     }
 }

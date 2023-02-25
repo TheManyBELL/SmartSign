@@ -38,8 +38,9 @@ public class AllPlacementVRANew : MonoBehaviour
     private GameObject initialAxesObject;
     private GameObject FinalAxesObject;
     // 提示信息
-
+    public GameObject image;
     public bool autoGenerateLine;
+    public string message = "";
 
     private enum SymbolPRState
     {
@@ -47,17 +48,17 @@ public class AllPlacementVRANew : MonoBehaviour
     }
     private SymbolPRState nowPRState = SymbolPRState.Inactive;
 
-    private enum SplitState
+    public enum SplitState
     {
         SelectSplitpoint = 0, SelectPosition, ManipulateSplitObj
     }
-    private SplitState nowSplitState = SplitState.SelectSplitpoint;
+    public SplitState nowSplitState = SplitState.SelectSplitpoint;
 
-    private enum AxesState
+    public enum AxesState
     {
         SelectAxesPosition = 0, ManipulateAxes, SelectAnotherAxesPosition, ManipulateAnotherAxes
     }
-    private AxesState nowAxesState = AxesState.SelectAxesPosition;
+    public AxesState nowAxesState = AxesState.SelectAxesPosition;
 
     public Vector3 oralEnd;
 
@@ -85,13 +86,14 @@ public class AllPlacementVRANew : MonoBehaviour
     {
         if (switchSymbolMode.GetStateDown(SteamVR_Input_Sources.LeftHand))      // VR端开始画标识, AR端结束, 左手扳机键
         {
-            myExp.VRBeginAREnd();
+            if (!myExp.GetVRExpState()) myExp.VRBeginAREnd();
 
             if (GameObject.Find("PointCloud(Clone)/TCPserver2/PointCloud_0"))
             {
                 GameObject.Find("PointCloud(Clone)/TCPserver2/PointCloud_0").GetComponent<DisplayPointCloud>().isRenderFrame = true;
             }
-        }
+        } 
+        
 
         if (!myExp.GetVRExpState()) return;
 
@@ -216,12 +218,18 @@ public class AllPlacementVRANew : MonoBehaviour
 
         if (currentSymbolMode.Equals(SymbolMode.SPLIT))
         {
-            splitPoints.Clear();
-            for (int i = 0; i < splitPointsVisble.Count; i++)
+            if (!(nowSplitState == SplitState.SelectSplitpoint && splitPoints.Count == 0))
             {
-                DestroyGameObject(splitPointsVisble[i]);
+                DeleteLastSplit();
             }
-            splitPointsVisble.Clear();
+        }
+
+        if (currentSymbolMode.Equals(SymbolMode.Axes))
+        {
+            if (nowAxesState != AxesState.SelectAxesPosition)
+            {
+                DeleteAxes();
+            }
         }
 
         nowPRState = SymbolPRState.Inactive;
@@ -234,11 +242,11 @@ public class AllPlacementVRANew : MonoBehaviour
 
         if (myExp.condition == Exp.Condition.CG2 && currentSymbolMode.Equals(SymbolMode.SPLIT))
         {
-            currentSymbolMode = SymbolMode.Axes;
+            // currentSymbolMode = SymbolMode.Axes;
         }
         if (myExp.condition == Exp.Condition.EG && currentSymbolMode.Equals(SymbolMode.Axes))
         {
-            currentSymbolMode = SymbolMode.SPLIT;
+            // currentSymbolMode = SymbolMode.SPLIT;
         }
     }
 
@@ -254,27 +262,32 @@ public class AllPlacementVRANew : MonoBehaviour
             LineCue line = (LineCue)cue;
 
             float distance = Vector3.Distance(collision, line.GetStartPoint());
-            if (distance < middleFactory.depend_sphere_prefab.transform.localScale.x)
+            if (distance < 2 * middleFactory.depend_sphere_prefab.transform.localScale.x)
             {
                 Depend.DependType d = (linePoints.Count == 1) ? 
                     Depend.DependType.start_start :
                     Depend.DependType.end_start;
                 lineDepend.Add(new KeyValuePair<int, Depend.DependType>(i, d));
 
-                Debug.LogWarning("add dependence success 1");
+                string extra = (d == Depend.DependType.start_start) ? "start_start " : "end_start";
+                message = "add dependence success: " + extra;
                 return;
             }
 
             distance = Vector3.Distance(collision, line.GetEndPoint());
-            if (distance < middleFactory.depend_sphere_prefab.transform.localScale.x)
+            if (distance < 2 * middleFactory.depend_sphere_prefab.transform.localScale.x)
             {
                 Depend.DependType d = (linePoints.Count == 1) ?
                     Depend.DependType.start_end :
                     Depend.DependType.end_end;
                 lineDepend.Add(new KeyValuePair<int, Depend.DependType>(i, d));
+
+                string extra = (d == Depend.DependType.start_end) ? "start_end " : "end_end";
+                message = "add dependence success: " + extra;
+                return;
             }
         }
-        Debug.LogWarning("add dependence success 2");
+        message = "add dependence fail";
     }
 
     private void AddArrowPoint()
@@ -388,7 +401,7 @@ public class AllPlacementVRANew : MonoBehaviour
         splitPointsVisble.Clear();
         vertices.Clear();
         color.Clear();
-        DestroyGameObject(splitObject);
+        if (preState != SplitState.SelectSplitpoint && splitObject) DestroyGameObject(splitObject);
         globalUtils.RestManipulateObj();
     }
 

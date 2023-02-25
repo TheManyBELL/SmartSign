@@ -174,7 +174,7 @@ public class AllRenderVRA : MonoBehaviour
         segmentObj.transform.SetParent(this.transform);
         segmentObj.layer = LayerMask.NameToLayer("DepthCameraUnivisible");
         LineRenderer segmentRender = segmentObj.AddComponent<LineRenderer>();
-        segmentRender.material = segmentMaterial;
+        // segmentRender.material = segmentMaterial;
         segmentRender.startWidth = segmentThickness;
         segmentRender.endWidth = segmentThickness;
         segmentRender.numCapVertices = 2;
@@ -222,7 +222,7 @@ public class AllRenderVRA : MonoBehaviour
         segmentObj.transform.SetParent(this.transform);
         segmentObj.layer = LayerMask.NameToLayer("DepthCameraUnivisible");
         LineRenderer segmentRender = segmentObj.AddComponent<LineRenderer>();
-        segmentRender.material = segmentMaterial;
+        // segmentRender.material = segmentMaterial;
         segmentRender.startWidth = segmentThickness;
         segmentRender.endWidth = segmentThickness;
         segmentRender.positionCount = 0;

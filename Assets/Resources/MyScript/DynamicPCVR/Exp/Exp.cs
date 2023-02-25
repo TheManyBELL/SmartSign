@@ -30,28 +30,20 @@ public class Exp : MonoBehaviour
     public enum Task { BLOCK = 0, ASSEMBLY, MODE };     // BLOCK积木平移 ASSEMBLY装配旋转 MODE俩场景同步或异步
     public Task task = Task.BLOCK;
 
-    // 开始点一下这个进行预对齐
-    public bool PointcloudAlignment = false;
     private bool initial_exp_start = true;     // 实验是否是初次启动
-
     private bool vrExpStart;    // Vr端操作是否开始  ;
+    private MiddleFactoryVRA middle;
 
     // Start is called before the first frame update
     void Start()
     {
         walking_dis = 0;
+        middle = gameObject.GetComponent<MiddleFactoryVRA>();
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (PointcloudAlignment)
-        {
-            PointcloudAlignment = false;
-            GameObject.Find("PointCloud(Clone)").transform.position = new Vector3(0.49f, 0.98f, 1.94f);
-            GameObject.Find("PointCloud(Clone)").transform.eulerAngles = new Vector3(55.8f, 18.7f, 91f);
-        }
-
         if (!ar_camera)
         {
             // ar_camera = GameObject.Find("DepthCameraAR(Clone)");
@@ -77,6 +69,18 @@ public class Exp : MonoBehaviour
         string ExpType_dir = "CG1/";
         if (condition == Condition.CG2) ExpType_dir = "CG2/";
         if (condition == Condition.EG) ExpType_dir = "EG/";
+
+        if (task == Task.MODE) { 
+            if (middle.type == MiddleFactoryVRA.Type.同步)
+            {
+                ExpType_dir = "CG1/";
+            }
+            else
+            {
+                ExpType_dir = "EG/";
+            }
+        } 
+
         string file_dir = dir + exp_dir + ExpType_dir + exper_name + ".csv";
 
         StreamWriter wf = File.AppendText(file_dir);
@@ -91,7 +95,6 @@ public class Exp : MonoBehaviour
     public void VRBeginAREnd()
     {
         vrExpStart = true;
-
         vr_start_time = DateTime.Now;
 
         if (initial_exp_start)
@@ -116,20 +119,26 @@ public class Exp : MonoBehaviour
             TimeSpan task_total_time = task_end_time.Subtract(task_start_time).Duration();
             writeFile("task complete time:" + "," + task_total_time.TotalMilliseconds.ToString() + "," + walking_dis.ToString("f4"));
         }
-        else if (task == Task.MODE && asynchronous_ar_begin)
+        else if (middle.type == MiddleFactoryVRA.Type.异步 && task == Task.MODE && asynchronous_ar_begin)
         {
             TimeSpan ar_total_time = DateTime.Now.Subtract(mode_ar_start_time).Duration();
             writeFile("ar complete time:" + "," + ar_total_time.TotalMilliseconds.ToString());
+        }
+        else if (middle.type == MiddleFactoryVRA.Type.同步 && task == Task.MODE)
+        {
+            DateTime ar_end_time = DateTime.Now;
+            TimeSpan ar_ope_time = ar_end_time.Subtract(ar_start_time).Duration();
+            writeFile("ar ope time:" + "," + ar_ope_time.TotalMilliseconds.ToString());
         }
     }
 
     public void VREndARBegin()
     {
         vrExpStart = false;
+        ar_start_time = DateTime.Now;
 
         if (task == Task.ASSEMBLY)
-        {
-            ar_start_time = DateTime.Now;
+        {       
             dots_init_rot = "";
             foreach (var o in dot_objs) dots_init_rot += o.transform.eulerAngles.ToString("f4");
 
@@ -141,10 +150,16 @@ public class Exp : MonoBehaviour
         {
             last_ar_pos = ar_camera.transform.position;
         }
-        else if (task == Task.MODE)
+        else if (middle.type == MiddleFactoryVRA.Type.异步 && task == Task.MODE)
         {
             TimeSpan vr_total_time = DateTime.Now.Subtract(mode_vr_start_time).Duration();
             writeFile("vr complete time:" + "," + vr_total_time.TotalMilliseconds.ToString());
+        }
+        else if (middle.type == MiddleFactoryVRA.Type.同步 && task == Task.MODE)
+        {
+            DateTime vr_end_time = DateTime.Now;
+            TimeSpan vr_ope_time = vr_end_time.Subtract(vr_start_time).Duration();
+            writeFile("vr ope time:" + "," + vr_ope_time.TotalMilliseconds.ToString());
         }
     }
 

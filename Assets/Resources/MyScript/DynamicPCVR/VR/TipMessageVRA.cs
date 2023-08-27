@@ -25,7 +25,7 @@ public class TipMessageVRA : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (switchSymbolMode.GetStateDown(SteamVR_Input_Sources.LeftHand))      // VR端开始画标识, AR端结束, 左手扳机键
+        /*if (switchSymbolMode.GetStateDown(SteamVR_Input_Sources.LeftHand))      // VR端开始画标识, AR端结束, 左手扳机键
         {
             if (!image.activeInHierarchy) image.SetActive(true);
             if (!mode_text.activeInHierarchy) mode_text.SetActive(true);
@@ -36,7 +36,7 @@ public class TipMessageVRA : MonoBehaviour
             if (image.activeInHierarchy) image.SetActive(false);
             if (mode_text.activeInHierarchy) mode_text.SetActive(false);
 
-        }
+        }*/
 
         if (!exp_script)
         {
@@ -46,10 +46,12 @@ public class TipMessageVRA : MonoBehaviour
             place_script = GameObject.Find("SmartSignA(Clone)/VR").GetComponent<AllPlacementVRANew>();
         }
 
-        if (!(prompt_text.activeSelf ^ exp_script.GetVRExpState()))
+        prompt_text.SetActive(false);
+
+        /*if (!(prompt_text.activeSelf ^ exp_script.GetVRExpState()))
         {
             prompt_text.SetActive(!exp_script.GetVRExpState());
-        }
+        }*/
 
         mode_text.GetComponent<Text>().text =
             place_script.currentSymbolMode.Equals(SymbolMode.ARROW) ? "Mode: Line" :

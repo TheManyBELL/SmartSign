@@ -88,10 +88,10 @@ public class DepthDPC : MonoBehaviour
         depthTextureRead.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
         RenderTexture.active = currentActiveRT;
 
-        currentActiveRT = RenderTexture.active;
+        /*currentActiveRT = RenderTexture.active;
         RenderTexture.active = colorRT;
         colorTextureRead.ReadPixels(new Rect(0, 0, Screen.width, Screen.height), 0, 0);
-        RenderTexture.active = currentActiveRT;
+        RenderTexture.active = currentActiveRT;*/
     }
 
     public float GetDepth(int x, int y)

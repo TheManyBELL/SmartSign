@@ -119,6 +119,10 @@ public class MyTCPServer : MonoBehaviour
                     float ppy = BitConverter.ToSingle(devices_parameters, index);
                     index += 4;
 
+                    Debug.LogFormat("width {0}", width);
+                    Debug.LogFormat("height {0}", heigth);
+
+
                     GameObject pointcloud = Instantiate(prefabPointCloud);
                     pointcloud.name = "PointCloud_" + i;
                     pointcloud.transform.parent = transform;

@@ -22,9 +22,11 @@ public struct Depend
     }
 };
 
-public class SmartCue : MonoBehaviour
+public enum CueType { None = 0, Line, Axes, Split };
+
+
+public class SmartCue
 {
-    public enum CueType { Line = 0, Axes, Split };
     public CueType type;
     public bool is_synchronous;
     public bool is_valid;   // render in VR
@@ -34,6 +36,8 @@ public class SmartCue : MonoBehaviour
     {
         is_synchronous = false;
         is_valid = true;
+
+        Debug.LogWarning("base");
     }
 
     public bool IsLine()
@@ -48,9 +52,9 @@ public class SmartCue : MonoBehaviour
         int j = 0;
         while (j < t.transform.childCount)
         {
-            Destroy(t.transform.GetChild(j++).gameObject);
+            GameObject.Destroy(t.transform.GetChild(j++).gameObject);
         }
-        Destroy(t);
+        GameObject.Destroy(t);
     }
 
     public virtual void Synchronize(MirrorControllerA my_controller) {
@@ -83,21 +87,21 @@ public class SmartCue : MonoBehaviour
 
 public class LineCue : SmartCue
 {
-    private Vector3 p1, p2;
+    public Vector3 p1, p2;
     public Depend depend;
     public Ray ray;
 
     private GameObject start_depend_sphere;
     private GameObject end_depend_sphere;
 
-    public LineCue(Vector3 p1, Vector3 p2, GameObject prefab = null)
+    public LineCue(Vector3 p1, Vector3 p2, GameObject prefab = null) : base()
     {
         this.p1 = p1;
         this.p2 = p2;
         type = CueType.Line;
         depend = new Depend(false);
-        if (prefab) start_depend_sphere = Instantiate(prefab);
-        if (prefab) end_depend_sphere = Instantiate(prefab);
+        if (prefab) start_depend_sphere = GameObject.Instantiate(prefab);
+        if (prefab) end_depend_sphere = GameObject.Instantiate(prefab);
         if (prefab) start_depend_sphere.transform.position = p1;
         if (prefab) end_depend_sphere.transform.position = p2;
     }
@@ -105,6 +109,8 @@ public class LineCue : SmartCue
     public override void Synchronize(MirrorControllerA my_controller)
     {
         base.Synchronize(my_controller);
+
+        sync_list_index = my_controller.syncArrowList.Count;
 
         my_controller.CmdAddDPCArrow(new DPCArrow()
         {
@@ -114,8 +120,6 @@ public class LineCue : SmartCue
             curvePointList = new List<Vector3[]>(),
             originPointList = new List<Vector3[]>(),
         });
-
-        sync_list_index = my_controller.syncArrowList.Count;
 
         if (start_depend_sphere) start_depend_sphere.SetActive(true);
         if (end_depend_sphere) end_depend_sphere.SetActive(true);
@@ -136,7 +140,6 @@ public class LineCue : SmartCue
         base.UpdateSynchronize(my_controller);
 
         if (!is_synchronous) return;
-
         my_controller.CmdUpdateDPCArrow(new DPCArrow
         {
             index = sync_list_index,
@@ -152,8 +155,8 @@ public class LineCue : SmartCue
     {
         base.Remove(my_controller);
 
-        if (start_depend_sphere) Destroy(start_depend_sphere);
-        if (end_depend_sphere) Destroy(end_depend_sphere);
+        if (start_depend_sphere) GameObject.Destroy(start_depend_sphere);
+        if (end_depend_sphere) GameObject.Destroy(end_depend_sphere);
         if (is_synchronous) StopSynchronize(my_controller, false);
     }
 

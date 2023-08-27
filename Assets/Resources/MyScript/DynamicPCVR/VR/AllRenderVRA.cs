@@ -17,6 +17,7 @@ public class AllRenderVRA : MonoBehaviour
 
     public GameObject RotateSymbol;
     public GameObject PressSymbol;
+    public int arrow_length;
 
     // Start is called before the first frame update
     void Start()
@@ -76,7 +77,7 @@ public class AllRenderVRA : MonoBehaviour
         int valid_line = 0;
         for (int i = 0; i < middleFactory.cue_list.Count; ++i)
         {
-            if (middleFactory.cue_list[i].type == SmartCue.CueType.Line && middleFactory.cue_list[i].is_valid)
+            if (middleFactory.cue_list[i].type == CueType.Line && middleFactory.cue_list[i].is_valid)
             {
                 valid_line += 1;
             }
@@ -98,7 +99,7 @@ public class AllRenderVRA : MonoBehaviour
             
             // Debug.LogWarningFormat("size {0}, count {1}", middleFactory.cue_list.Count, i);
             SmartCue cue = middleFactory.cue_list[i];
-            if (cue.type != SmartCue.CueType.Line || !cue.is_valid) continue;
+            if (cue.type != CueType.Line || !cue.is_valid) continue;
 
             LineCue line = (LineCue)cue;
             SegmentInfo t = new SegmentInfo()
@@ -244,7 +245,7 @@ public class AllRenderVRA : MonoBehaviour
         Vector2 dir = (screenP1 - screenP2).normalized;
         Vector2 verticalDir = new Vector2(-dir.y, dir.x);
 
-        int length = 20;
+        int length = (int)(arrow_length / Vector3.Distance(Camera.main.transform.position, segmentInfo.endPoint));
         Vector3 screenArrowP1 = screenP2 + length * new Vector3(verticalDir.x, verticalDir.y) + length * new Vector3(dir.x, dir.y),
             screenArrowP2 = screenP2 - length * new Vector3(verticalDir.x, verticalDir.y) + length * new Vector3(dir.x, dir.y);
 

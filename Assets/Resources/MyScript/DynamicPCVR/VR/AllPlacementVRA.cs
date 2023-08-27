@@ -192,7 +192,7 @@ public class AllPlacementVRA : MonoBehaviour
                 DeleteAxes();
             }
         }
-        else if (currentSymbolMode.Equals(SymbolMode.Oral))
+        /*else if (currentSymbolMode.Equals(SymbolMode.Oral))
         {
             if (confirmSelection.GetStateDown(SteamVR_Input_Sources.RightHand))
             {
@@ -200,7 +200,7 @@ public class AllPlacementVRA : MonoBehaviour
                 myExp.RecordObjEndRot(oralEnd);
                 myExp.VREndARBegin();
             }
-        }
+        }*/
     }
 
     /// <summary>

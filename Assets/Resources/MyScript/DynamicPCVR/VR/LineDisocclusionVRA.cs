@@ -11,14 +11,15 @@ public class LineDisocclusionVRA : MonoBehaviour
     private Vector3 p1, p2;
     private DPCArrow current_line;
 
-    public int VisibilitySampleCount = 20, BezierSampleCount = 30, CatmullRomSampleCount = 30, QuadraticSampleCount = 30;
+    public int VisibilitySampleCount = 20, BezierSampleCount = 30;
+    private int CatmullRomSampleCount = 30, QuadraticSampleCount = 30;
     private int samplePointIndex;
     private const float DirectChangeDepthVal = 0.0002f;
     private int[,] Cnk;
     public bool[] lineVisibility;
-    public float threshold_change_obj = 0.00002f;
+    private float threshold_change_obj = 0.00002f;
     public float threshold_unvisible = 0.00001f;
-    public float threshold_edge_point_change_dis = 10.0f;
+    private float threshold_edge_point_change_dis = 10.0f;
     // disturb to endpoint
     private float test_x = 4.0f, test_y = 15.0f;
     private int last_frame_p1 = filter_dir_init, last_frame_p2 = filter_dir_init;  // 0 - init 1 - horizontal 2 - vertical 
@@ -26,17 +27,29 @@ public class LineDisocclusionVRA : MonoBehaviour
     private Vector3 last_edge_p1 = new Vector3(), last_edge_p2 = new Vector3();
     // 
     public bool filter = true;
-    public int filter_frame_count = 20;
+    
     private int current_line_index;
     private List<visibiltyFilter[]> pastLineVisibility;
 
-    public int test_max_step;
+    public int[] test_max_step;
     public bool global_curve;
     public int arrow_length;
+    public float arrow_angle;
+    public bool manual_visiblity;
+    public bool bezier_all_vis;
+    public bool[] picture_bezier_vis1;
+    public bool[] picture_bezier_vis2;
+    // public bool video_filter;
+    public int last_step;
+    public int step_threshold;
+    public int filter_frame_count = 15;
+    public List<Queue<bool>> filter_visble;
+    public List<bool> filter_state;
+    public bool ending_point_always_visble;
 
     private GlobalUtils globalUtils;
     // 测试相关
-    public bool testChangeDirectly = true, testDrawToEnd = true;
+    public bool testChangeDirectly = true, testDrawToEnd = false;
     public GameObject visibleSphere;
 
     List<Vector3> fuxk = new List<Vector3>();
@@ -49,6 +62,19 @@ public class LineDisocclusionVRA : MonoBehaviour
         InitCnk(VisibilitySampleCount);
         lineVisibility = new bool[VisibilitySampleCount];
         pastLineVisibility = new List<visibiltyFilter[]>();
+
+        test_max_step = new int[10];
+        test_max_step[0] = 50;
+        picture_bezier_vis1 = new bool[BezierSampleCount+1];
+        picture_bezier_vis2 = new bool[BezierSampleCount+1];
+
+        filter_visble = new List<Queue<bool>>();
+        filter_state = new List<bool>();
+        for (int i = 0; i <= BezierSampleCount; ++i)
+        {
+            filter_visble.Add(new Queue<bool>());
+            filter_state.Add(false);
+        }
     }
 
     private void Update()
@@ -78,16 +104,8 @@ public class LineDisocclusionVRA : MonoBehaviour
             current_line_index = i;
             current_line = mirrorController.syncArrowList[i];
 
-            /*Debug.LogWarning("=======================");
-            Debug.LogWarning("origin count: " + mirrorController.syncArrowList[i].curvePointList.Count);
-            Debug.LogWarning("origin current_line count: " + current_line.curvePointList.Count);*/
-
             current_line.curvePointList.Clear();
             current_line.originPointList.Clear();
-
-            /*Debug.LogWarning("after count: " + mirrorController.syncArrowList[i].curvePointList.Count);
-            Debug.LogWarning("after current_line count: " + current_line.curvePointList.Count);
-            Debug.LogWarning("=======================");*/
 
             arrowDisocclusion();
             mirrorController.CmdUpdateDPCArrow(current_line);
@@ -101,14 +119,17 @@ public class LineDisocclusionVRA : MonoBehaviour
         p2 = current_line.endPoint;
         // Debug.LogWarning(Vector3.Distance(p1, p2));
 
-        DrawArrow();    // arrow
+        
+        if (!manual_visiblity) GetSamplePointsVisibility();
+        DrawArrow();
         // AdjustPointOrder();
         // RaisestraightLineLogo();
-        // DrawVisiblestraightLine();  // origin 不加去遮挡，被遮挡的直线不画的原直线
-        current_line.originPointList.Add(new Vector3[] { p1, p2 });
+        DrawVisiblestraightLine();
+        // current_line.originPointList.Add(new Vector3[] { p1, p2 });
 
         // fuxk.Add(p1);
-        if (global_curve) SampleThreeOrderBezierControlPoint(); 
+        // if (global_curve) video(); 
+        if (global_curve) video();
         else LocalCurve();
         // fuxk.Add(p2);
 
@@ -144,13 +165,13 @@ public class LineDisocclusionVRA : MonoBehaviour
                 float dis = (float)Mathf.Abs(samplePointIndex - VisibilitySampleCount / 2.0f) / VisibilitySampleCount;  // 0 - 1/2
                 float proportion = (1 - (dis * 2.0f) / 2.0f);   //后面一个2.0用于调整比例
                 // int max_step = (int)(50 * proportion);
-                int max_step = (int)(test_max_step * Vector3.Distance(p1, p2) * Vector3.Distance(p1, p2));
+                int max_step = (int)(test_max_step[0] * Vector3.Distance(p1, p2) * Vector3.Distance(p1, p2));
                 while (!GetPointVisibility(cur_p, 0) && max_step > 0)
                 {
                     cur_p += new Vector3(0, 0.001f, 0);
                     max_step--;
                 }
-                Debug.LogFormat("up up up {0}", (int)(test_max_step * Vector3.Distance(p1, p2)) - max_step);
+                Debug.LogFormat("up up up {0}", (int)(test_max_step[0] * Vector3.Distance(p1, p2)) - max_step);
 
                 Vector4 W = GetQuadraticFunction(np1, np2, cur_p);
                 if (QuadraticFunctionVal(W, mid_p, plane) > max_height)
@@ -314,7 +335,7 @@ public class LineDisocclusionVRA : MonoBehaviour
             {
                 controlPoints.Add(p);
                 disturbanceControlPoints(ref controlPoints);  // 绕一下
-                DrawBezierCurve(ref controlPoints);
+                VideoDrawBezierCurve(ref controlPoints);
                 return;
             }
             // invisible
@@ -362,18 +383,19 @@ public class LineDisocclusionVRA : MonoBehaviour
         Vector2 dir = (screenP1 - screenP2).normalized;
         Vector2 verticalDir = new Vector2(-dir.y, dir.x);
 
-        if (!GetPointVisibility(p2, threshold_unvisible) && !testDrawToEnd)
+        if (!lineVisibility[VisibilitySampleCount - 1] && !testDrawToEnd && !ending_point_always_visble)
         {
             current_line.curvePointList.Add(new Vector3[] { });
             current_line.curvePointList.Add(new Vector3[] { });
             return;
         }
 
-        int length = (int)(arrow_length / Vector3.Distance(Camera.main.transform.position, p2));
-        Vector3 screenArrowP1 = screenP2 + length * new Vector3(verticalDir.x, verticalDir.y)
-            + length * new Vector3(dir.x, dir.y);
-        Vector3 screenArrowP2 = screenP2 - length * new Vector3(verticalDir.x, verticalDir.y)
-            + length * new Vector3(dir.x, dir.y);
+        int length = (int)(arrow_length / Vector3.Distance(globalUtils.depthCamera.gameObject.transform.position, p2));
+        float reg = Mathf.Deg2Rad * arrow_angle;
+        Vector3 screenArrowP1 = screenP2 + Mathf.Sin(reg) * length * new Vector3(verticalDir.x, verticalDir.y)
+            + Mathf.Cos(reg) * length * new Vector3(dir.x, dir.y);
+        Vector3 screenArrowP2 = screenP2 - Mathf.Sin(reg) * length * new Vector3(verticalDir.x, verticalDir.y)
+            + Mathf.Cos(reg) * length * new Vector3(dir.x, dir.y);
 
         Vector3 arrowP1 = globalUtils.MScreenToWorldPointDepth(screenArrowP1);
         Vector3 arrowP2 = globalUtils.MScreenToWorldPointDepth(screenArrowP2);
@@ -718,11 +740,12 @@ public class LineDisocclusionVRA : MonoBehaviour
         Vector2 dir = (screenP - screenP2).normalized;
         Vector2 verticalDir = new Vector2(-dir.y, dir.x);
 
-        int length = (int)(20.0f / Vector3.Distance(Camera.main.transform.position, endpoint));
-        Vector3 screenArrowP1 = screenP2 + length * new Vector3(verticalDir.x, verticalDir.y)
-            + length * new Vector3(dir.x, dir.y);
-        Vector3 screenArrowP2 = screenP2 - length * new Vector3(verticalDir.x, verticalDir.y)
-            + length * new Vector3(dir.x, dir.y);
+        int length = (int)(arrow_length / Vector3.Distance(globalUtils.depthCamera.gameObject.transform.position, endpoint));
+        float reg = Mathf.Deg2Rad * arrow_angle;
+        Vector3 screenArrowP1 = screenP2 + Mathf.Sin(reg) * length * new Vector3(verticalDir.x, verticalDir.y)
+            + Mathf.Cos(reg) * length * new Vector3(dir.x, dir.y);
+        Vector3 screenArrowP2 = screenP2 - Mathf.Sin(reg) * length * new Vector3(verticalDir.x, verticalDir.y)
+            + Mathf.Cos(reg) * length * new Vector3(dir.x, dir.y);
 
 
         Vector3 arrowP1 = globalUtils.MScreenToWorldPointDepth(screenArrowP1);
@@ -732,6 +755,8 @@ public class LineDisocclusionVRA : MonoBehaviour
 
         current_line.curvePointList[0][0] = arrowP1;
         current_line.curvePointList[1][0] = arrowP2;
+        current_line.curvePointList[0][1] = endpoint;
+        current_line.curvePointList[1][1] = endpoint;
     }
 
     // ====================================================== detour to UnvisiblePoint ============================================================
@@ -753,7 +778,7 @@ public class LineDisocclusionVRA : MonoBehaviour
             {
                 controlPoints.Add(p);
                 disturbanceControlPoints(ref controlPoints);  // 绕一下
-                DrawBezierCurve(ref controlPoints);
+                VideoDrawBezierCurve(ref controlPoints);
                 controlPoints.Clear();
                 meetl = false;
             }
@@ -792,13 +817,97 @@ public class LineDisocclusionVRA : MonoBehaviour
         }
     }
 
-    private void DrawBezierCurve(ref List<Vector3> controlPoints)
+    private void VideoDrawBezierCurve(ref List<Vector3> controlPoints)
+    {
+        int n = controlPoints.Count - 1;
+        Vector3 second_to_last = new Vector3();
+
+        double t = 0, dt = 1.0 / BezierSampleCount;
+        List<Vector3> temp = new List<Vector3>();
+        Vector3 np = new Vector3(0.0f, 0.0f, 0.0f); ;
+        for (int j = 0; j <= BezierSampleCount; ++j)
+        {
+            np = new Vector3(0.0f, 0.0f, 0.0f);
+            for (int i = 0; i <= n; ++i)
+            {
+                float coef = (float)Math.Pow(t, i) * (float)Math.Pow(1 - t, n - i) * Cnk[n, i];
+                np += coef * controlPoints[i];
+            }
+            t += dt;
+
+            if (j == BezierSampleCount - 1)
+            {
+                second_to_last = np;
+            }
+
+            bool current_state = GetPointVisibility(np, threshold_unvisible) || bezier_all_vis;
+            filter_visble[j].Enqueue(current_state);
+            while (filter_visble[j].Count > filter_frame_count)
+            {
+                filter_visble[j].Dequeue();
+            }
+            if (current_state)
+            {
+                if (filter_visble[j].Contains(false) && filter_state[j] == false)
+                {
+                    current_state = false;
+                }
+                else
+                {
+                    filter_state[j] = true;
+                }
+
+            }
+            else if (!current_state)
+            {
+                if (filter_visble[j].Contains(true) && filter_state[j] == true)
+                {
+                    current_state = true;
+                }
+                else
+                {
+                    filter_state[j] = false;
+                }
+            }
+
+            if (current_state == false)
+            {
+                if (temp.Count != 0)
+                {
+                    Vector3[] t_array = temp.ToArray();
+                    current_line.curvePointList.Add(t_array);
+                    temp.Clear();
+                }
+                continue;
+            }
+
+            if (j == BezierSampleCount)
+            {
+                UpdateArrow(second_to_last, np);
+            }
+            
+            temp.Add(np);                       
+        }
+
+        if (ending_point_always_visble)
+        {
+            temp.Add(np);
+            UpdateArrow(second_to_last, np);
+        }
+
+        fuxk.AddRange(temp);
+    }
+
+    private void PictureDrawBezierCurve(ref List<Vector3> controlPoints)
     {
         int n = controlPoints.Count - 1;
 
         double t = 0, dt = 1.0 / BezierSampleCount;
-        // Vector3[] curvePoints = new Vector3[BezierSampleCount + 1];
-        for (int j = 0; j < BezierSampleCount; ++j)
+        List<Vector3> temp = new List<Vector3>();
+
+        Vector3 second_to_last = new Vector3();
+
+        for (int j = 0; j <= BezierSampleCount; ++j)
         {
             Vector3 np = new Vector3(0.0f, 0.0f, 0.0f);
             for (int i = 0; i <= n; ++i)
@@ -808,16 +917,32 @@ public class LineDisocclusionVRA : MonoBehaviour
             }
             t += dt;
 
-            if (!GetPointVisibility(np, threshold_unvisible))   // 被遮挡部分不渲染
+            if (j == BezierSampleCount - 1)
             {
+                second_to_last = np;
+            }
+
+            if ((!GetPointVisibility(np, threshold_unvisible) && !bezier_all_vis && !manual_visiblity) ||
+                (current_line_index == 1 && picture_bezier_vis2[j] && manual_visiblity) ||
+                (current_line_index == 0 && picture_bezier_vis1[j] && manual_visiblity))// 被遮挡部分不渲染
+            {
+                if (temp.Count != 0)
+                {
+                    Vector3[] t_array = temp.ToArray();
+                    current_line.curvePointList.Add(t_array);
+                    temp.Clear();
+                }
                 continue;
             }
 
-            // curvePoints[j] = np;
-            fuxk.Add(np);
-            
+            if (j == BezierSampleCount)
+            {
+                UpdateArrow(second_to_last, np);
+            }
+            temp.Add(np);
         }
-        // current_line.curvePointList.Add(curvePoints);
+
+        fuxk.AddRange(temp);
     }
 
     // ====================================================== new method ======================================================
@@ -984,7 +1109,6 @@ public class LineDisocclusionVRA : MonoBehaviour
     {
         Vector3 direction = new Vector3(0, 1.0f, 0);
         List<Vector3> beizer_control_points = new List<Vector3>() { p1, (p1 + p2) / 2, p2 };
-        // for (samplePointIndex = 1; samplePointIndex < SampleCount - 1; samplePointIndex++)
 
         Vector3 cur_p = (p1 + p2) / 2;
         float step_length = 0.01f;
@@ -1012,14 +1136,70 @@ public class LineDisocclusionVRA : MonoBehaviour
             step_length *= 1.2f;
 
             step++;
-            if (step >= test_max_step) break;
+            if (step >= test_max_step[0]) break;
         }
 
-        DrawBezierCurve(ref beizer_control_points);
+        VideoDrawBezierCurve(ref beizer_control_points);
 
-        if (GetPointVisibility(p2, threshold_unvisible) || testDrawToEnd)
+        if ((GetPointVisibility(p2, threshold_unvisible) || testDrawToEnd) && fuxk.Count > 2)
         {
-            UpdateArrow(fuxk[fuxk.Count - 5], fuxk[fuxk.Count - 1]);
+            UpdateArrow(fuxk[fuxk.Count - 2], fuxk[fuxk.Count - 1]);
         }
     }
+
+    void video()
+    {
+        Vector3 direction = new Vector3(0, 1.0f, 0);
+        List<Vector3> beizer_control_points = new List<Vector3>() { p1, (p1 + p2) / 2, p2 };
+
+        Vector3 cur_p = (p1 + p2) / 2;
+        float step_length = 0.02f;
+        int step = 0;
+
+        while (true)
+        {
+            bool all_visible = AllVisible(ref beizer_control_points);
+
+            if (all_visible)
+            {
+                if (Mathf.Abs(last_step - step) < step_threshold)
+                {
+                    beizer_control_points[1] = (p1 + p2) / 2 + last_step * step_length * direction;
+                } 
+                else
+                {
+                    last_step = step;
+                }
+                break;
+            }
+
+            cur_p += step_length * direction;
+            beizer_control_points[1] = cur_p;
+
+            step++;
+            if (step >= test_max_step[0]) {
+                last_step = step;
+                break;
+            }
+            
+        }
+
+        VideoDrawBezierCurve(ref beizer_control_points);
+    }
+
+    void Picture()
+    {
+        Vector3 direction = new Vector3(0, 1.0f, 0);
+        List<Vector3> beizer_control_points = new List<Vector3>() { p1, (p1 + p2) / 2, p2 };
+
+        float step_length = 0.01f;
+        beizer_control_points[1] += step_length * direction * test_max_step[current_line_index];        
+        PictureDrawBezierCurve(ref beizer_control_points);
+
+/*        if ((GetPointVisibility(p2, threshold_unvisible) || testDrawToEnd) && fuxk.Count > 2)
+        {
+            UpdateArrow(fuxk[fuxk.Count - 2], fuxk[fuxk.Count - 1]);
+        }*/
+    }
+
 }

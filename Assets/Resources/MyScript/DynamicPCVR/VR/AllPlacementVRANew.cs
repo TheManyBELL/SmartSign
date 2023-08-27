@@ -95,7 +95,7 @@ public class AllPlacementVRANew : MonoBehaviour
         } 
         
 
-        if (!myExp.GetVRExpState()) return;
+        // if (!myExp.GetVRExpState()) return;
 
         if (switchSymbolMode.GetStateDown(SteamVR_Input_Sources.RightHand))     // 切换 画线<->分割物体 右手扳机键
         {
@@ -132,6 +132,7 @@ public class AllPlacementVRANew : MonoBehaviour
 
             if (confirmDependency.GetStateDown(SteamVR_Input_Sources.RightHand))
             {
+                Debug.Log("add dependency");
                 AddDependency();
             }
         }
@@ -173,6 +174,8 @@ public class AllPlacementVRANew : MonoBehaviour
                 {
                     globalUtils.RestManipulateObj();
                     nowAxesState = AxesState.SelectAnotherAxesPosition;
+                    // 一会删掉
+                    // ConfirmSyncAxes();
                 }
                 else if (nowAxesState == AxesState.SelectAnotherAxesPosition)
                 {
@@ -188,7 +191,7 @@ public class AllPlacementVRANew : MonoBehaviour
                 DeleteAxes();
             }
         }
-        else if (currentSymbolMode.Equals(SymbolMode.Oral))
+        /*else if (currentSymbolMode.Equals(SymbolMode.Oral))
         {
             if (confirmSelection.GetStateDown(SteamVR_Input_Sources.RightHand))
             {
@@ -197,7 +200,7 @@ public class AllPlacementVRANew : MonoBehaviour
                 // if (middleFactory.type == MiddleFactoryVRA.Type.同步) 
                 myExp.VREndARBegin();
             }
-        }
+        }*/
     }
 
     /// <summary>
@@ -254,37 +257,44 @@ public class AllPlacementVRANew : MonoBehaviour
     {
         if (linePoints.Count == 0) return;
         Vector3 collision = globalUtils.GetCollisionPoint();
+        // Vector3 collision = (linePoints.Count == 1) ? linePoints[0] : linePoints[1];
 
-        for (int i = 0; i < middleFactory.cue_list.Count; ++i)
+        for (int i = middleFactory.cue_list.Count - 1; i >= middleFactory.synchronous_index; --i)
         {
             var cue = middleFactory.cue_list[i];
             if (!cue.IsLine()) continue;
             LineCue line = (LineCue)cue;
 
-            float distance = Vector3.Distance(collision, line.GetStartPoint());
-            if (distance < 2 * middleFactory.depend_sphere_prefab.transform.localScale.x)
-            {
-                Depend.DependType d = (linePoints.Count == 1) ? 
-                    Depend.DependType.start_start :
-                    Depend.DependType.end_start;
-                lineDepend.Add(new KeyValuePair<int, Depend.DependType>(i, d));
+            float distance_start = Vector3.Distance(collision, line.GetStartPoint());
+            float distance_end = Vector3.Distance(collision, line.GetEndPoint());
 
-                string extra = (d == Depend.DependType.start_start) ? "start_start " : "end_start";
-                message = "add dependence success: " + extra;
-                return;
+            if (distance_start < distance_end)
+            {
+                if (distance_start < 5 * middleFactory.depend_sphere_prefab.transform.localScale.x)
+                {
+                    Depend.DependType d = (linePoints.Count == 1) ?
+                        Depend.DependType.start_start :
+                        Depend.DependType.end_start;
+                    lineDepend.Add(new KeyValuePair<int, Depend.DependType>(i, d));
+
+                    string extra = (d == Depend.DependType.start_start) ? "start_start " : "end_start";
+                    message = "add dependence success: " + extra;
+                    return;
+                }
             }
-
-            distance = Vector3.Distance(collision, line.GetEndPoint());
-            if (distance < 2 * middleFactory.depend_sphere_prefab.transform.localScale.x)
+            else if (distance_end < distance_start)
             {
-                Depend.DependType d = (linePoints.Count == 1) ?
-                    Depend.DependType.start_end :
-                    Depend.DependType.end_end;
-                lineDepend.Add(new KeyValuePair<int, Depend.DependType>(i, d));
+                if (distance_end < 5 * middleFactory.depend_sphere_prefab.transform.localScale.x)
+                {
+                    Depend.DependType d = (linePoints.Count == 1) ?
+                        Depend.DependType.start_end :
+                        Depend.DependType.end_end;
+                    lineDepend.Add(new KeyValuePair<int, Depend.DependType>(i, d));
 
-                string extra = (d == Depend.DependType.start_end) ? "start_end " : "end_end";
-                message = "add dependence success: " + extra;
-                return;
+                    string extra = (d == Depend.DependType.start_end) ? "start_end " : "end_end";
+                    message = "add dependence success: " + extra;
+                    return;
+                }
             }
         }
         message = "add dependence fail";
@@ -333,7 +343,11 @@ public class AllPlacementVRANew : MonoBehaviour
         if (linePoints.Count > 0)
         {
             linePoints.Clear();
-            Destroy(linePointsVisble[0]);
+            // Destroy(linePointsVisble[0]);
+            foreach (var p in linePointsVisble)
+            {
+                Destroy(p);
+            }
             linePointsVisble.Clear();
             lineDepend.Clear();
         } 
@@ -456,11 +470,13 @@ public class AllPlacementVRANew : MonoBehaviour
 
     private void ConfirmSyncAxes()
     {
-        myExp.RecordObjEndRot(FinalAxesObject.transform.eulerAngles);
+        // myExp.RecordObjEndRot(FinalAxesObject.transform.eulerAngles);
         // if (middleFactory.type == MiddleFactoryVRA.Type.同步) 
         myExp.VREndARBegin();
 
         middleFactory.AddAxes(initialAxesObject, FinalAxesObject);
+        // 一会删掉
+        // middleFactory.AddAxes(initialAxesObject, initialAxesObject);
 
         /*if (autoGenerateLine)
         {

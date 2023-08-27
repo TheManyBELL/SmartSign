@@ -47,9 +47,11 @@ public class SplitVRA : MonoBehaviour
 
                     float d = globalUtils.GetDepth(i, j);
                     if (d == 1.0f) continue;
-                    // i dont know why
+
                     Color t = globalUtils.GetColor(i, j);
                     Color c = new Color(Mathf.Pow(t.r, 2.2f), Mathf.Pow(t.g, 2.2f), Mathf.Pow(t.b, 2.2f), 1.0f);
+                    //if (c.r < 0.03f && c.b < 0.07f && c.g < 0.12f && c.g > 1.8f * c.b && c.g > 2.5f * c.r) continue;
+                    if (c.r < 0.15f && c.b < 0.25f && c.g < 0.25f && (c.g > 3 * c.r && c.g > c.b)) continue;
 
                     Vector3 plane_p = new Vector3(i, j, d);
                     Vector3 world_p = globalUtils.MScreenToWorldPointDepth(plane_p);

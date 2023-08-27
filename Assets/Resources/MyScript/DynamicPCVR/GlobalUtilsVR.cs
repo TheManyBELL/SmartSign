@@ -8,6 +8,8 @@ public class GlobalUtilsVR : MonoBehaviour
     public GameObject DepthCameraObject;
     public Camera depthCamera;
     private DepthDPC getDepthScript;
+    public GameObject ColorCameraObject;
+    private ColorDPC getColorScript;
     private ManipulateVRA manipulateScript;
 
     // ¸¨ÖúÅö×²
@@ -20,6 +22,7 @@ public class GlobalUtilsVR : MonoBehaviour
     {
         depthCamera = DepthCameraObject.GetComponent<Camera>();
         getDepthScript = DepthCameraObject.GetComponent<DepthDPC>();
+        getColorScript = ColorCameraObject.GetComponent<ColorDPC>();
         manipulateScript = GetComponent<ManipulateVRA>();
 
         assistColliderSphere = Instantiate(assistColliderSpherePrefab);
@@ -41,7 +44,7 @@ public class GlobalUtilsVR : MonoBehaviour
 
     public float GetDepth(int x, int y) => getDepthScript.GetDepth(x, y);
 
-    public Color GetColor(int x, int y) => getDepthScript.GetColor(x, y);
+    public Color GetColor(int x, int y) => getColorScript.GetColor(x, y);
 
     public Vector3 MScreenToWorldPointDepth(Vector3 p)
     {
@@ -127,7 +130,7 @@ public class GlobalUtilsVR : MonoBehaviour
             if (stepCount > MAXSTEP) break;
         }
 
-        return (assistColliderSphere.transform.position - 3 * step * rightHand.transform.forward);
+        return (assistColliderSphere.transform.position - step * rightHand.transform.forward);
     }
 
     public GameObject CreateNewLine(string objName)

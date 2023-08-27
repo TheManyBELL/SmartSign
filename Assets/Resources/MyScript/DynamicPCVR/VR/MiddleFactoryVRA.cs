@@ -11,6 +11,8 @@ public class MiddleFactoryVRA : MonoBehaviour
     private AsylineCalculate asy_calculate;
     public List<SmartCue> cue_list;
     public int synchronous_index;
+    public Vector3 new_start;
+    public Vector3 new_end;
 
     public enum Type { 同步 = 0, 异步 };
     public Type type = Type.同步;
@@ -24,9 +26,13 @@ public class MiddleFactoryVRA : MonoBehaviour
 
     // dependent related
     public GameObject depend_sphere_prefab;
+    public bool auto_generate_line = true;
 
     private Exp exp;
 
+    public Vector3 picture_start, picture_end;
+    public bool draw_picture_line;
+    public bool picture;
     // Start is called before the first frame update
     void Start()
     {
@@ -43,7 +49,23 @@ public class MiddleFactoryVRA : MonoBehaviour
         if (type == Type.异步)
         {
             AsyTickTODOList();
-        }     
+        }
+
+
+        // 出图专用  cue_list[synchronous_index].type.Equals(CueType.Line)
+        if (synchronous_index >= 0 && synchronous_index < cue_list.Count && cue_list[synchronous_index].type.Equals(CueType.Line) && picture)
+        {
+            LineCue line = (LineCue)cue_list[synchronous_index];
+            line.p1 = picture_start / 10;
+            line.p2 = picture_end / 10;
+            line.UpdateSynchronize(my_controller);
+        }
+
+        if (draw_picture_line)
+        {
+            draw_picture_line = false;
+            AddLine(picture_start / 10, picture_end / 10);
+        }
     }
 
     void AsyTickTODOList()
@@ -88,14 +110,31 @@ public class MiddleFactoryVRA : MonoBehaviour
     {
         if (type == Type.异步) cue_list.Add(new LineCue(start_point, end_point, depend_sphere_prefab));
         else cue_list.Add(new LineCue(start_point, end_point));
+        // else cue_list.Add(new SmartCue());
 
-        SynchronizeCurrentCue();
+        if (auto_generate_line && cue_list.Count > 1 && cue_list[cue_list.Count - 2].type != CueType.Line)
+        {
+            SynchronizePair();
+        } 
+        else
+        {
+            SynchronizeCurrentCue();
+        }
+        
     }
 
     public void AddAxes(GameObject initial_axes, GameObject final_axes)
     {
         cue_list.Add(new AxesCue(initial_axes, final_axes));
-        SynchronizeCurrentCue();
+        if (!auto_generate_line) 
+        {
+            SynchronizeCurrentCue();
+        } 
+/*        if (auto_generate_line)
+        {
+            cue_list.Add(new LineCue(initial_axes.transform.position, final_axes.transform.position));
+            SynchronizeCurrentCue(true);
+        }*/
     }
 
     public void AddSplitCut(Vector3 center, List<List<Vector3>> vertices, List<List<Color>> color, GameObject split_obj)
@@ -104,20 +143,37 @@ public class MiddleFactoryVRA : MonoBehaviour
         // Debug.LogWarningFormat("color 0 size {0}, vertices 0 size {1}", vertices[0].Count, color[0].Count);
 
         cue_list.Add(new CutpieceCue(center, vertices, color, split_obj));
-        SynchronizeCurrentCue();
+        if (!auto_generate_line)
+        {
+            SynchronizeCurrentCue();
+        }
     }
 
-    private void SynchronizeCurrentCue()
+    private void SynchronizePair()
     {
-        if (type == Type.同步)
+        if (type == Type.同步 || synchronous_index == -1)
         {
             cue_list[cue_list.Count - 1].Synchronize(my_controller);
-        } 
-        else if (synchronous_index == -1)
+            cue_list[cue_list.Count - 2].Synchronize(my_controller);
+            synchronous_index = cue_list.Count - 1;
+        }
+    }
+
+    private void SynchronizeCurrentCue(bool auto_gen = false)
+    {
+        if (type == Type.同步 || synchronous_index == -1 || auto_gen)
         {
             cue_list[cue_list.Count - 1].Synchronize(my_controller);
             synchronous_index = cue_list.Count - 1;
-        }
+
+            // 出图专用
+            if (cue_list[synchronous_index].type == CueType.Line)
+            {
+                LineCue line = (LineCue)cue_list[synchronous_index];
+                picture_start = line.p1 * 10;
+                picture_end = line.p2 * 10;
+            }
+        } 
     }
 
     public void SynchronizeUpdate()
@@ -146,9 +202,17 @@ public class MiddleFactoryVRA : MonoBehaviour
 
         if (synchronous_index >= cue_list.Count || synchronous_index == -1) return;
         cue_list[synchronous_index].StopSynchronize(my_controller, false);
+
+        // new 
+        if (synchronous_index >= 1 && cue_list[synchronous_index].type == CueType.Line &&
+            cue_list[synchronous_index - 1].type != CueType.Line && auto_generate_line)
+        {
+            cue_list[synchronous_index - 1].StopSynchronize(my_controller, false);
+        }
+
         delayed_update_next = true;
 
-        AdjustCue();
+        AdjustNewCue();
     }
 
     public void SynchronizeNextCueStep2() // 同步下一个
@@ -157,6 +221,21 @@ public class MiddleFactoryVRA : MonoBehaviour
         if (synchronous_index < cue_list.Count)
         {
             cue_list[synchronous_index].Synchronize(my_controller);
+
+            // 出图专用
+            /*if (cue_list[synchronous_index].type == SmartCue.CueType.Line)
+            {
+                LineCue line = (LineCue)cue_list[synchronous_index];
+                picture_start = line.p1;
+                picture_end = line.p2;
+            }*/
+
+            // new 
+            if (cue_list[synchronous_index].type != CueType.Line && auto_generate_line && synchronous_index + 1 < cue_list.Count)
+            {
+                synchronous_index += 1;
+                cue_list[synchronous_index].Synchronize(my_controller);
+            }
         }
         else
         {
@@ -170,6 +249,13 @@ public class MiddleFactoryVRA : MonoBehaviour
     {
         if (synchronous_index <= 0) return;
         cue_list[synchronous_index].StopSynchronize(my_controller, true);     // 停止同步这一个
+
+        if (synchronous_index >= 1 && cue_list[synchronous_index].type == CueType.Line &&
+            cue_list[synchronous_index - 1].type != CueType.Line && auto_generate_line)
+        {
+            cue_list[synchronous_index - 1].StopSynchronize(my_controller, false);
+        }
+
         delayed_update_previous = true;
     }
 
@@ -179,6 +265,13 @@ public class MiddleFactoryVRA : MonoBehaviour
         if (synchronous_index >= 0)
         {
             cue_list[synchronous_index].Synchronize(my_controller);
+
+            // new 
+            if (cue_list[synchronous_index].type != CueType.Line && auto_generate_line && synchronous_index - 1 >= 0)
+            {
+                synchronous_index -= 1;
+                cue_list[synchronous_index].Synchronize(my_controller);
+            }
         }
         delayed_update_previous = false;
     }
@@ -195,7 +288,7 @@ public class MiddleFactoryVRA : MonoBehaviour
         if (synchronous_index < 0 || synchronous_index >= cue_list.Count) return;
         for (int i = synchronous_index + 1; i < cue_list.Count; ++i)
         {
-            if (cue_list[i].type != SmartCue.CueType.Line) continue;
+            if (cue_list[i].type != CueType.Line) continue;
 
             LineCue line = (LineCue)cue_list[i];
             if (!line.depend.is_depend) continue;
@@ -221,6 +314,46 @@ public class MiddleFactoryVRA : MonoBehaviour
                 {
                     Debug.LogWarning("end_end");
                     line.SetEndPoint(asy_calculate.AdjustEndPointDependEnd(line.GetEndPoint(), cue_list[synchronous_index]));
+                }
+            }
+            line.UpdateSynchronize(my_controller);
+        }
+    }
+
+    void AdjustNewCue()
+    {
+        if (synchronous_index < 0 || synchronous_index >= cue_list.Count) return;
+        for (int i = synchronous_index + 1; i < cue_list.Count; ++i)
+        {
+            Debug.LogWarning("cnm");
+            if (cue_list[i].type != CueType.Line) continue;
+            Debug.LogWarning("ctm");
+
+            LineCue line = (LineCue)cue_list[i];
+            if (!line.depend.is_depend) continue;
+
+            foreach (var d in line.depend.depend_list)
+            {
+                if (d.Key != synchronous_index) continue;
+                if (d.Value == Depend.DependType.start_start)
+                {
+                    Debug.LogWarning("start_start");
+                    // line.SetStartPoint(asy_calculate.AdjustStartPointDependStart(line.ray));
+                }
+                else if (d.Value == Depend.DependType.start_end)
+                {
+                    Debug.LogWarning("start_end");
+                    line.SetStartPoint(new_start);
+                }
+                else if (d.Value == Depend.DependType.end_start)
+                {
+                    Debug.LogWarning("end_start");
+                    // line.SetEndPoint(asy_calculate.AdjustEndPointDependStart(line.GetEndPoint()));
+                }
+                else if (d.Value == Depend.DependType.end_end)
+                {
+                    Debug.LogWarning("end_end");
+                    line.SetEndPoint(new_end);
                 }
             }
             line.UpdateSynchronize(my_controller);
